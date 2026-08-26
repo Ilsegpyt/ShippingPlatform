@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/Src/">
+    <Project Path="Src/Api/Api.csproj" Id="cf125323-966c-491b-bc19-4b8b19e9c10f" />
+  </Folder>
+  <Folder Name="/Src/BuildingBlocks/">
+    <Project Path="Src/BuildingBlocks/Application/BuildingBlocks.Application.csproj" />
+    <Project Path="Src/BuildingBlocks/BuildingBlocks.Infrastructure/BuildingBlocks.Infrastructure.csproj" Id="770d17c2-662c-4801-89ae-a79c25fc810e" />
+    <Project Path="Src/BuildingBlocks/Domain/BuildingBlocks.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Src/Modules/" />
+  <Folder Name="/Src/Modules/Customers/">
+    <Project Path="Src/Modules/Customers/Customers.Application/Customers.Application.csproj" Id="7c4efb27-00fb-4a3e-9279-feeff3dff7ab" />
+    <Project Path="Src/Modules/Customers/Customers.Domain/Customers.Domain.csproj" Id="dd9f6713-28dd-45f8-b6da-26edf9a0522a" />
+    <Project Path="Src/Modules/Customers/Infrastructure/Customers.Infrastructure.csproj" Id="d55d6bb8-a32f-489f-a40a-665d82ed315c" />
+  </Folder>
+  <Folder Name="/Src/Modules/Identity/">
+    <Project Path="Src/Modules/Identity/Application/Identity.Application.csproj" />
+    <Project Path="Src/Modules/Identity/Domain/Identity.Domain.csproj" />
+    <Project Path="Src/Modules/Identity/Infrastructure/Identity.Infrastructure.csproj" />
+  </Folder>
+</Solution>
