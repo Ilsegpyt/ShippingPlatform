@@ -35,13 +35,15 @@ public sealed class CreateInternalUserHandler : IRequestHandler<CreateInternalUs
         IInternalUserRepository internalUsers,
         IRoleRepository roles,
         IIdentityUnitOfWork identityUnitOfWork,
-        IOptions<SubAccountOptions> options)
+        IOptions<SubAccountOptions> options
+         )
     {
         _identityUsers = identityUsers;
         _internalUsers = internalUsers;
         _roles = roles;
         _identityUnitOfWork = identityUnitOfWork;
         _options = options.Value;
+        
     }
 
     public async Task<Result<CreateInternalUserResponse>> Handle(CreateInternalUserCommand command, CancellationToken ct)
@@ -50,11 +52,13 @@ public sealed class CreateInternalUserHandler : IRequestHandler<CreateInternalUs
         if (role is null)
             return Result.Failure<CreateInternalUserResponse>("Role not found.");
 
-        var userId = await _identityUsers.CreateUserAsync(command.Email, _options.DefaultPassword, isInternal: true,command.Phone, ct);
+        var userId = await _identityUsers.CreateUserAsync(command.Email, _options.DefaultPassword, isInternal: true, command.Phone, ct);
 
-        var internalUser = InternalUser.Create(userId, command.RoleId ,command.Name ,command.Email, command.Phone);
+        var internalUser = InternalUser.Create(userId, command.RoleId, command.Name, command.Email, command.Phone);
         _internalUsers.Add(internalUser);
         await _identityUnitOfWork.SaveChangesAsync(ct);
+
+      
 
         return Result.Success(new CreateInternalUserResponse(internalUser.Id, _options.DefaultPassword));
     }

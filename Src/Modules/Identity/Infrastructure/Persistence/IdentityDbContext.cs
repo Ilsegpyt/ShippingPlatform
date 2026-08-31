@@ -1,8 +1,11 @@
-﻿using Identity.Application.Abstractions;
+﻿using BuildingBlocks.Domain;
+using BuildingBlocks.Domain.Outbox;
+using Identity.Application.Abstractions;
 using Identity.Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Text.Json;
 
 namespace Identity.Infrastructure.Persistence;
 
@@ -24,7 +27,7 @@ public sealed class IdentityDbContext
     public DbSet<AccountManagerAssignment> AccountManagerAssignments => Set<AccountManagerAssignment>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<ImpersonationAuditLog> ImpersonationAuditLogs => Set<ImpersonationAuditLog>();
-
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -59,5 +62,32 @@ public sealed class IdentityDbContext
         await _transaction.RollbackAsync(ct);
         await _transaction.DisposeAsync();
         _transaction = null;
+    }
+    public override async Task<int> SaveChangesAsync(
+    CancellationToken ct = default)
+    {
+        var aggregates = ChangeTracker
+            .Entries<IAggregateRoot>()
+            .Where(x => x.Entity.DomainEvents.Count > 0)
+            .Select(x => x.Entity)
+            .ToList();
+
+        foreach (var aggregate in aggregates)
+        {
+            foreach (var domainEvent in aggregate.DomainEvents)
+            {
+                var outboxMessage = new OutboxMessage(
+                    Guid.NewGuid(),
+                    domainEvent.GetType().AssemblyQualifiedName!,
+                    JsonSerializer.Serialize(domainEvent, domainEvent.GetType()),
+                    domainEvent.OccurredOnUtc);
+
+                OutboxMessages.Add(outboxMessage);
+            }
+
+            aggregate.ClearDomainEvents();
+        }
+
+        return await base.SaveChangesAsync(ct);
     }
 }

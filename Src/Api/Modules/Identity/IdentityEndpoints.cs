@@ -1,4 +1,5 @@
-﻿using Api.Modules.Identity.Auth;
+﻿using Api.Modules.Identity.AccountManagerAssignments;
+using Api.Modules.Identity.Auth;
 using Api.Modules.Identity.InternalUsers;
 using Api.Modules.Identity.Roles;
 using Api.Modules.Identity.SubAccounts;
@@ -14,6 +15,7 @@ public static class IdentityEndpoints
         SubAccountEndpoints.Map(app);
         RoleEndpoints.Map(app);
         InternalUserEndpoints.Map(app);
+        AccountManagerAssignmentEndpoints.Map(app);
 
         return app;
     }

@@ -4,11 +4,13 @@ using BuildingBlocks.Application.Contracts;
 using FluentValidation;
 using Identity.Application;
 using Identity.Application.Abstractions;
+using Identity.Application.AccountManagerAssignments;
 using Identity.Application.SubAccounts.GetSubAccounts;
 using Identity.Domain.Repositories;
 using Identity.Infrastructure.Authentication;
 using Identity.Infrastructure.Integrations;
 using Identity.Infrastructure.Persistence;
+using Identity.Infrastructure.Queries;
 using Identity.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -35,7 +37,7 @@ public static class IdentityModuleServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddOptions<Application.SubAccountOptions>()
+        services.AddOptions<SubAccountOptions>()
             .Bind(configuration.GetSection(Identity.Application.SubAccountOptions.SectionName))
             .ValidateOnStart();
 
@@ -46,7 +48,7 @@ public static class IdentityModuleServiceCollectionExtensions
         services.AddDbContext<IdentityDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("IdentityDb")));
 
-
+        services.AddScoped<ISubAccountQueries, SubAccountQueries>();
 
         services.AddScoped<IIdentityUnitOfWork>(
             sp => sp.GetRequiredService<IdentityDbContext>());
@@ -88,6 +90,8 @@ public static class IdentityModuleServiceCollectionExtensions
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IInternalUserRepository, InternalUserRepository>();
         services.AddScoped<ISubAccountReadRepository,SubAccountReadRepository>();
+        services.AddScoped<IAccountManagerAssignmentRepository, AccountManagerAssignmentRepository>();
+        services.AddScoped<IAccountManagerQueries, AccountManagerQueries>();
 
         services.AddScoped<TokenClaimsBuilder>();
 

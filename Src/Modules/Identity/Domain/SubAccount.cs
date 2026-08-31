@@ -53,7 +53,13 @@ public sealed class SubAccount : AggregateRoot<Guid>
     {
         var subAccount = new SubAccount(Guid.NewGuid(), organizationId, userId, name,  email, scopeType, initialStatus);
 
-        subAccount.RaiseDomainEvent(new SubAccountCreatedEvent(subAccount.Id, organizationId, DateTime.UtcNow));
+       subAccount.RaiseDomainEvent(
+    new SubAccountCreatedEvent( 
+        subAccount.Id,
+        organizationId,
+        name,
+        email,
+        DateTime.UtcNow));
 
         return subAccount;
     }
@@ -150,13 +156,6 @@ public sealed class SubAccount : AggregateRoot<Guid>
     {
         if (ScopeType == ScopeType.Full)
             return true;
-
-        //Edited
-        //return _scopes.Any(scope =>
-        //    scope.Category == category &&
-        //    (service is null || scope.Service == service) &&
-        //    (type is null || scope.Type == type));
-
         return _scopes.Any(scope =>
                   scope.Category == category &&
                   MatchesService(scope.Service, service) &&

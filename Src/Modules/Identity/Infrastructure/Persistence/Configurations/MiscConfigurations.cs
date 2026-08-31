@@ -5,17 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Identity.Infrastructure.Persistence.Configurations;
 
-public sealed class AccountManagerAssignmentConfiguration : IEntityTypeConfiguration<AccountManagerAssignment>
-{
-    public void Configure(EntityTypeBuilder<AccountManagerAssignment> builder)
-    {
-        builder.ToTable("AccountManagerAssignments");
-        builder.HasKey(x => x.Id);
-        builder.Property(x => x.AccountManagerUserId).IsRequired();
-        builder.Property(x => x.CustomerId).IsRequired();
-        builder.HasIndex(x => new { x.AccountManagerUserId, x.CustomerId }).IsUnique();
-    }
-}
+
 
 public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {

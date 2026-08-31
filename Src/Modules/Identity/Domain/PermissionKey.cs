@@ -16,9 +16,12 @@ public sealed class PermissionKey : ValueObject
     public static PermissionKey Of(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Permission key cannot be empty.", nameof(value));
+            throw new ArgumentException(
+                "Permission key cannot be empty.",
+                nameof(value));
 
-        return new PermissionKey(value.Trim().ToLowerInvariant());
+        return new PermissionKey(
+            value.Trim().ToLowerInvariant());
     }
 
     protected override IEnumerable<object?> GetEqualityComponents()
@@ -34,20 +37,23 @@ public sealed class PermissionKey : ValueObject
 /// </summary>
 public static class PermissionCatalog
 {
+    // Account Manager Assignment
+    public static readonly PermissionKey CustomersAssignAccountManager =
+        PermissionKey.Of("customers.accountmanager.assign");
+
+
     // Identity
     public static readonly PermissionKey UsersCreate =
         PermissionKey.Of("identity.users.create");
 
     public static readonly PermissionKey UsersEdit =
-    PermissionKey.Of("identity.users.edit");
-
+        PermissionKey.Of("identity.users.edit");
 
     public static readonly PermissionKey UsersSuspend =
         PermissionKey.Of("identity.users.suspend");
 
     public static readonly PermissionKey UsersDelete =
-    PermissionKey.Of("identity.users.delete");
-
+        PermissionKey.Of("identity.users.delete");
 
     public static readonly PermissionKey RolesManage =
         PermissionKey.Of("identity.roles.manage");
@@ -115,6 +121,14 @@ public static class PermissionCatalog
         PermissionKey.Of("documents.upload");
 
 
+    // Reports
+    public static readonly PermissionKey ReportsView =
+        PermissionKey.Of("reports.view");
+
+    public static readonly PermissionKey ReportsUpload =
+        PermissionKey.Of("reports.upload");
+
+
     // Schedules
     public static readonly PermissionKey SchedulesView =
         PermissionKey.Of("schedules.view");
@@ -132,41 +146,55 @@ public static class PermissionCatalog
         PermissionKey.Of("schedules.export");
 
 
+    // Permissions available to SubAccounts
     public static readonly IReadOnlyCollection<PermissionKey> SubAccountPermissions =
     [
-    DocumentsView,
-    DocumentsUpload
+       
+        ReportsView
     ];
+
+      public static readonly IReadOnlyCollection<PermissionKey> AccountManagerPermissions =
+      [
+      ReportsUpload
+      ];
+
+
+    // Permissions available to Customer Owners
     public static readonly IReadOnlyCollection<PermissionKey> CustomerOwnerPermissions =
-   [
-    CustomersView,
-    CustomersEdit,
-    CustomersDelete,
+    [
+        CustomersView,
+        CustomersEdit,
+        CustomersDelete,
 
-     SubAccountsView,
-     SubAccountsCreate,
-     SubAccountsEdit,
-     SubAccountsDelete,
-     SubAccountsSuspend,
+        SubAccountsView,
+        SubAccountsCreate,
+        SubAccountsEdit,
+        SubAccountsDelete,
+        SubAccountsSuspend,
+
+        ShipmentsView,
+        ShipmentsEdit,
+        ShipmentsBook,
+        ShipmentsTrack,
+
+        DocumentsView,
+        DocumentsUpload,
+
+        ReportsView,
+
+        SchedulesView,
+        SchedulesCreate,
+        SchedulesDelete,
+        SchedulesImport,
+        SchedulesExport
+    ];
 
 
-    ShipmentsView,
-    ShipmentsEdit,
-    ShipmentsBook,
-    ShipmentsTrack,
-
-    DocumentsView,
-    DocumentsUpload,
-
-    SchedulesView,
-    SchedulesCreate,
-    SchedulesDelete,
-    SchedulesImport,
-    SchedulesExport
-  ];
-
+    // All known permissions
     public static IReadOnlyCollection<PermissionKey> All { get; } = new[]
     {
+        CustomersAssignAccountManager,
+
         // Identity
         UsersCreate,
         UsersEdit,
@@ -200,6 +228,10 @@ public static class PermissionCatalog
         DocumentsView,
         DocumentsUpload,
 
+        // Reports
+        ReportsView,
+        ReportsUpload,
+
         // Schedules
         SchedulesView,
         SchedulesCreate,
@@ -207,5 +239,4 @@ public static class PermissionCatalog
         SchedulesImport,
         SchedulesExport
     };
-
 }

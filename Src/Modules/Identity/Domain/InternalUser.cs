@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Domain;
+using Identity.Domain.Events;
 
 namespace Identity.Domain;
 
@@ -42,18 +43,29 @@ public sealed class InternalUser : AggregateRoot<Guid>
     }
 
     public static InternalUser Create(
-        Guid userId,
-        Guid roleId,
-        string name,
-        string email,
-        string? phone)
-        => new(
+    Guid userId,
+    Guid roleId,
+    string name,
+    string email,
+    string? phone)
+    {
+        var internalUser = new InternalUser(
             Guid.NewGuid(),
             userId,
             roleId,
             name,
             email,
             phone);
+
+        internalUser.RaiseDomainEvent(
+            new InternalUserCreatedDomainEvent(
+                userId,
+                name,
+                email,
+                DateTime.UtcNow));
+
+        return internalUser;
+    }
 
     public void ChangeRole(Guid roleId)
         => RoleId = roleId;

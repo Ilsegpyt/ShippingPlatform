@@ -46,7 +46,8 @@ public sealed class Customer : AggregateRoot<Guid>, ISoftDeletable
         string ownerEmail, string? industry, Guid ownerUserId)
     {
         var customer = new Customer(Guid.NewGuid(), ownerName, companyName, ownerPhone, ownerEmail, industry, ownerUserId);
-        customer.RaiseDomainEvent(new CustomerRegisteredEvent(customer.Id, ownerUserId, DateTime.UtcNow));
+        customer.RaiseDomainEvent(
+        new CustomerRegisteredEvent(customer.Id, ownerUserId, ownerName, ownerEmail ,DateTime.UtcNow));
         return customer;
     }
 

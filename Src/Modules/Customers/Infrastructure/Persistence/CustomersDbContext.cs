@@ -1,44 +1,60 @@
-﻿using BuildingBlocks.Application.Events;
-using BuildingBlocks.Infrastructure.Persistence;
+﻿using BuildingBlocks.Domain;
+using BuildingBlocks.Domain.Outbox;
 using Customers.Application.Abstractions;
 using Customers.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Customers.Infrastructure.Persistence;
 
 public sealed class CustomersDbContext : DbContext, ICustomersUnitOfWork
 {
-    private readonly IDomainEventDispatcher _domainEventDispatcher;
-
     public CustomersDbContext(
-        DbContextOptions<CustomersDbContext> options,
-        IDomainEventDispatcher domainEventDispatcher)
+        DbContextOptions<CustomersDbContext> options)
         : base(options)
     {
-        _domainEventDispatcher = domainEventDispatcher;
     }
 
     public DbSet<Customer> Customers => Set<Customer>();
+
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(
             typeof(CustomersDbContext).Assembly);
+
+        builder.Entity<OutboxMessage>()
+        .ToTable("OutboxMessages", t => t.ExcludeFromMigrations());
     }
 
     public override async Task<int> SaveChangesAsync(
         CancellationToken ct = default)
     {
-        var domainEvents = this.GetDomainEvents();
+        var aggregates = ChangeTracker
+            .Entries<IAggregateRoot>()
+            .Where(x => x.Entity.DomainEvents.Count > 0)
+            .Select(x => x.Entity)
+            .ToList();
 
-        var result = await base.SaveChangesAsync(ct);
+        foreach (var aggregate in aggregates)
+        {
+            foreach (var domainEvent in aggregate.DomainEvents)
+            {
+                var outboxMessage = new OutboxMessage(
+                    Guid.NewGuid(),
+                    domainEvent.GetType().AssemblyQualifiedName!,
+                    JsonSerializer.Serialize(
+                        domainEvent,
+                        domainEvent.GetType()),
+                    domainEvent.OccurredOnUtc);
 
-        this.ClearDomainEvents();
+                OutboxMessages.Add(outboxMessage);
+            }
 
-        await _domainEventDispatcher.DispatchAsync(
-            domainEvents,
-            ct);
+            aggregate.ClearDomainEvents();
+        }
 
-        return result;
+        return await base.SaveChangesAsync(ct);
     }
 }

@@ -27,12 +27,6 @@ public sealed class PermissionAuthorizationHandler
         AuthorizationHandlerContext context,
         PermissionRequirement requirement)
     {
-
-        Console.WriteLine($"Authenticated: {context.User.Identity?.IsAuthenticated}");
-        Console.WriteLine($"UserId: {context.User.FindFirstValue("sub")}");
-        Console.WriteLine($"TokenType: {context.User.FindFirstValue("token_type")}");
-
-
         // Get the authenticated user's ID from the JWT.
         var userIdClaim =
             context.User.FindFirstValue(ClaimTypes.NameIdentifier)

@@ -4,6 +4,7 @@
   </Folder>
   <Folder Name="/Src/BuildingBlocks/">
     <Project Path="Src/BuildingBlocks/Application/BuildingBlocks.Application.csproj" />
+    <Project Path="Src/BuildingBlocks/BuildingBlocks.Contracts/BuildingBlocks.Contracts.csproj" Id="f35d5a37-2736-455b-9f1a-feea83aeb88f" />
     <Project Path="Src/BuildingBlocks/BuildingBlocks.Infrastructure/BuildingBlocks.Infrastructure.csproj" Id="770d17c2-662c-4801-89ae-a79c25fc810e" />
     <Project Path="Src/BuildingBlocks/Domain/BuildingBlocks.Domain.csproj" />
   </Folder>
@@ -17,5 +18,15 @@
     <Project Path="Src/Modules/Identity/Application/Identity.Application.csproj" />
     <Project Path="Src/Modules/Identity/Domain/Identity.Domain.csproj" />
     <Project Path="Src/Modules/Identity/Infrastructure/Identity.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Src/Modules/Notifications/">
+    <Project Path="Src/Modules/Notifications/Notifications.Application/Notifications.Application.csproj" Id="42335d59-d713-439c-b8e4-fd127c8295f7" />
+    <Project Path="Src/Modules/Notifications/Notifications.Domain/Notifications.Domain.csproj" Id="4a770d3d-e058-45f0-986b-30857ffbe105" />
+    <Project Path="Src/Modules/Notifications/Notifications.Infrastructure/Notifications.Infrastructure.csproj" Id="de9814de-6f6f-4485-b1ec-e14808327445" />
+  </Folder>
+  <Folder Name="/Src/Modules/Reports/">
+    <Project Path="Src/Modules/Reports/Reports.Application/Reports.Application.csproj" Id="d412b9fc-9578-4901-b878-087693ce7726" />
+    <Project Path="Src/Modules/Reports/Reports.Domain/Reports.Domain.csproj" Id="8bf2d81f-cef1-4d53-aa2d-1dcf3c9b0dfd" />
+    <Project Path="Src/Modules/Reports/Reports.Infrastructure/Reports.Infrastructure.csproj" Id="211fe746-3c91-4070-a9d0-ee7f1c8da1db" />
   </Folder>
 </Solution>
