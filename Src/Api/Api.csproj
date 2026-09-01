@@ -27,6 +27,8 @@
 		<ProjectReference Include="..\Modules\Notifications\Notifications.Application\Notifications.Application.csproj" />
 		<ProjectReference Include="..\Modules\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
 		<ProjectReference Include="..\Modules\Reports\Reports.Infrastructure\Reports.Infrastructure.csproj" />
+		<ProjectReference Include="..\Modules\Schedules\Schedules.Application\Schedules.Application.csproj" />
+		<ProjectReference Include="..\Modules\Schedules\Schedules.infrastructure\Schedules.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

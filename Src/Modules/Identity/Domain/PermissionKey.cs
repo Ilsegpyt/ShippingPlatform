@@ -113,12 +113,7 @@ public static class PermissionCatalog
         PermissionKey.Of("shipments.track");
 
 
-    // Documents
-    public static readonly PermissionKey DocumentsView =
-        PermissionKey.Of("documents.view");
 
-    public static readonly PermissionKey DocumentsUpload =
-        PermissionKey.Of("documents.upload");
 
 
     // Reports
@@ -144,6 +139,10 @@ public static class PermissionCatalog
 
     public static readonly PermissionKey SchedulesExport =
         PermissionKey.Of("schedules.export");
+
+
+    public static readonly PermissionKey SchedulesUpdate =
+        PermissionKey.Of("schedules.update");
 
 
     // Permissions available to SubAccounts
@@ -176,9 +175,6 @@ public static class PermissionCatalog
         ShipmentsEdit,
         ShipmentsBook,
         ShipmentsTrack,
-
-        DocumentsView,
-        DocumentsUpload,
 
         ReportsView,
 
@@ -225,8 +221,8 @@ public static class PermissionCatalog
         ShipmentsTrack,
 
         // Documents
-        DocumentsView,
-        DocumentsUpload,
+        //DocumentsView,
+        //DocumentsUpload,
 
         // Reports
         ReportsView,
@@ -237,6 +233,7 @@ public static class PermissionCatalog
         SchedulesCreate,
         SchedulesDelete,
         SchedulesImport,
-        SchedulesExport
+        SchedulesExport,
+        SchedulesUpdate
     };
 }

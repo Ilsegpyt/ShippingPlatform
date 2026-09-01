@@ -2,22 +2,27 @@ using Api.BackgroundJobs;
 using Api.Infrastructure.ExceptionHandling;
 using Api.Modules.Customers;
 using Api.Modules.Identity;
+using Api.Modules.Reports;
+using Api.Modules.Schedules;
 using BuildingBlocks.Infrastructure;
 using Customers.Infrastructure;
 using Identity.Infrastructure;
 using Identity.Infrastructure.Seeding;
 using Notifications.Application;
 using Notifications.Infrastructure;
-using System.Text.Json.Serialization;
-using Reports.Infrastructure;
-using Api.Modules.Reports;
 using Reports.Application;
+using Reports.Infrastructure;
+using Schedules.Application;
+using Schedules.Infrastructure;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddCustomersModule(builder.Configuration);
 builder.Services.AddReportsModule(builder.Configuration);
+builder.Services.AddSchedulesInfrastructure(builder.Configuration);
+
 builder.Services.AddBuildingBlocksInfrastructure();
 builder.Services.AddReportsApplication();
 builder.Services.AddNotificationsInfrastructure(builder.Configuration);
@@ -33,6 +38,11 @@ builder.Services.AddHostedService<CustomersOutboxProcessorWorker>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+
+builder.Services.AddSchedulesApplication();
+builder.Services.AddSchedulesInfrastructure(
+    builder.Configuration);
+
 
 // Edited
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -66,5 +76,7 @@ using (var scope = app.Services.CreateScope())
 // Each module maps its own endpoint group. Adding a new module = one new line here.
 app.MapIdentityEndpoints();
 app.MapCustomersEndpoints();
-app.MapReportsEndpoints(); 
+app.MapReportsEndpoints();
+app.MapSchedulesEndpoints();
+
 app.Run();
