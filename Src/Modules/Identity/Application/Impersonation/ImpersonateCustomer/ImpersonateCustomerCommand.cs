@@ -5,4 +5,9 @@ using MediatR;
 namespace Identity.Application.Impersonation.ImpersonateCustomer;
 
 public sealed record ImpersonateCustomerCommand(
-    Guid CustomerUserId) : IRequest<Result<TokenPair>>;
+    Guid ImpersonatorUserId,
+    Guid TargetCustomerUserId,
+    string? IpAddress,
+    string? UserAgent,
+    string? Reason)
+    : IRequest<Result<TokenPair>>;

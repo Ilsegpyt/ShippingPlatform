@@ -114,6 +114,10 @@ public static class IdentityModuleServiceCollectionExtensions
 
         services.AddValidatorsFromAssembly(typeof(IIdentityUserService).Assembly);
 
+        services.AddScoped<IImpersonationAuditLogRepository, ImpersonationAuditLogRepository>();
+
+
+
         return services;
     }
 }

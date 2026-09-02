@@ -4,9 +4,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Schedules.Application.Abstractions;
 using Schedules.Application.Schedules.ImportSchedules;
+using Schedules.Contracts;
 using Schedules.Infrastructure.Excel;
 using Schedules.Infrastructure.Persistence;
 using Schedules.Infrastructure.Persistence.Repositories;
+using Schedules.Infrastructure.Services;
 
 namespace Schedules.Infrastructure;
 
@@ -34,6 +36,8 @@ public static class SchedulesModuleServiceCollectionExtensions
 
         services.AddScoped<ImportScheduleRowValidator>();
         services.AddScoped<IScheduleExcelWriter, ScheduleExcelWriter>();
+        services.AddScoped<IScheduleSearchService, ScheduleSearchService>();
+
 
         return services;
     }

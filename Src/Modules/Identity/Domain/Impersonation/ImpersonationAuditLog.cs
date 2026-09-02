@@ -1,9 +1,7 @@
-﻿namespace Identity.Infrastructure.Persistence;
+﻿
 
-/// <summary>
-/// Audit record for an impersonation session.
-/// Records who impersonated which customer and when the session started and ended.
-/// </summary>
+namespace Identity.Domain.Impersonation;
+
 public sealed class ImpersonationAuditLog
 {
     public Guid Id { get; private set; }
@@ -12,21 +10,36 @@ public sealed class ImpersonationAuditLog
 
     public Guid TargetCustomerUserId { get; private set; }
 
+    public Guid TokenId { get; private set; }
+
+    public string? IpAddress { get; private set; }
+
+    public string? UserAgent { get; private set; }
+
+    public string? Reason { get; private set; }
+
     public DateTime StartedAtUtc { get; private set; }
 
     public DateTime? EndedAtUtc { get; private set; }
 
-    private ImpersonationAuditLog() { }
-
+    private ImpersonationAuditLog()
+    {
+    }
     public static ImpersonationAuditLog Start(
-        Guid impersonatorUserId,
-        Guid targetCustomerUserId)
+    Guid impersonatorUserId,
+    Guid targetCustomerUserId,
+    string? ipAddress,
+    string? userAgent,
+    string? reason)
     {
         return new ImpersonationAuditLog
         {
             Id = Guid.NewGuid(),
             ImpersonatorUserId = impersonatorUserId,
             TargetCustomerUserId = targetCustomerUserId,
+            IpAddress = ipAddress,
+            UserAgent = userAgent,
+            Reason = reason,
             StartedAtUtc = DateTime.UtcNow
         };
     }

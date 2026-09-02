@@ -42,6 +42,9 @@ public static class PermissionCatalog
         PermissionKey.Of("customers.accountmanager.assign");
 
 
+    public static readonly PermissionKey ImpersonateCustomer =
+    PermissionKey.Of("identity.impersonation.customer");
+
     // Identity
     public static readonly PermissionKey UsersCreate =
         PermissionKey.Of("identity.users.create");
@@ -144,7 +147,8 @@ public static class PermissionCatalog
     public static readonly PermissionKey SchedulesUpdate =
         PermissionKey.Of("schedules.update");
 
-
+    public static readonly PermissionKey SchedulesSearch =
+        PermissionKey.Of("schedules.search");
     // Permissions available to SubAccounts
     public static readonly IReadOnlyCollection<PermissionKey> SubAccountPermissions =
     [
@@ -182,7 +186,8 @@ public static class PermissionCatalog
         SchedulesCreate,
         SchedulesDelete,
         SchedulesImport,
-        SchedulesExport
+        SchedulesExport,
+        SchedulesSearch
     ];
 
 
@@ -234,6 +239,8 @@ public static class PermissionCatalog
         SchedulesDelete,
         SchedulesImport,
         SchedulesExport,
-        SchedulesUpdate
+        SchedulesUpdate,
+
+        SchedulesSearch
     };
 }

@@ -2,6 +2,7 @@
 using BuildingBlocks.Domain.Outbox;
 using Identity.Application.Abstractions;
 using Identity.Domain;
+using Identity.Domain.Impersonation;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -26,8 +27,8 @@ public sealed class IdentityDbContext
     public DbSet<Role> BusinessRoles => Set<Role>();
     public DbSet<AccountManagerAssignment> AccountManagerAssignments => Set<AccountManagerAssignment>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
-    public DbSet<ImpersonationAuditLog> ImpersonationAuditLogs => Set<ImpersonationAuditLog>();
-    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<ImpersonationAuditLog> ImpersonationAuditLogs
+        => Set<ImpersonationAuditLog>(); public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

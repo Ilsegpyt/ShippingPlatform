@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Schedules.Application.Schedules.SearchSchedules;
 using Schedules.Domain.Schedule;
@@ -28,6 +30,6 @@ public static class SearchSchedulesEndpoint
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(result.Error);
-        });
+        }).RequirePermission(PermissionCatalog.SchedulesSearch);
     }
 }

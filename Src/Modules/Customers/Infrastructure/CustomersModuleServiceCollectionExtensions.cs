@@ -2,6 +2,7 @@
 using Customers.Application; 
 using Customers.Application.Abstractions;
 using Customers.Infrastructure.Persistence;
+using Customers.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,11 @@ public static class CustomersModuleServiceCollectionExtensions
 
         services.AddScoped<ICustomerRepository, CustomerRepository>();
 
-        services.AddCustomersApplication(); 
+        services.AddCustomersApplication();
+
+        services.AddScoped<
+        ISearchHistoryRepository,
+       SearchHistoryRepository>();
 
         return services;
     }

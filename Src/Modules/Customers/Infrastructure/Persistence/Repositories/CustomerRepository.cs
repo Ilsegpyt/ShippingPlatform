@@ -2,7 +2,7 @@
 using Customers.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Customers.Infrastructure.Persistence;
+namespace Customers.Infrastructure.Persistence.Repositories;
 
 public sealed class CustomerRepository(CustomersDbContext dbContext) : ICustomerRepository
 {

@@ -8,6 +8,7 @@ using Identity.Domain;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Api.Modules.Customers;
 
@@ -25,6 +26,8 @@ public static class CustomersEndpoints
         MapActivate(group);
         MapRegister(group);
         MapUpdateEmail(group);
+        MapSearchSchedules(group);
+        MapMultiSearchSchedules(group);
     }
 
     private static void MapGetAll(IEndpointRouteBuilder group)
@@ -165,5 +168,52 @@ public static class CustomersEndpoints
         })
         .RequirePermission(PermissionCatalog.CustomersCreate);
     }
+    private static void MapMultiSearchSchedules(IEndpointRouteBuilder group)
+    {
+        group.MapPost("/schedules/multi-search", async (
+            [FromBody] SearchCustomerMultiSchedulesRequest request,
+            ClaimsPrincipal user,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var customerId = user.GetOrganizationId();
+
+            var result = await sender.Send(
+                new SearchCustomerMultiSchedulesQuery(
+                    request.Routes,
+                    customerId),
+                ct);
+
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(result.Error);
+        }).RequirePermission(PermissionCatalog.SchedulesSearch);
+    }
+    private static void MapSearchSchedules(IEndpointRouteBuilder group)
+    {
+        group.MapGet("/schedules/search", async (
+            [FromQuery] string origin,
+            [FromQuery] string destination,
+            [FromQuery] DateOnly departureDate,
+            [FromQuery] string containerSize,
+            ClaimsPrincipal user,
+            ISender sender) =>
+        {
+            var customerId = user.GetOrganizationId();
+
+            var result = await sender.Send(
+                new SearchCustomerSchedulesQuery(
+                    origin,
+                    destination,
+                    departureDate,
+                    containerSize,
+                    customerId));
+
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(result.Error);
+        }).RequirePermission(PermissionCatalog.SchedulesSearch);
+    }
+
 }
 

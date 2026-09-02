@@ -2,6 +2,7 @@
 using BuildingBlocks.Domain.Outbox;
 using Customers.Application.Abstractions;
 using Customers.Domain;
+using Customers.Domain.SearchHistory;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
@@ -17,6 +18,8 @@ public sealed class CustomersDbContext : DbContext, ICustomersUnitOfWork
 
     public DbSet<Customer> Customers => Set<Customer>();
 
+    public DbSet<SearchHistory> SearchHistories => Set<SearchHistory>();
+
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -25,7 +28,7 @@ public sealed class CustomersDbContext : DbContext, ICustomersUnitOfWork
             typeof(CustomersDbContext).Assembly);
 
         builder.Entity<OutboxMessage>()
-        .ToTable("OutboxMessages", t => t.ExcludeFromMigrations());
+            .ToTable("OutboxMessages", t => t.ExcludeFromMigrations());
     }
 
     public override async Task<int> SaveChangesAsync(

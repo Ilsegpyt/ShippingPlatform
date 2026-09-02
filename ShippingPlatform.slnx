@@ -31,6 +31,7 @@
   </Folder>
   <Folder Name="/Src/Modules/Schedules/">
     <Project Path="Src/Modules/Schedules/Schedules.Application/Schedules.Application.csproj" Id="bd311e9f-ead9-4dd9-9d74-6feee052fd23" />
+    <Project Path="Src/Modules/Schedules/Schedules.Contracts/Schedules.Contracts.csproj" Id="c624e73d-e480-4756-a5d4-533c0f694306" />
     <Project Path="Src/Modules/Schedules/Schedules.Domain/Schedules.Domain.csproj" Id="89d98798-1a16-4501-ad58-dfb6c19456b7" />
     <Project Path="Src/Modules/Schedules/Schedules.infrastructure/Schedules.Infrastructure.csproj" Id="afa72ec8-b4fc-4a53-8721-239a910da067" />
   </Folder>
