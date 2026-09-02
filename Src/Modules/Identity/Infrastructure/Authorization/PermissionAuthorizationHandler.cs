@@ -1,5 +1,4 @@
-﻿
-using Identity.Domain;
+﻿using Identity.Domain;
 using Identity.Domain.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
@@ -46,6 +45,10 @@ public sealed class PermissionAuthorizationHandler
         {
             // Customer owner permissions.
             "customer" => HasCustomerPermission(
+                requirement.Permission),
+
+            // Impersonation uses Customer owner permissions.
+            "impersonation" => HasCustomerPermission(
                 requirement.Permission),
 
             // SubAccount permissions.
@@ -120,4 +123,3 @@ public sealed class PermissionAuthorizationHandler
         return role.HasPermission(permission);
     }
 }
-

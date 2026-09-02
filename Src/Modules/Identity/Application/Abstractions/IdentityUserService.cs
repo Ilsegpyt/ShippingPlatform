@@ -80,6 +80,16 @@ public interface ITokenService
         CancellationToken ct = default);
 
     /// <summary>
+    /// Issues a new access and refresh token pair for a customer impersonation session.
+    /// The impersonator remains the authenticated user while the target organization
+    /// is stored as the impersonation context.
+    /// </summary>
+    Task<TokenPair> IssueImpersonationTokensAsync(
+        Guid impersonatorUserId,
+        Guid impersonatedOrganizationId,
+        CancellationToken ct = default);
+
+    /// <summary>
     /// Validates and rotates a refresh token.
     /// Returns null if the token is invalid, expired, or revoked.
     /// </summary>

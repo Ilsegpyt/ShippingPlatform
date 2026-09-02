@@ -1,4 +1,6 @@
-﻿using Identity.Application.Impersonation.ImpersonateCustomer;
+﻿
+using Identity.Application.Impersonation.EndImpersonation;
+using Identity.Application.Impersonation.ImpersonateCustomer;
 using Identity.Domain;
 using Identity.Infrastructure.Authorization;
 using MediatR;
@@ -35,11 +37,38 @@ public static class ImpersonationEndpoints
 
                     return Results.Ok(result.Value);
                 })
-               .RequirePermission(PermissionCatalog.ImpersonateCustomer);
-           
+            .RequirePermission(
+                PermissionCatalog.CustomersImpersonate);
+
+        app.MapPost(
+                "/api/identity/impersonation/end",
+                async (
+                    EndImpersonationRequest request,
+                    ClaimsPrincipal user,
+                    ISender sender,
+                    CancellationToken ct) =>
+                {
+                    var impersonatorUserId = user.GetUserId();
+
+                    var command = new EndImpersonationCommand(
+                        request.AuditLogId,
+                        impersonatorUserId);
+
+                    var result = await sender.Send(command, ct);
+
+                    if (result.IsFailure)
+                        return Results.BadRequest(result.Error);
+
+                    return Results.Ok();
+                })
+            .RequireAuthorization();
     }
+
+    public sealed record ImpersonateCustomerRequest(
+        Guid CustomerUserId,
+        string? Reason);
+
+    public sealed record EndImpersonationRequest(
+        Guid AuditLogId);
 }
 
-public sealed record ImpersonateCustomerRequest(
-    Guid CustomerUserId,
-    string? Reason);

@@ -42,8 +42,8 @@ public static class PermissionCatalog
         PermissionKey.Of("customers.accountmanager.assign");
 
 
-    public static readonly PermissionKey ImpersonateCustomer =
-    PermissionKey.Of("identity.impersonation.customer");
+    //public static readonly PermissionKey ImpersonateCustomer =
+    //PermissionKey.Of("identity.impersonation.customer");
 
     // Identity
     public static readonly PermissionKey UsersCreate =

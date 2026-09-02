@@ -9,7 +9,7 @@ namespace Identity.Application.Impersonation.ImpersonateCustomer;
 public sealed class ImpersonateCustomerCommandHandler
     : IRequestHandler<
         ImpersonateCustomerCommand,
-        Result<TokenPair>>
+        Result<ImpersonateCustomerResponse>>
 {
     private readonly ITokenService _tokens;
     private readonly ICustomerQueries _customers;
@@ -25,7 +25,7 @@ public sealed class ImpersonateCustomerCommandHandler
         _auditLogs = auditLogs;
     }
 
-    public async Task<Result<TokenPair>> Handle(
+    public async Task<Result<ImpersonateCustomerResponse>> Handle(
         ImpersonateCustomerCommand request,
         CancellationToken ct)
     {
@@ -35,21 +35,15 @@ public sealed class ImpersonateCustomerCommandHandler
 
         if (customer is null)
         {
-            return Result.Failure<TokenPair>(
+            return Result.Failure<ImpersonateCustomerResponse>(
                 "Customer not found.");
         }
 
         if (!customer.IsActive)
         {
-            return Result.Failure<TokenPair>(
+            return Result.Failure<ImpersonateCustomerResponse>(
                 "Customer account is inactive.");
         }
-
-        var claims = new Dictionary<string, string>
-        {
-            ["token_type"] = "impersonation",
-            ["org_id"] = customer.CustomerId.ToString()
-        };
 
         var auditLog = ImpersonationAuditLog.Start(
             request.ImpersonatorUserId,
@@ -60,11 +54,17 @@ public sealed class ImpersonateCustomerCommandHandler
 
         await _auditLogs.AddAsync(auditLog, ct);
 
-        var tokenPair = await _tokens.IssueTokensAsync(
+        var tokenPair = await _tokens.IssueImpersonationTokensAsync(
             request.ImpersonatorUserId,
-            claims,
+            customer.CustomerId,
             ct);
 
-        return Result.Success(tokenPair);
+        var response = new ImpersonateCustomerResponse(
+            tokenPair.AccessToken,
+            tokenPair.RefreshToken,
+            tokenPair.AccessTokenExpiresAtUtc,
+            auditLog.Id);
+
+        return Result.Success(response);
     }
 }

@@ -1,6 +1,4 @@
-﻿
-
-namespace Identity.Domain.Impersonation;
+﻿namespace Identity.Domain.Impersonation;
 
 public sealed class ImpersonationAuditLog
 {
@@ -9,8 +7,6 @@ public sealed class ImpersonationAuditLog
     public Guid ImpersonatorUserId { get; private set; }
 
     public Guid TargetCustomerUserId { get; private set; }
-
-    public Guid TokenId { get; private set; }
 
     public string? IpAddress { get; private set; }
 
@@ -25,12 +21,13 @@ public sealed class ImpersonationAuditLog
     private ImpersonationAuditLog()
     {
     }
+
     public static ImpersonationAuditLog Start(
-    Guid impersonatorUserId,
-    Guid targetCustomerUserId,
-    string? ipAddress,
-    string? userAgent,
-    string? reason)
+        Guid impersonatorUserId,
+        Guid targetCustomerUserId,
+        string? ipAddress,
+        string? userAgent,
+        string? reason)
     {
         return new ImpersonationAuditLog
         {

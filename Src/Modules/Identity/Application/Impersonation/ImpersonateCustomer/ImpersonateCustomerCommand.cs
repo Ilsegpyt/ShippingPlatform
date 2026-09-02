@@ -10,4 +10,10 @@ public sealed record ImpersonateCustomerCommand(
     string? IpAddress,
     string? UserAgent,
     string? Reason)
-    : IRequest<Result<TokenPair>>;
+    : IRequest<Result<ImpersonateCustomerResponse>>;
+
+public sealed record ImpersonateCustomerResponse(
+    string AccessToken,
+    string RefreshToken,
+    DateTime AccessTokenExpiresAtUtc,
+    Guid AuditLogId);

@@ -28,7 +28,8 @@ public sealed class IdentityDbContext
     public DbSet<AccountManagerAssignment> AccountManagerAssignments => Set<AccountManagerAssignment>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<ImpersonationAuditLog> ImpersonationAuditLogs
-        => Set<ImpersonationAuditLog>(); public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+        => Set<ImpersonationAuditLog>(); 
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
