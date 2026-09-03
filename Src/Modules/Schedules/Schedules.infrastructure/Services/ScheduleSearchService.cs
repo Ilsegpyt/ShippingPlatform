@@ -6,7 +6,7 @@ namespace Schedules.Infrastructure.Services;
 
 public sealed class ScheduleSearchService(
     IScheduleRepository scheduleRepository)
-    : IScheduleSearchService
+    : IScheduleSearchService, IScheduleQueryService
 {
     public async Task<IReadOnlyList<ScheduleSearchResult>> SearchAsync(
         string origin,
@@ -50,5 +50,36 @@ public sealed class ScheduleSearchService(
                 schedule.RateCurrency,
                 schedule.ContainerSize.ToString()))
             .ToList();
+    }
+
+    public async Task<ScheduleSearchResult?> GetByIdAsync(
+        Guid scheduleId,
+        CancellationToken ct)
+    {
+        var schedule = await scheduleRepository.GetByIdAsync(
+            scheduleId,
+            ct);
+
+        if (schedule is null)
+            return null;
+
+        return new ScheduleSearchResult(
+            schedule.Id,
+            schedule.RouteId,
+            schedule.Mode.ToString(),
+            schedule.DepartureDate,
+            schedule.Vessel,
+            schedule.Origin,
+            schedule.DeparturePortCode,
+            schedule.Destination,
+            schedule.ArrivalPortCode,
+            schedule.Carrier,
+            schedule.CarrierCode,
+            schedule.VoyageNumber,
+            schedule.Arrival,
+            schedule.TransitTime,
+            schedule.RateAmount,
+            schedule.RateCurrency,
+            schedule.ContainerSize.ToString());
     }
 }

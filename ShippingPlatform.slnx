@@ -35,4 +35,9 @@
     <Project Path="Src/Modules/Schedules/Schedules.Domain/Schedules.Domain.csproj" Id="89d98798-1a16-4501-ad58-dfb6c19456b7" />
     <Project Path="Src/Modules/Schedules/Schedules.infrastructure/Schedules.Infrastructure.csproj" Id="afa72ec8-b4fc-4a53-8721-239a910da067" />
   </Folder>
+  <Folder Name="/Src/Modules/Shipments/">
+    <Project Path="Src/Modules/Shipments/Shipments.Application/Shipments.Application.csproj" Id="d55d5f62-aa01-4e61-901e-7fd2f5f26299" />
+    <Project Path="Src/Modules/Shipments/Shipments.Domain/Shipments.Domain.csproj" Id="c2128594-986a-4f1d-9754-58924a3ca8e9" />
+    <Project Path="Src/Modules/Shipments/Shipments.Infrastructure/Shipments.Infrastructure.csproj" Id="4d91ec10-7dc4-492d-b501-1bb3ae251682" />
+  </Folder>
 </Solution>

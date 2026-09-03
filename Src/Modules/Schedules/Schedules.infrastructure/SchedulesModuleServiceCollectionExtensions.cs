@@ -37,6 +37,7 @@ public static class SchedulesModuleServiceCollectionExtensions
         services.AddScoped<ImportScheduleRowValidator>();
         services.AddScoped<IScheduleExcelWriter, ScheduleExcelWriter>();
         services.AddScoped<IScheduleSearchService, ScheduleSearchService>();
+        services.AddScoped<IScheduleQueryService, ScheduleSearchService>();
 
 
         return services;

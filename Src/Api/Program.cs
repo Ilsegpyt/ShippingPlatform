@@ -4,6 +4,7 @@ using Api.Modules.Customers;
 using Api.Modules.Identity;
 using Api.Modules.Reports;
 using Api.Modules.Schedules;
+using Api.Modules.Shipments;
 using BuildingBlocks.Infrastructure;
 using Customers.Infrastructure;
 using Identity.Infrastructure;
@@ -14,6 +15,8 @@ using Reports.Application;
 using Reports.Infrastructure;
 using Schedules.Application;
 using Schedules.Infrastructure;
+using Shipments.Application;
+using Shipments.Infrastructure;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +25,8 @@ builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddCustomersModule(builder.Configuration);
 builder.Services.AddReportsModule(builder.Configuration);
 builder.Services.AddSchedulesInfrastructure(builder.Configuration);
+builder.Services.AddShipmentsInfrastructure(builder.Configuration);
+builder.Services.AddShipmentsApplication();
 
 builder.Services.AddBuildingBlocksInfrastructure();
 builder.Services.AddReportsApplication();
@@ -42,6 +47,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddSchedulesApplication();
 builder.Services.AddSchedulesInfrastructure(
     builder.Configuration);
+
 
 
 // Edited
@@ -78,5 +84,6 @@ app.MapIdentityEndpoints();
 app.MapCustomersEndpoints();
 app.MapReportsEndpoints();
 app.MapSchedulesEndpoints();
+app.MapShipmentsEndpoints();
 
 app.Run();
