@@ -25,4 +25,18 @@ public sealed class InternalUserRepository : IInternalUserRepository
 
     public void Delete(InternalUser internalUser) =>
     _db.InternalUsers.Remove(internalUser);
+    public async Task<IReadOnlyList<InternalUser>> GetAllAsync(int skip , int take, CancellationToken ct = default)
+    {
+        return await _db.InternalUsers
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(ct);
+    }
+    public async Task<int> CountAsync(CancellationToken ct = default)
+    {
+        return await _db.InternalUsers.CountAsync(ct);
+
+    }
 }

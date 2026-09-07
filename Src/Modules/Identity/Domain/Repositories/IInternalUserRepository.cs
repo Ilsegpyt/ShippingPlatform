@@ -10,4 +10,7 @@ public interface IInternalUserRepository
     void Add(InternalUser internalUser);
     void Update(InternalUser internalUser);
     void Delete(InternalUser internalUser);
+    Task<IReadOnlyList<InternalUser>> GetAllAsync(int skip, int take, CancellationToken ct = default);
+    Task<int> CountAsync(CancellationToken ct = default);
+
 }

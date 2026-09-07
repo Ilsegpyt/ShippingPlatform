@@ -1,6 +1,8 @@
-﻿using Identity.Api.InternalUsers;
+﻿using BuildingBlocks.Application;
+using Identity.Api.InternalUsers;
 using Identity.Application.InternalUsers.CreateInternalUser;
 using Identity.Application.InternalUsers.DeleteInternalUser;
+using Identity.Application.InternalUsers.GetInternalUsers;
 using Identity.Application.InternalUsers.UpdateInternalUserEmail;
 using Identity.Application.InternalUsers.UpdateInternalUserProfile;
 using Identity.Domain.ValueObjects;
@@ -20,6 +22,8 @@ public static class InternalUserEndpoints
         MapUpdateProfile(users);
         MapUpdateEmail(users);
         MapDelete(users);
+        MapGetAll(users);
+
     }
 
     private static void MapCreate(IEndpointRouteBuilder users)
@@ -97,5 +101,20 @@ public static class InternalUserEndpoints
                 : Results.BadRequest(result.Error);
         })
         .RequirePermission(PermissionCatalog.UsersDelete);
+    }
+    private static void MapGetAll(IEndpointRouteBuilder users)
+    {
+        users.MapGet("/", async (
+            [AsParameters] PaginationRequest pagination,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var result = await sender.Send(
+                new GetInternalUsersQuery(pagination),
+                ct);
+
+            return Results.Ok(result);
+        })
+        .RequirePermission(PermissionCatalog.CustomersView);
     }
 }
