@@ -10,31 +10,21 @@ public sealed class ScheduleRepository(
     SchedulesDbContext context)
     : IScheduleRepository
 {
-    public async Task AddAsync(
-        Schedule schedule,
-        CancellationToken ct)
+    public async Task AddAsync(Schedule schedule, CancellationToken ct)
     {
         await context.Schedules.AddAsync(schedule, ct);
     }
-
-    public async Task<Schedule?> GetByIdAsync(
-        Guid id,
-        CancellationToken ct)
+    public async Task<Schedule?> GetByIdAsync(Guid id, CancellationToken ct)
     {
         return await context.Schedules
             .FirstOrDefaultAsync(x => x.Id == id, ct);
     }
-
     public void Remove(Schedule schedule)
     {
         context.Schedules.Remove(schedule);
     }
-    public async Task<IReadOnlyList<Schedule>> SearchAsync(
-    string origin,
-    string destination,
-    DateOnly departureDate,
-    ContainerSize containerSize,
-    CancellationToken ct)
+    public async Task<IReadOnlyList<Schedule>> SearchAsync(string origin, string destination, DateOnly departureDate, ContainerSize containerSize, CancellationToken ct)
+
     {
         var schedules = context.Schedules
             .Where(x =>
@@ -56,8 +46,19 @@ public sealed class ScheduleRepository(
             .OrderBy(x => x.RateAmount)
             .ToListAsync(ct);
     }
-    public async Task<IReadOnlyList<Schedule>> GetAllAsync(
-    CancellationToken ct)
+    public async Task<IReadOnlyList<Schedule>> GetAllAsync(int skip, int take, CancellationToken ct)
+    {
+        return await context.Schedules
+            .AsNoTracking()
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(ct);
+    }
+    public async Task<int> CountAsync(CancellationToken ct)
+    {
+        return await context.Schedules.CountAsync(ct);
+    }
+    public async Task<IReadOnlyList<Schedule>> GetAllForExportAsync(CancellationToken ct)
     {
         return await context.Schedules
             .AsNoTracking()

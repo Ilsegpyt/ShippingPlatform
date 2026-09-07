@@ -6,6 +6,7 @@ public static class SchedulesEndpoints
         this IEndpointRouteBuilder app)
     {
         CreateScheduleEndpoint.Map(app);
+        GetAllSchedulesEndpoint.Map(app);
         SearchSchedulesEndpoint.Map(app);
         ImportSchedulesEndpoint.Map(app);
         DeleteScheduleEndpoint.Map(app);

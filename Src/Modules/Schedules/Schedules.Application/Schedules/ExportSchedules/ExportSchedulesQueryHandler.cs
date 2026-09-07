@@ -15,8 +15,7 @@ public sealed class ExportSchedulesQueryHandler(
         ExportSchedulesQuery query,
         CancellationToken ct)
     {
-        var schedules = await scheduleRepository.GetAllAsync(ct);
-
+        var schedules = await scheduleRepository.GetAllForExportAsync(ct);
         return Result.Success(schedules);
     }
 }
