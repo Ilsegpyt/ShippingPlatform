@@ -36,7 +36,20 @@ public sealed class ShipmentRepository : IShipmentRepository
             .Where(x => shipmentIds.Contains(x.Id))
             .ToListAsync(ct);
     }
+    public async Task<IReadOnlyList<Shipment>> GetAllAsync(int skip, int take, CancellationToken ct = default)
+    {
+        return await _dbContext.Shipments
+            .AsNoTracking()
+            .OrderBy(x => x.CreatedAtUtc)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(ct);
+    }
 
+    public async Task<int> CountAsync(CancellationToken ct = default)
+    {
+        return await _dbContext.Shipments.CountAsync(ct);
+    }
     public void RemoveRange(
         IReadOnlyCollection<Shipment> shipments)
     {
