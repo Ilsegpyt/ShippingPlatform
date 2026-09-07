@@ -4,11 +4,8 @@ namespace Identity.Application.Abstractions;
 
 public interface IImpersonationAuditLogRepository
 {
-    Task AddAsync(
-        ImpersonationAuditLog auditLog,
-        CancellationToken ct);
+    void Add(ImpersonationAuditLog auditLog, CancellationToken ct);
 
-    Task<ImpersonationAuditLog?> GetByIdAsync(
-        Guid id,
-        CancellationToken ct);
+    Task<ImpersonationAuditLog?> GetByIdAsync(Guid id, CancellationToken ct);
+
 }

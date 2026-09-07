@@ -1,30 +1,40 @@
-﻿using Customers.Domain;
-using Customers.Domain.Events;
+﻿using BuildingBlocks.Contracts.IntegrationEvents.Customers;
 using Identity.Application.Abstractions;
 using Identity.Domain.Repositories;
 using MediatR;
 
 namespace Identity.Application.Customers.CustomerStatusChanged;
 
-public sealed class CustomerStatusChangedEventHandler(
-    ISubAccountRepository subAccountRepository,
-    IIdentityUnitOfWork identityUnitOfWork)
-    : INotificationHandler<CustomerStatusChangedEvent>
+public sealed class CustomerStatusChangedEventHandler(ISubAccountRepository subAccountRepository, IIdentityUnitOfWork identityUnitOfWork)
+    : INotificationHandler<CustomerStatusChangedIntegrationEvent>
 {
-    public async Task Handle(CustomerStatusChangedEvent notification, CancellationToken ct)
+    public async Task Handle(CustomerStatusChangedIntegrationEvent notification, CancellationToken ct)
     {
         var subAccounts =
             await subAccountRepository.GetByOrganizationIdAsync(notification.CustomerId, ct);
 
+
         foreach (var subAccount in subAccounts)
         {
-            if (notification.NewStatus == CustomerStatus.Suspended)
+            if (notification.NewStatus == "Suspended")
                 subAccount.Deactivate();
 
-            else if (notification.NewStatus == CustomerStatus.Active)
+            else if (notification.NewStatus == "Active")
                 subAccount.Activate();
         }
 
         await identityUnitOfWork.SaveChangesAsync(ct);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

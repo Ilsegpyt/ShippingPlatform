@@ -1,4 +1,4 @@
-﻿using Identity.Domain;
+﻿using Identity.Domain.Enums;
 
 namespace Api.Modules.Identity.SubAccounts;
 

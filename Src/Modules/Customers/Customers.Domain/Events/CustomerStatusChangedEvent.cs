@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Domain;
+using Customers.Domain.Entities;
 
 namespace Customers.Domain.Events;
 

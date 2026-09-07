@@ -4,22 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Customers.Infrastructure.Persistence.Repositories;
 
-public sealed class SearchHistoryRepository(
-    CustomersDbContext dbContext)
+public sealed class SearchHistoryRepository(CustomersDbContext dbContext)
     : ISearchHistoryRepository
 {
-    public async Task AddAsync(
-        SearchHistory searchHistory,
-        CancellationToken ct)
+    public  void Add(SearchHistory searchHistory)
     {
-        await dbContext.SearchHistories.AddAsync(
-            searchHistory,
-            ct);
+         dbContext.SearchHistories.Add(searchHistory);
     }
 
-    public async Task<IReadOnlyList<SearchHistory>> GetByCustomerIdAsync(
-        Guid customerId,
-        CancellationToken ct)
+    public async Task<IReadOnlyList<SearchHistory>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct)
     {
         return await dbContext.SearchHistories
             .AsNoTracking()

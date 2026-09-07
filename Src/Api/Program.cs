@@ -14,6 +14,7 @@ using Notifications.Infrastructure;
 using Reports.Application;
 using Reports.Infrastructure;
 using Schedules.Application;
+using Identity.Application;
 using Schedules.Infrastructure;
 using Shipments.Application;
 using Shipments.Infrastructure;
@@ -22,6 +23,7 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddIdentityModule(builder.Configuration);
+builder.Services.AddIdentityApplication();
 builder.Services.AddCustomersModule(builder.Configuration);
 builder.Services.AddReportsModule(builder.Configuration);
 builder.Services.AddSchedulesInfrastructure(builder.Configuration);
@@ -38,7 +40,7 @@ builder.Services.AddExceptionHandler<ConflictExceptionHandler>();
 
 builder.Services.AddProblemDetails(); // obligatory
 
-builder.Services.AddHostedService<OutboxProcessorWorker>();
+builder.Services.AddHostedService<IdentityOutboxProcessorWorker>();
 builder.Services.AddHostedService<CustomersOutboxProcessorWorker>();
 
 builder.Services.AddEndpointsApiExplorer();

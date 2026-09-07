@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.Application;
 using Identity.Application.Abstractions;
-using Identity.Domain;
 using Identity.Domain.Repositories;
+using Identity.Domain.ValueObjects;
 using MediatR;
 
 namespace Identity.Application.SubAccounts.RevokeSubAccountPermission;

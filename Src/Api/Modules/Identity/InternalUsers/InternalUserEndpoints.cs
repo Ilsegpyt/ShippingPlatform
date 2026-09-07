@@ -3,7 +3,7 @@ using Identity.Application.InternalUsers.CreateInternalUser;
 using Identity.Application.InternalUsers.DeleteInternalUser;
 using Identity.Application.InternalUsers.UpdateInternalUserEmail;
 using Identity.Application.InternalUsers.UpdateInternalUserProfile;
-using Identity.Domain;
+using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 

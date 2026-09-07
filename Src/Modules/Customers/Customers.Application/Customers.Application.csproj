@@ -13,7 +13,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\Application\BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\Identity\Identity.Contracts\Identity.Contracts.csproj" />
     <ProjectReference Include="..\..\Schedules\Schedules.Contracts\Schedules.Contracts.csproj" />
+    <ProjectReference Include="..\Customers.Contracts\Customers.Contracts.csproj" />
     <ProjectReference Include="..\Customers.Domain\Customers.Domain.csproj" />
   </ItemGroup>
 

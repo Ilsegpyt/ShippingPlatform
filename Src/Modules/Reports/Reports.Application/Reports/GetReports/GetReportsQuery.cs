@@ -1,6 +1,5 @@
-﻿using BuildingBlocks.Application.Contracts;
-using MediatR;
-using Reports.Domain.Report;
+﻿using MediatR;
+using Reports.Domain.Entities;
 
 namespace Reports.Application.Reports.GetReports;
 

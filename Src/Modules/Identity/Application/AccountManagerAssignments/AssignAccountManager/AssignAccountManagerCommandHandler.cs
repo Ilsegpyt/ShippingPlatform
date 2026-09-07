@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.Application;
-using BuildingBlocks.Application.Contracts;
+using Customers.Contracts;
 using Identity.Application.Abstractions;
-using Identity.Domain;
+using Identity.Domain.Entities;
 using Identity.Domain.Repositories;
 using MediatR;
 
@@ -11,7 +11,7 @@ public sealed class AssignAccountManagerCommandHandler(
     IInternalUserRepository internalUserRepository,
     IRoleRepository roleRepository,
     IAccountManagerAssignmentRepository assignmentRepository,
-    IIdentityUnitOfWork unitOfWork,
+    IIdentityUnitOfWork identityUnitOfWork,
     ICustomerQueries customerQueries)
     : IRequestHandler<AssignAccountManagerCommand, Result>
 {
@@ -50,7 +50,7 @@ public sealed class AssignAccountManagerCommandHandler(
                 "The selected user is not an Account Manager.");
 
         var customer =
-            await customerQueries.GetForAssignmentAsync(
+            await customerQueries.GetByIdAsync(
                 cmd.CustomerId,
                 ct);
 
@@ -77,7 +77,7 @@ public sealed class AssignAccountManagerCommandHandler(
 
         assignmentRepository.Add(assignment);
 
-        await unitOfWork.SaveChangesAsync(ct);
+        await identityUnitOfWork.SaveChangesAsync(ct);
 
         return Result.Success();
     }

@@ -1,4 +1,4 @@
-﻿using Schedules.Domain.Schedule;
+﻿using Schedules.Domain.Entities;
 
 namespace Schedules.Application.Abstractions;
 

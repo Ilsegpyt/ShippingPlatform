@@ -1,7 +1,9 @@
 ﻿using BuildingBlocks.Application;
-using BuildingBlocks.Application.Contracts;
+using Customers.Contracts;
+using Identity.Contracts;
 using MediatR;
 using Reports.Application.Abstractions;
+using Reports.Domain.Entities;
 using Reports.Domain.Report;
 
 namespace Reports.Application.Reports.UploadReport;
@@ -19,7 +21,7 @@ public sealed class UploadReportCommandHandler(
         CancellationToken ct)
     {
         var customer =
-            await customerQueries.GetForAssignmentAsync(
+            await customerQueries.GetByIdAsync(
                 command.CustomerId,
                 ct);
 

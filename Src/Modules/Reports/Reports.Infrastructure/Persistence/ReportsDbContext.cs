@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Reports.Domain.Report;
+using Reports.Domain.Entities;
 using System.Reflection.Emit;
 
 namespace Reports.Infrastructure.Persistence;

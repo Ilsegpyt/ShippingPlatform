@@ -2,6 +2,6 @@
 
 public interface INotificationsUnitOfWork
 {
-    Task<int> SaveChangesAsync(
-        CancellationToken ct = default);
+    Task<int> SaveChangesAsync(CancellationToken ct = default);
+
 }

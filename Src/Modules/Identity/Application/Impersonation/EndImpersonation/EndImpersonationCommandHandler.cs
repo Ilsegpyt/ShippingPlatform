@@ -8,14 +8,14 @@ public sealed class EndImpersonationCommandHandler
     : IRequestHandler<EndImpersonationCommand, Result>
 {
     private readonly IImpersonationAuditLogRepository _auditLogs;
-    private readonly IIdentityUnitOfWork _unitOfWork;
+    private readonly IIdentityUnitOfWork _identityUnitOfWork;
 
     public EndImpersonationCommandHandler(
         IImpersonationAuditLogRepository auditLogs,
         IIdentityUnitOfWork unitOfWork)
     {
         _auditLogs = auditLogs;
-        _unitOfWork = unitOfWork;
+        _identityUnitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(
@@ -46,7 +46,7 @@ public sealed class EndImpersonationCommandHandler
 
         auditLog.End();
 
-        await _unitOfWork.SaveChangesAsync(ct);
+        await _identityUnitOfWork.SaveChangesAsync(ct);
 
         return Result.Success();
     }

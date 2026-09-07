@@ -1,6 +1,7 @@
 ﻿using Identity.Application.Abstractions;
-using Identity.Domain;
+using Identity.Domain.Entities;
 using Identity.Domain.Repositories;
+using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;

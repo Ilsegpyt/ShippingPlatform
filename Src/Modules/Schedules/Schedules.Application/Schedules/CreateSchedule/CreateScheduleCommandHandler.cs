@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.Application;
 using MediatR;
 using Schedules.Application.Abstractions;
+using Schedules.Domain.Entities;
 
 namespace Schedules.Application.Schedules.CreateSchedule;
 
@@ -13,7 +14,7 @@ public sealed class CreateScheduleCommandHandler(
         CreateScheduleCommand command,
         CancellationToken ct)
     {
-        var schedule = Domain.Schedule.Schedule.Create(
+        var schedule =Schedule.Create(
             command.RouteId,
             command.Mode,
             command.DepartureDate,

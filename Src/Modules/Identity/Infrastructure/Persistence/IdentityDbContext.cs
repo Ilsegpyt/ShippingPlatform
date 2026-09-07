@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.Domain;
 using BuildingBlocks.Domain.Outbox;
 using Identity.Application.Abstractions;
-using Identity.Domain;
+using Identity.Domain.Entities;
 using Identity.Domain.Impersonation;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -10,15 +10,11 @@ using System.Text.Json;
 
 namespace Identity.Infrastructure.Persistence;
 
-public sealed class IdentityDbContext
-    : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>,
-      IIdentityUnitOfWork
+public sealed class IdentityDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>, IIdentityUnitOfWork
 {
     private IDbContextTransaction? _transaction;
 
-    public IdentityDbContext(
-        DbContextOptions<IdentityDbContext> options)
-        : base(options)
+    public IdentityDbContext(DbContextOptions<IdentityDbContext> options) : base(options)
     {
     }
 
@@ -27,9 +23,9 @@ public sealed class IdentityDbContext
     public DbSet<Role> BusinessRoles => Set<Role>();
     public DbSet<AccountManagerAssignment> AccountManagerAssignments => Set<AccountManagerAssignment>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
-    public DbSet<ImpersonationAuditLog> ImpersonationAuditLogs
-        => Set<ImpersonationAuditLog>(); 
+    public DbSet<ImpersonationAuditLog> ImpersonationAuditLogs => Set<ImpersonationAuditLog>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -65,8 +61,7 @@ public sealed class IdentityDbContext
         await _transaction.DisposeAsync();
         _transaction = null;
     }
-    public override async Task<int> SaveChangesAsync(
-    CancellationToken ct = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken ct = default)
     {
         var aggregates = ChangeTracker
             .Entries<IAggregateRoot>()

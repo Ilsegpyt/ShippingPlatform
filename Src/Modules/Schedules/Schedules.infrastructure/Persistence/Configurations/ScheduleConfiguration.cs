@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Schedules.Domain.Schedule;
+using Schedules.Domain.Entities;
 
 namespace Schedules.Infrastructure.Persistence.Configurations;
 

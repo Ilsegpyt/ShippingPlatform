@@ -1,7 +1,7 @@
 ﻿
 using Identity.Application.Impersonation.EndImpersonation;
 using Identity.Application.Impersonation.ImpersonateCustomer;
-using Identity.Domain;
+using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 using System.Security.Claims;

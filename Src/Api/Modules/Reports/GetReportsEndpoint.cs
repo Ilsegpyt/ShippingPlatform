@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
-using BuildingBlocks.Application.Contracts;
-using Identity.Domain;
+using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 using Reports.Application.Reports.GetReports;

@@ -11,12 +11,14 @@
   <Folder Name="/Src/Modules/" />
   <Folder Name="/Src/Modules/Customers/">
     <Project Path="Src/Modules/Customers/Customers.Application/Customers.Application.csproj" Id="7c4efb27-00fb-4a3e-9279-feeff3dff7ab" />
+    <Project Path="Src/Modules/Customers/Customers.Contracts/Customers.Contracts.csproj" Id="1be3cbf9-d6cf-487f-bb87-81377c32647e" />
     <Project Path="Src/Modules/Customers/Customers.Domain/Customers.Domain.csproj" Id="dd9f6713-28dd-45f8-b6da-26edf9a0522a" />
     <Project Path="Src/Modules/Customers/Infrastructure/Customers.Infrastructure.csproj" Id="d55d6bb8-a32f-489f-a40a-665d82ed315c" />
   </Folder>
   <Folder Name="/Src/Modules/Identity/">
     <Project Path="Src/Modules/Identity/Application/Identity.Application.csproj" />
     <Project Path="Src/Modules/Identity/Domain/Identity.Domain.csproj" />
+    <Project Path="Src/Modules/Identity/Identity.Contracts/Identity.Contracts.csproj" Id="bc7a65ae-fdf7-4137-986b-e7d3b3435868" />
     <Project Path="Src/Modules/Identity/Infrastructure/Identity.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/Src/Modules/Notifications/">

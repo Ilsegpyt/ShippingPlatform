@@ -1,4 +1,6 @@
 ﻿
+using Identity.Domain.Entities;
+
 namespace Identity.Domain.Repositories;
 
 public interface IInternalUserRepository

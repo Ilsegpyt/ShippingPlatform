@@ -1,5 +1,7 @@
-﻿using Identity.Domain;
+﻿using Identity.Domain.Entities;
+using Identity.Domain.Enums;
 using Identity.Domain.Repositories;
+using Identity.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 

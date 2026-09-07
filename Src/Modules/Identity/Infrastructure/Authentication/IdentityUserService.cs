@@ -29,15 +29,11 @@ public sealed class IdentityUserService : IIdentityUserService
             PhoneNumber = phone
         };
 
-        var result = await _userManager.CreateAsync(
-            user,
-            defaultPassword);
+        var result = await _userManager.CreateAsync(user, defaultPassword);
 
         if (!result.Succeeded)
         {
-            var errors = string.Join(
-                "; ",
-                result.Errors.Select(e => e.Description));
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
 
             if (result.Errors.Any(e =>
                 e.Code is "DuplicateEmail" or "DuplicateUserName"))
@@ -62,16 +58,14 @@ public sealed class IdentityUserService : IIdentityUserService
 
         var valid = await _userManager.CheckPasswordAsync(user, password);
 
-        return valid
-            ? user.Id
-            : null;
+        return valid ? user.Id : null;
+
     }
 
     // Activate or deactivate a user.
-    public async Task SetActiveAsync(Guid userId, bool isActive, CancellationToken ct = default)
+    public async Task SetUserStatusAsync(Guid userId, bool isActive, CancellationToken ct = default)
     {
-        var user = await _userManager.FindByIdAsync(
-            userId.ToString());
+        var user = await _userManager.FindByIdAsync(userId.ToString());
 
         if (user is null)
             return;
@@ -84,22 +78,21 @@ public sealed class IdentityUserService : IIdentityUserService
         await _userManager.UpdateAsync(user);
     }
 
-    // Check whether a user is active.
+    // Check if a user is active.
     public async Task<bool> IsActiveAsync(Guid userId, CancellationToken ct = default)
     {
-        var user = await _userManager.FindByIdAsync(
-            userId.ToString());
+        var user = await _userManager.FindByIdAsync(userId.ToString());
 
         return user is not null && user.IsActive;
     }
 
-    public async Task<Result> UpdateEmailAsync(Guid userId, string email,
-    CancellationToken ct = default)
+    // Update the user's email.
+    public async Task<IdentityUserOperationResult> UpdateEmailAsync(Guid userId, string email, CancellationToken ct = default)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
 
         if (user is null)
-            return Result.Failure("Identity user not found.");
+            return new IdentityUserOperationResult(false, "Identity user not found.");
 
         user.Email = email;
         user.UserName = email;
@@ -108,31 +101,50 @@ public sealed class IdentityUserService : IIdentityUserService
 
         if (!result.Succeeded)
         {
-            var errors = string.Join(
-                "; ",
-                result.Errors.Select(e => e.Description));
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
 
-            return Result.Failure(errors);
+            return new IdentityUserOperationResult(false, errors);
         }
 
-        return Result.Success();
+        return new IdentityUserOperationResult(true);
     }
 
-    public async Task<Result> ResetPasswordAsync(
-    Guid userId,
-    string newPassword,
-    CancellationToken ct = default)
+    // Reset the user's password.
+    public async Task<IdentityUserOperationResult> ResetPasswordAsync(Guid userId, string newPassword, CancellationToken ct = default)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
 
         if (user is null)
-            return Result.Failure("Identity user not found.");
+            return new IdentityUserOperationResult(false, "Identity user not found.");
+
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        var result = await _userManager.ResetPasswordAsync(
+        var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(
+                "; ",
+                result.Errors.Select(e => e.Description));
+
+            return new IdentityUserOperationResult(false, errors);
+        }
+
+        return new IdentityUserOperationResult(true);
+    }
+
+    // Updates the user's password.
+    public async Task<IdentityUserOperationResult> UpdatePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken ct = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        if (user is null)
+            return new IdentityUserOperationResult(false, "Identity user not found.");
+
+        var result = await _userManager.ChangePasswordAsync(
             user,
-            token,
+            currentPassword,
             newPassword);
 
         if (!result.Succeeded)
@@ -141,20 +153,22 @@ public sealed class IdentityUserService : IIdentityUserService
                 "; ",
                 result.Errors.Select(e => e.Description));
 
-            return Result.Failure(errors);
+            return new IdentityUserOperationResult(false, errors);
+
         }
 
-        return Result.Success();
+        return new IdentityUserOperationResult(true);
     }
-    public async Task<Result> DeleteUserAsync(
-    Guid userId,
-    CancellationToken ct = default)
+
+    // Delete the Identity user.
+    public async Task<IdentityUserOperationResult> DeleteUserAsync(Guid userId, CancellationToken ct = default)
     {
-        var user = await _userManager.FindByIdAsync(
-            userId.ToString());
+        var user = await _userManager.FindByIdAsync(userId.ToString());
 
         if (user is null)
-            return Result.Failure("Identity user not found.");
+            return new IdentityUserOperationResult(
+                false,
+                "Identity user not found.");
 
         var result = await _userManager.DeleteAsync(user);
 
@@ -164,10 +178,15 @@ public sealed class IdentityUserService : IIdentityUserService
                 "; ",
                 result.Errors.Select(e => e.Description));
 
-            return Result.Failure(errors);
+            return new IdentityUserOperationResult(
+                false,
+                errors);
         }
 
-        return Result.Success();
+        return new IdentityUserOperationResult(true);
     }
 
+
+
 }
+

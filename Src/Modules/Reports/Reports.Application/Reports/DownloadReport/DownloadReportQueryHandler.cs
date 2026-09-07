@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application.Contracts;
+﻿using Identity.Contracts;
 using MediatR;
 using Reports.Application.Abstractions;
 

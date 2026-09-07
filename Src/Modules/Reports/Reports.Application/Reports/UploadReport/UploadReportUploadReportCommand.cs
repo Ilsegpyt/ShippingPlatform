@@ -1,6 +1,6 @@
 ﻿using BuildingBlocks.Application;
 using MediatR;
-using Reports.Domain.Report;
+using Reports.Domain.Enums;
 
 namespace Reports.Application.Reports.UploadReport;
 

@@ -3,106 +3,56 @@
 namespace Identity.Application.Abstractions;
 
 /// <summary>
-/// Manages the underlying ASP.NET Core Identity users.
+/// Manages Identity users.
 /// </summary>
 public interface IIdentityUserService
 {
     /// <summary>
-    /// Creates an Identity user with a temporary/default password.
+    /// Creates a new Identity user.
     /// </summary>
-    Task<Guid> CreateUserAsync(
-        string email,
-        string defaultPassword,
-        bool isInternal,
-        string? phone,
-        CancellationToken ct = default);
+    Task<Guid> CreateUserAsync(string email, string defaultPassword, bool isInternal, string? phone, CancellationToken ct = default);
 
     /// <summary>
-    /// Validates user credentials and returns the user ID if valid.
+    /// Validates user credentials.
     /// </summary>
-    Task<Guid?> ValidateCredentialsAsync(
-        string email,
-        string password,
-        CancellationToken ct = default);
+    Task<Guid?> ValidateCredentialsAsync(string email, string password, CancellationToken ct = default);
 
     /// <summary>
-    /// Activates or deactivates an Identity user.
+    /// Activates or deactivates a user.
     /// </summary>
-    Task SetActiveAsync(
+    Task SetUserStatusAsync(Guid userId, bool isActive, CancellationToken ct = default);
+
+    /// <summary>
+    /// Checks if a user is active.
+    /// </summary>
+    Task<bool> IsActiveAsync(Guid userId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Updates the user's email.
+    /// </summary>
+    Task<IdentityUserOperationResult> UpdateEmailAsync(Guid userId, string email, CancellationToken ct = default);
+
+    /// <summary>
+    /// Resets the user's password.
+    /// </summary>
+    Task<IdentityUserOperationResult> ResetPasswordAsync(Guid userId, string newPassword, CancellationToken ct = default);
+
+    /// <summary>
+    /// Updates the user's password.
+    /// </summary>
+    Task<IdentityUserOperationResult> UpdatePasswordAsync(
         Guid userId,
-        bool isActive,
+        string currentPassword,
+        string newPassword,
         CancellationToken ct = default);
 
     /// <summary>
-    /// Checks whether an Identity user is active.
+    /// Deletes the user.
     /// </summary>
-    Task<bool> IsActiveAsync(
-        Guid userId,
-        CancellationToken ct = default);
-
-
-    Task<Result> UpdateEmailAsync(
-    Guid userId,
-    string email,
-    CancellationToken ct = default);
-
-    Task<Result> ResetPasswordAsync(
-   Guid userId,
-   string newPassword,
-   CancellationToken ct = default);
-
-
-    Task<Result> DeleteUserAsync(
-    Guid userId,
-    CancellationToken ct = default);
+    Task<IdentityUserOperationResult> DeleteUserAsync(Guid userId, CancellationToken ct = default);
 
 }
 
-/// <summary>
-/// Represents an access token and its corresponding refresh token.
-/// </summary>
-public sealed record TokenPair(
-    string AccessToken,
-    string RefreshToken,
-    DateTime AccessTokenExpiresAtUtc);
-
-/// <summary>
-/// Handles issuing, refreshing, and revoking authentication tokens.
-/// </summary>
-public interface ITokenService
-{
-    /// <summary>
-    /// Issues a new access and refresh token pair.
-    /// </summary>
-    Task<TokenPair> IssueTokensAsync(
-        Guid userId,
-        IReadOnlyDictionary<string, string> claims,
-        CancellationToken ct = default);
-
-    /// <summary>
-    /// Issues a new access and refresh token pair for a customer impersonation session.
-    /// The impersonator remains the authenticated user while the target organization
-    /// is stored as the impersonation context.
-    /// </summary>
-    Task<TokenPair> IssueImpersonationTokensAsync(
-        Guid impersonatorUserId,
-        Guid impersonatedOrganizationId,
-        CancellationToken ct = default);
-
-    /// <summary>
-    /// Validates and rotates a refresh token.
-    /// Returns null if the token is invalid, expired, or revoked.
-    /// </summary>
-    Task<TokenPair?> RefreshAsync(
-        string refreshToken,
-        CancellationToken ct = default);
-
-    /// <summary>
-    /// Revokes a refresh token.
-    /// </summary>
-    Task RevokeAsync(
-        string refreshToken,
-        CancellationToken ct = default);
-
-   
-}
+public sealed record IdentityUserOperationResult(
+    bool Succeeded,
+    string? Error = null);

@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using Reports.Application.Abstractions;
-using Reports.Domain.Report;
+using Reports.Domain.Entities;
 using Reports.Infrastructure.Persistence;
 
 namespace Reports.Infrastructure.Repositories;

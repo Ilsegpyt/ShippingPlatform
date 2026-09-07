@@ -1,6 +1,6 @@
 ﻿using Identity.Application.Roles.CreateRole;
 using Identity.Application.Roles.GrantPermissionToRole;
-using Identity.Domain;
+using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 

@@ -1,17 +1,15 @@
-﻿using BuildingBlocks.Application;
-using BuildingBlocks.Application.Behaviors;
-using BuildingBlocks.Application.Contracts;
-using FluentValidation;
-using Identity.Application;
+﻿using Identity.Application;
 using Identity.Application.Abstractions;
 using Identity.Application.AccountManagerAssignments;
+using Identity.Application.Options;
 using Identity.Application.SubAccounts.GetSubAccounts;
+using Identity.Contracts;
 using Identity.Domain.Repositories;
 using Identity.Infrastructure.Authentication;
 using Identity.Infrastructure.Integrations;
 using Identity.Infrastructure.Persistence;
+using Identity.Infrastructure.Persistence.Repositories;
 using Identity.Infrastructure.Queries;
-using Identity.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -30,7 +28,9 @@ public static class IdentityModuleServiceCollectionExtensions
     /// JWT bearer authentication, repositories, and the module's own Options.
     /// Called once from Api/Program.cs — no other module touches these types directly.
     /// </summary>
-    public static IServiceCollection AddIdentityModule(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddIdentityModule(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddOptions<JwtOptions>()
             .Bind(configuration.GetSection(JwtOptions.SectionName))
@@ -38,15 +38,18 @@ public static class IdentityModuleServiceCollectionExtensions
             .ValidateOnStart();
 
         services.AddOptions<SubAccountOptions>()
-            .Bind(configuration.GetSection(Identity.Application.SubAccountOptions.SectionName))
+            .Bind(configuration.GetSection(
+                SubAccountOptions.SectionName))
             .ValidateOnStart();
 
         services.AddOptions<Seeding.SeedOptions>()
-            .Bind(configuration.GetSection(Seeding.SeedOptions.SectionName))
+            .Bind(configuration.GetSection(
+                Seeding.SeedOptions.SectionName))
             .ValidateOnStart();
 
         services.AddDbContext<IdentityDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("IdentityDb")));
+            options.UseSqlServer(
+                configuration.GetConnectionString("IdentityDb")));
 
         services.AddScoped<ISubAccountQueries, SubAccountQueries>();
 
@@ -64,6 +67,7 @@ public static class IdentityModuleServiceCollectionExtensions
             .AddDefaultTokenProviders();
 
         var jwtSection = configuration.GetSection(JwtOptions.SectionName);
+
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -77,47 +81,41 @@ public static class IdentityModuleServiceCollectionExtensions
                     ValidIssuer = jwtSection["Issuer"],
                     ValidAudience = jwtSection["Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtSection["SigningKey"]!))
+                        Encoding.UTF8.GetBytes(
+                            jwtSection["SigningKey"]!))
                 };
             });
 
         services.AddAuthorizationBuilder();
-        services.AddScoped<IAuthorizationHandler, Authorization.PermissionAuthorizationHandler>();
 
-        //services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<IdentityDbContext>());
+        services.AddScoped<
+            IAuthorizationHandler,
+            Authorization.PermissionAuthorizationHandler>();
 
         services.AddScoped<ISubAccountRepository, SubAccountRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IInternalUserRepository, InternalUserRepository>();
-        services.AddScoped<ISubAccountReadRepository,SubAccountReadRepository>();
-        services.AddScoped<IAccountManagerAssignmentRepository, AccountManagerAssignmentRepository>();
+        services.AddScoped<ISubAccountReadRepository, SubAccountReadRepository>();
+        services.AddScoped<
+            IAccountManagerAssignmentRepository,
+            AccountManagerAssignmentRepository>();
         services.AddScoped<IAccountManagerQueries, AccountManagerQueries>();
 
         services.AddScoped<TokenClaimsBuilder>();
 
         services.AddScoped<IIdentityUserService, IdentityUserService>();
         services.AddScoped<ITokenService, TokenService>();
+
         services.AddScoped<Seeding.IdentitySeeder>();
 
         services.AddScoped<IIdentityUserRegistrar, IdentityUserRegistrar>();
         services.AddScoped<IIdentityUserUpdater, IdentityUserUpdater>();
 
-        services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssembly(
-                typeof(IIdentityUserService).Assembly);
-
-            cfg.AddOpenBehavior(
-                typeof(ValidationBehavior<,>));
-        });
-
-
-        services.AddValidatorsFromAssembly(typeof(IIdentityUserService).Assembly);
-
-        services.AddScoped<IImpersonationAuditLogRepository, ImpersonationAuditLogRepository>();
-
-
+        services.AddScoped<
+            IImpersonationAuditLogRepository,
+            ImpersonationAuditLogRepository>();
 
         return services;
     }
 }
+

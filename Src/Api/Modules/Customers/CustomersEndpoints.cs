@@ -1,10 +1,15 @@
 ﻿using Customers.Application.Customers.ActivateCustomer;
+using Customers.Application.Customers.DeleteCustomer;
 using Customers.Application.Customers.RegisterCustomer;
 using Customers.Application.Customers.SuspendCustomer;
 using Customers.Application.Customers.UpdateCustomerEmail;
 using Customers.Application.Customers.UpdateCustomerProfile;
-using Customers.Application.Queries;
-using Identity.Domain;
+using Customers.Application.Queries.GetCustomerById;
+using Customers.Application.Queries.ListAllCustomers;
+using Customers.Application.Queries.ListCustomers;
+using Customers.Application.Schedules.SearchCustomerMultiSchedules;
+using Customers.Application.Schedules.SearchCustomerSchedules;
+using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +33,7 @@ public static class CustomersEndpoints
         MapUpdateEmail(group);
         MapSearchSchedules(group);
         MapMultiSearchSchedules(group);
+        MapDelete(group);
     }
 
     private static void MapGetAll(IEndpointRouteBuilder group)
@@ -213,6 +219,26 @@ public static class CustomersEndpoints
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(result.Error);
         }).RequirePermission(PermissionCatalog.SchedulesSearch);
+    }
+    private static void MapDelete(IEndpointRouteBuilder group)
+    {
+        group.MapDelete("/{id:guid}", async (
+            Guid id,
+            ClaimsPrincipal user,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var deletedByUserId = user.GetUserId();
+
+            var result = await sender.Send(
+                new DeleteCustomerCommand(id, deletedByUserId),
+                ct);
+
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.CustomersDelete);
     }
 
 }

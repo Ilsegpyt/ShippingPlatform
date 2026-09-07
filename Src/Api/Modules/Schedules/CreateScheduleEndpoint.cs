@@ -1,5 +1,4 @@
-﻿
-using Identity.Domain;
+﻿using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 using Schedules.Application.Schedules.CreateSchedule;

@@ -3,7 +3,7 @@ using BuildingBlocks.Domain;
 using Identity.Application.AccountManagerAssignments.AssignAccountManager;
 using Identity.Application.AccountManagerAssignments.ChangeAccountManager;
 using Identity.Application.AccountManagerAssignments.RemoveAccountManager;
-using Identity.Domain;
+using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

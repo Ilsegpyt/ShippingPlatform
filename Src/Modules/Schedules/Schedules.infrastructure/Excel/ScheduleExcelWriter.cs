@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using Schedules.Application.Abstractions;
-using Schedules.Domain.Schedule;
+using Schedules.Domain.Entities;
+using Schedules.Domain.Enums;
 
 namespace Schedules.Infrastructure.Excel;
 

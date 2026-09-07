@@ -1,10 +1,10 @@
-﻿namespace Identity.Domain.Repositories;
+﻿using Identity.Domain.Entities;
+
+namespace Identity.Domain.Repositories;
 
 public interface IAccountManagerAssignmentRepository
 {
-    Task<AccountManagerAssignment?> GetByCustomerIdAsync(
-        Guid customerId,
-        CancellationToken ct = default);
+    Task<AccountManagerAssignment?> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default);
 
     void Add(AccountManagerAssignment assignment);
 

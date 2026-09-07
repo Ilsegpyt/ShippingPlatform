@@ -1,4 +1,6 @@
 ﻿
+using Identity.Domain.Entities;
+
 namespace Identity.Domain.Repositories;
 
 public interface ISubAccountRepository
@@ -8,7 +10,6 @@ public interface ISubAccountRepository
     Task<IReadOnlyList<SubAccount>> GetByOrganizationIdAsync(Guid organizationId, CancellationToken ct = default);
     void Add(SubAccount subAccount);
     void Update(SubAccount subAccount);
-
     void Delete(SubAccount subAccount);
 }
 

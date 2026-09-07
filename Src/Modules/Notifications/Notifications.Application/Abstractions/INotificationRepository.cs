@@ -4,7 +4,7 @@ namespace Notifications.Application.Abstractions;
 
 public interface INotificationRepository
 {
-    Task AddAsync(
-        Notification notification,
-        CancellationToken ct = default);
+    Task AddAsync(Notification notification, CancellationToken ct = default);
+
+
 }

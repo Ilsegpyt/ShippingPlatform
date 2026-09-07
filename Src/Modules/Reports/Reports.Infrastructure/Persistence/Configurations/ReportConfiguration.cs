@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Reports.Domain.Report;
+using Reports.Domain.Entities;
 
 namespace Reports.Infrastructure.Persistence.Configurations;
 

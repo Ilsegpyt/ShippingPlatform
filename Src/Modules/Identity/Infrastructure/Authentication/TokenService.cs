@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application.Contracts;
+﻿using Customers.Contracts;
 using Identity.Application;
 using Identity.Application.Abstractions;
 using Identity.Infrastructure.Persistence;
@@ -34,41 +34,20 @@ public sealed class TokenService : ITokenService
         _customers = customers;
     }
 
-    public async Task<TokenPair> IssueTokensAsync(
-        Guid userId,
-        IReadOnlyDictionary<string, string> claims,
-        CancellationToken ct = default)
+    public async Task<TokenPair> IssueTokensAsync(Guid userId, IReadOnlyDictionary<string, string> claims, CancellationToken ct = default)
     {
-        var (accessToken, expiresAtUtc) = CreateAccessToken(
-            userId,
-            claims);
+        var (accessToken, expiresAtUtc) = CreateAccessToken(userId, claims);
 
         var refreshTokenPlain = GenerateSecureRandomToken();
 
-        var refreshToken = RefreshToken.Create(
-            userId,
-            Hash(refreshTokenPlain),
-            DateTime.UtcNow.AddDays(_options.RefreshTokenDays));
+        var refreshToken = RefreshToken.Create(userId, Hash(refreshTokenPlain), DateTime.UtcNow.AddDays(_options.RefreshTokenDays));
 
         _db.RefreshTokens.Add(refreshToken);
 
-        await _db.SaveChangesAsync(ct);
-
-        return new TokenPair(
-            accessToken,
-            refreshTokenPlain,
-            expiresAtUtc);
+        return new TokenPair(accessToken, refreshTokenPlain, expiresAtUtc);
     }
 
-    /// <summary>
-    /// Issues a new access and refresh token pair for a customer impersonation session.
-    /// The impersonator remains the authenticated user while the target organization
-    /// is stored as the impersonation context.
-    /// </summary>
-    public async Task<TokenPair> IssueImpersonationTokensAsync(
-        Guid impersonatorUserId,
-        Guid impersonatedOrganizationId,
-        CancellationToken ct = default)
+    public async Task<TokenPair> IssueImpersonationTokensAsync(Guid impersonatorUserId, Guid impersonatedOrganizationId, CancellationToken ct = default)
     {
         var claims = new Dictionary<string, string>
         {
@@ -76,59 +55,40 @@ public sealed class TokenService : ITokenService
             ["org_id"] = impersonatedOrganizationId.ToString()
         };
 
-        var (accessToken, expiresAtUtc) = CreateAccessToken(
-            impersonatorUserId,
-            claims);
+        var (accessToken, expiresAtUtc) = CreateAccessToken(impersonatorUserId, claims);
 
         var refreshTokenPlain = GenerateSecureRandomToken();
 
-        var refreshToken = RefreshToken.CreateImpersonation(
-            impersonatorUserId,
-            Hash(refreshTokenPlain),
-            DateTime.UtcNow.AddDays(_options.RefreshTokenDays),
-            impersonatedOrganizationId);
+        var refreshToken = RefreshToken.CreateImpersonation(impersonatorUserId, Hash(refreshTokenPlain), DateTime.UtcNow.AddDays(_options.RefreshTokenDays), impersonatedOrganizationId);
 
         _db.RefreshTokens.Add(refreshToken);
 
-        await _db.SaveChangesAsync(ct);
-
-        return new TokenPair(
-            accessToken,
-            refreshTokenPlain,
-            expiresAtUtc);
+        return new TokenPair(accessToken, refreshTokenPlain, expiresAtUtc);
     }
 
-    public async Task<TokenPair?> RefreshAsync(
-        string refreshToken,
-        CancellationToken ct = default)
+    public async Task<TokenPair?> RefreshAsync(string refreshToken, CancellationToken ct = default)
     {
         var hash = Hash(refreshToken);
 
-        var existing = await _db.RefreshTokens
-            .FirstOrDefaultAsync(
-                x => x.TokenHash == hash,
-                ct);
+        var existingRefreshToken = await _db.RefreshTokens
+            .FirstOrDefaultAsync(x => x.TokenHash == hash, ct);
 
-        if (existing is null || !existing.IsActive)
+        if (existingRefreshToken is null || !existingRefreshToken.IsActive)
             return null;
 
-        var userIsActive = await _identityUsers.IsActiveAsync(
-            existing.UserId,
-            ct);
+        var userIsActive = await _identityUsers.IsActiveAsync(existingRefreshToken.UserId, ct);
 
         if (!userIsActive)
             return null;
 
         Dictionary<string, string> claims;
 
-        if (existing.TokenType == "impersonation")
+        if (existingRefreshToken.TokenType == "impersonation")
         {
-            if (existing.ImpersonatedOrganizationId is null)
+            if (existingRefreshToken.ImpersonatedOrganizationId is null)
                 return null;
 
-            var customer = await _customers.GetForAssignmentAsync(
-                existing.ImpersonatedOrganizationId.Value,
-                ct);
+            var customer = await _customers.GetByIdAsync(existingRefreshToken.ImpersonatedOrganizationId.Value, ct);
 
             if (customer is null || !customer.IsActive)
                 return null;
@@ -136,15 +96,13 @@ public sealed class TokenService : ITokenService
             claims = new Dictionary<string, string>
             {
                 ["token_type"] = "impersonation",
-                ["org_id"] =
-                    existing.ImpersonatedOrganizationId.Value.ToString()
+                ["org_id"] = existingRefreshToken.ImpersonatedOrganizationId.Value.ToString()
             };
         }
-        else
+        else // if refresh token was normal
+           // take the userId and build normal new claims 
         {
-            var claimsResult = await _claimsBuilder.BuildAsync(
-                existing.UserId,
-                ct);
+            var claimsResult = await _claimsBuilder.BuildAsync(existingRefreshToken.UserId, ct);
 
             if (claimsResult.IsFailure)
                 return null;
@@ -152,85 +110,55 @@ public sealed class TokenService : ITokenService
             claims = claimsResult.Value;
         }
 
-        var (accessToken, expiresAtUtc) = CreateAccessToken(
-            existing.UserId,
-            claims);
+        var (accessToken, expiresAtUtc) = CreateAccessToken(existingRefreshToken.UserId, claims);
 
         var newRefreshTokenPlain = GenerateSecureRandomToken();
 
         RefreshToken newRefreshToken;
 
-        if (existing.TokenType == "impersonation")
+        if (existingRefreshToken.TokenType == "impersonation")
         {
-            newRefreshToken = RefreshToken.CreateImpersonation(
-                existing.UserId,
-                Hash(newRefreshTokenPlain),
-                DateTime.UtcNow.AddDays(_options.RefreshTokenDays),
-                existing.ImpersonatedOrganizationId!.Value);
+            newRefreshToken = RefreshToken.CreateImpersonation(existingRefreshToken.UserId, Hash(newRefreshTokenPlain), DateTime.UtcNow.AddDays(_options.RefreshTokenDays), existingRefreshToken.ImpersonatedOrganizationId!.Value);
         }
         else
         {
-            newRefreshToken = RefreshToken.Create(
-                existing.UserId,
-                Hash(newRefreshTokenPlain),
-                DateTime.UtcNow.AddDays(_options.RefreshTokenDays));
+            newRefreshToken = RefreshToken.Create(existingRefreshToken.UserId, Hash(newRefreshTokenPlain), DateTime.UtcNow.AddDays(_options.RefreshTokenDays));
         }
 
-        existing.Revoke(newRefreshToken.Id);
+        existingRefreshToken.Revoke(newRefreshToken.Id);
 
         _db.RefreshTokens.Add(newRefreshToken);
 
-        await _db.SaveChangesAsync(ct);
-
-        return new TokenPair(
-            accessToken,
-            newRefreshTokenPlain,
-            expiresAtUtc);
+        return new TokenPair(accessToken, newRefreshTokenPlain, expiresAtUtc);
     }
-
-    public async Task RevokeAsync(
-        string refreshToken,
-        CancellationToken ct = default)
+  
+    public async Task RevokeAsync(string refreshToken, CancellationToken ct = default)
     {
         var hash = Hash(refreshToken);
 
         var existing = await _db.RefreshTokens
-            .FirstOrDefaultAsync(
-                x => x.TokenHash == hash,
-                ct);
+            .FirstOrDefaultAsync(x => x.TokenHash == hash, ct);
 
         existing?.Revoke();
-
-        await _db.SaveChangesAsync(ct);
     }
 
-    private (
-        string token,
-        DateTime expiresAtUtc) CreateAccessToken(
-        Guid userId,
-        IReadOnlyDictionary<string, string> claims)
+    private (string token, DateTime expiresAtUtc) CreateAccessToken(Guid userId, IReadOnlyDictionary<string, string> claims)
     {
-        var expiresAtUtc = DateTime.UtcNow.AddMinutes(
-            _options.AccessTokenMinutes);
+        var expiresAtUtc = DateTime.UtcNow.AddMinutes(_options.AccessTokenMinutes);
 
         var claimsList = new List<Claim>
         {
-            new(
-                JwtRegisteredClaimNames.Sub,
-                userId.ToString())
+            new( JwtRegisteredClaimNames.Sub, userId.ToString())
         };
 
         claimsList.AddRange(
-            claims
-                .Where(c => c.Key != "sub")
-                .Select(c => new Claim(c.Key, c.Value)));
+            claims.Where(c => c.Key != "sub")
+                 .Select(c => new Claim(c.Key, c.Value)));
 
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_options.SigningKey));
 
-        var credentials = new SigningCredentials(
-            key,
-            SecurityAlgorithms.HmacSha256);
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
             issuer: _options.Issuer,
@@ -239,9 +167,7 @@ public sealed class TokenService : ITokenService
             expires: expiresAtUtc,
             signingCredentials: credentials);
 
-        return (
-            new JwtSecurityTokenHandler().WriteToken(token),
-            expiresAtUtc);
+        return (new JwtSecurityTokenHandler().WriteToken(token), expiresAtUtc);
     }
 
     private static string GenerateSecureRandomToken() =>

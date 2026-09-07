@@ -1,5 +1,4 @@
 ﻿using BuildingBlocks.Application;
-using Identity.Application.Abstractions;
 using MediatR;
 
 namespace Identity.Application.Impersonation.ImpersonateCustomer;

@@ -1,9 +1,9 @@
-﻿using Identity.Domain;
+﻿using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Reports.Application.Reports.UploadReport;
-using Reports.Domain.Report;
+using Reports.Domain.Enums;
 using System.Security.Claims;
 
 namespace Api.Modules.Reports;

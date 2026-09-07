@@ -11,9 +11,9 @@ public sealed class UpdateSubAccountEmailHandler(
     IIdentityUnitOfWork unitOfWork)
     : IRequestHandler<UpdateSubAccountEmailCommand, Result>
 {
-    public async Task<Result> Handle(
-        UpdateSubAccountEmailCommand command,
-        CancellationToken ct)
+public async Task<Result> Handle(
+    UpdateSubAccountEmailCommand command,
+    CancellationToken ct)
     {
         var subAccount = await repository.GetByIdAsync(
             command.SubAccountId,
@@ -27,8 +27,8 @@ public sealed class UpdateSubAccountEmailHandler(
             command.Email,
             ct);
 
-        if (!identityResult.IsSuccess)
-            return identityResult;
+        if (!identityResult.Succeeded)
+            return Result.Failure(identityResult.Error!);
 
         subAccount.UpdateEmail(command.Email);
 
@@ -36,4 +36,5 @@ public sealed class UpdateSubAccountEmailHandler(
 
         return Result.Success();
     }
-}
+ }
+    

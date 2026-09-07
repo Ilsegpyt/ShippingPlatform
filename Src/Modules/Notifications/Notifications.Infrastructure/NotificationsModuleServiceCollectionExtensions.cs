@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Notifications.Application.Abstractions;
 using Notifications.Infrastructure.Email;
 using Notifications.Infrastructure.Persistence;
+using Notifications.Infrastructure.Persistence.Repositories;
 
 namespace Notifications.Infrastructure;
 

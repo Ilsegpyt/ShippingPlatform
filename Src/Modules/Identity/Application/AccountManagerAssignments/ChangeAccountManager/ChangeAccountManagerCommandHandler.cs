@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.Application;
-using BuildingBlocks.Application.Contracts;
+using Customers.Contracts;
 using Identity.Application.Abstractions;
-using Identity.Domain;
+using Identity.Domain.Entities;
 using Identity.Domain.Repositories;
 using MediatR;
 
@@ -20,7 +20,7 @@ public sealed class ChangeAccountManagerCommandHandler(
         CancellationToken ct)
     {
         var customer =
-            await customerQueries.GetForAssignmentAsync(
+            await customerQueries.GetByIdAsync(
                 cmd.CustomerId,
                 ct);
 

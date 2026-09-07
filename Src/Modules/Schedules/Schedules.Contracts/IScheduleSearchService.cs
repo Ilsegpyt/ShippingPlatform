@@ -1,13 +1,10 @@
 ﻿namespace Schedules.Contracts;
 
+// Search for a set of schdules that matches the criteria
 public interface IScheduleSearchService
 {
-    Task<IReadOnlyList<ScheduleSearchResult>> SearchAsync(
-        string origin,
-        string destination,
-        DateOnly departureDate,
-        string containerSize,
-        CancellationToken ct);
+    Task<IReadOnlyList<ScheduleSearchResult>> SearchAsync(string origin, string destination, DateOnly departureDate, string containerSize, CancellationToken ct);
+
 }
 
 public sealed record ScheduleSearchResult(

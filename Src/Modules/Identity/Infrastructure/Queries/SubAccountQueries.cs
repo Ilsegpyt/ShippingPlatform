@@ -1,5 +1,5 @@
-﻿using BuildingBlocks.Application.Contracts;
-using Identity.Domain;
+﻿using Identity.Contracts;
+using Identity.Domain.Enums;
 using Identity.Domain.Repositories;
 
 namespace Identity.Infrastructure.Queries;

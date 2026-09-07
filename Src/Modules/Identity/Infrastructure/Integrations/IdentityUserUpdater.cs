@@ -1,21 +1,18 @@
 ﻿using BuildingBlocks.Application;
-using BuildingBlocks.Application.Contracts;
 using Identity.Application.Abstractions;
+using Identity.Contracts;
 
 namespace Identity.Infrastructure.Integrations;
 
-internal sealed class IdentityUserUpdater(
-    IIdentityUserService identityUsers)
-    : IIdentityUserUpdater
+internal sealed class IdentityUserUpdater(IIdentityUserService identityUsers) : IIdentityUserUpdater
 {
-    public async Task<Result> UpdateEmailAsync(
-        Guid userId,
-        string email,
-        CancellationToken ct = default)
+    public async Task<Result> UpdateEmailAsync(Guid userId, string email, CancellationToken ct = default)
     {
-        return await identityUsers.UpdateEmailAsync(
-            userId,
-            email,
-            ct);
+        var result = await identityUsers.UpdateEmailAsync(userId, email, ct);
+
+        if (!result.Succeeded)
+            return Result.Failure(result.Error!);
+
+        return Result.Success();
     }
 }

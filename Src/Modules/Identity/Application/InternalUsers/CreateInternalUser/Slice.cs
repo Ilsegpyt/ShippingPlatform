@@ -1,7 +1,8 @@
 ﻿using BuildingBlocks.Application;
 using FluentValidation;
 using Identity.Application.Abstractions;
-using Identity.Domain;
+using Identity.Application.Options;
+using Identity.Domain.Entities;
 using Identity.Domain.Repositories;
 using MediatR;
 using Microsoft.Extensions.Options;
@@ -46,6 +47,7 @@ public sealed class CreateInternalUserHandler : IRequestHandler<CreateInternalUs
         
     }
 
+    // need Transaction
     public async Task<Result<CreateInternalUserResponse>> Handle(CreateInternalUserCommand command, CancellationToken ct)
     {
         var role = await _roles.GetByIdAsync(command.RoleId, ct);
@@ -55,10 +57,11 @@ public sealed class CreateInternalUserHandler : IRequestHandler<CreateInternalUs
         var userId = await _identityUsers.CreateUserAsync(command.Email, _options.DefaultPassword, isInternal: true, command.Phone, ct);
 
         var internalUser = InternalUser.Create(userId, command.RoleId, command.Name, command.Email, command.Phone);
+
         _internalUsers.Add(internalUser);
+
         await _identityUnitOfWork.SaveChangesAsync(ct);
 
-      
 
         return Result.Success(new CreateInternalUserResponse(internalUser.Id, _options.DefaultPassword));
     }

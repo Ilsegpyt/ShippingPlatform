@@ -1,4 +1,4 @@
-﻿using Customers.Application.Queries;
+﻿using Customers.Application.Schedules.SearchCustomerMultiSchedules;
 
 namespace Api.Modules.Customers;
 

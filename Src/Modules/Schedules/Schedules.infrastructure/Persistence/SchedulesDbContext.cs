@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using Schedules.Application.Abstractions;
-using Schedules.Domain.Schedule;
+using Schedules.Domain.Entities;
 
 namespace Schedules.Infrastructure.Persistence;
 

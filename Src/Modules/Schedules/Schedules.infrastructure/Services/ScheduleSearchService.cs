@@ -1,6 +1,6 @@
 ﻿using Schedules.Application.Abstractions;
 using Schedules.Contracts;
-using Schedules.Domain.Schedule;
+using Schedules.Domain.Enums;
 
 namespace Schedules.Infrastructure.Services;
 
@@ -8,12 +8,7 @@ public sealed class ScheduleSearchService(
     IScheduleRepository scheduleRepository)
     : IScheduleSearchService, IScheduleQueryService
 {
-    public async Task<IReadOnlyList<ScheduleSearchResult>> SearchAsync(
-        string origin,
-        string destination,
-        DateOnly departureDate,
-        string containerSize,
-        CancellationToken ct)
+    public async Task<IReadOnlyList<ScheduleSearchResult>> SearchAsync(string origin, string destination, DateOnly departureDate, string containerSize, CancellationToken ct)
     {
         if (!Enum.TryParse<ContainerSize>(
                 containerSize,
@@ -52,14 +47,9 @@ public sealed class ScheduleSearchService(
             .ToList();
     }
 
-    public async Task<ScheduleSearchResult?> GetByIdAsync(
-        Guid scheduleId,
-        CancellationToken ct)
+    public async Task<ScheduleSearchResult?> GetByIdAsync(Guid scheduleId, CancellationToken ct)
     {
-        var schedule = await scheduleRepository.GetByIdAsync(
-            scheduleId,
-            ct);
-
+        var schedule = await scheduleRepository.GetByIdAsync(scheduleId, ct);
         if (schedule is null)
             return null;
 

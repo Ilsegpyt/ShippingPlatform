@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.Application;
 using MediatR;
-using Schedules.Domain.Schedule;
+using Schedules.Domain.Entities;
+using Schedules.Domain.Enums;
 
 namespace Schedules.Application.Schedules.ExportSearchResults;
 

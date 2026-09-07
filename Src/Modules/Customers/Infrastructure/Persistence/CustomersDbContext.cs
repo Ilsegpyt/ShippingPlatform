@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.Domain;
 using BuildingBlocks.Domain.Outbox;
 using Customers.Application.Abstractions;
-using Customers.Domain;
+using Customers.Domain.Entities;
 using Customers.Domain.SearchHistory;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -47,9 +47,7 @@ public sealed class CustomersDbContext : DbContext, ICustomersUnitOfWork
                 var outboxMessage = new OutboxMessage(
                     Guid.NewGuid(),
                     domainEvent.GetType().AssemblyQualifiedName!,
-                    JsonSerializer.Serialize(
-                        domainEvent,
-                        domainEvent.GetType()),
+                    JsonSerializer.Serialize(domainEvent, domainEvent.GetType()),
                     domainEvent.OccurredOnUtc);
 
                 OutboxMessages.Add(outboxMessage);

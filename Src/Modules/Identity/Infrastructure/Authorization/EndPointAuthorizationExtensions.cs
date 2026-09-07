@@ -1,4 +1,4 @@
-﻿using Identity.Domain;
+﻿using Identity.Domain.ValueObjects;
 using Microsoft.AspNetCore.Builder;
 
 

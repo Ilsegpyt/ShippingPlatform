@@ -1,6 +1,7 @@
 ﻿using BuildingBlocks.Application;
-using BuildingBlocks.Application.Contracts;
-using Identity.Domain;
+using Customers.Contracts;
+using Identity.Domain.Entities;
+using Identity.Domain.Enums;
 using Identity.Domain.Repositories;
 
 namespace Identity.Application;
@@ -9,7 +10,7 @@ public sealed class TokenClaimsBuilder(ICustomerQueries customerQueries, ISubAcc
 {
     public async Task<Result<Dictionary<string, string>>> BuildAsync(Guid userId, CancellationToken ct)
     {
-        var customer = await customerQueries.GetByOwnerUserIdAsync(userId, ct);
+        var customer = await customerQueries.GetByUserIdAsync(userId, ct);
 
         if (customer is not null)
         {

@@ -20,9 +20,7 @@ public sealed class CustomerRegisteredIntegrationEventHandler
         _logger = logger;
     }
 
-    public async Task Handle(
-        CustomerRegisteredIntegrationEvent notification,
-        CancellationToken cancellationToken)
+    public async Task Handle(CustomerRegisteredIntegrationEvent notification, CancellationToken cancellationToken)
     {
         _logger.LogInformation(
             "Handling CustomerRegisteredIntegrationEvent for {Email}",

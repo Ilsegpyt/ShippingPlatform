@@ -40,9 +40,23 @@ public sealed class CustomersOutboxProcessorWorker : BackgroundService
                     .Where(x =>
                         x.ProcessedOnUtc == null &&
                         x.RetryCount < 5 &&
-                        x.Type ==
-                        typeof(CustomerRegisteredEvent)
-                            .AssemblyQualifiedName)
+                        (
+                            x.Type ==
+                            typeof(CustomerRegisteredEvent)
+                                .AssemblyQualifiedName
+                            ||
+                            x.Type ==
+                            typeof(CustomerEmailChangedEvent)
+                                .AssemblyQualifiedName
+                            ||
+                            x.Type ==
+                            typeof(CustomerStatusChangedEvent)
+                                .AssemblyQualifiedName
+                            ||
+                            x.Type ==
+                            typeof(CustomerDeletedEvent)
+                                .AssemblyQualifiedName
+                        ))
                     .OrderBy(x => x.OccurredOnUtc)
                     .Take(20)
                     .ToListAsync(stoppingToken);
@@ -51,28 +65,108 @@ public sealed class CustomersOutboxProcessorWorker : BackgroundService
                 {
                     try
                     {
-                        var domainEvent =
-                            JsonSerializer.Deserialize<CustomerRegisteredEvent>(
-                                message.Payload);
-
-                        if (domainEvent is null)
+                        if (message.Type ==
+                            typeof(CustomerRegisteredEvent)
+                                .AssemblyQualifiedName)
                         {
-                            message.MarkAsFailed(
-                                "Failed to deserialize CustomerRegisteredEvent.");
+                            var domainEvent =
+                                JsonSerializer.Deserialize<CustomerRegisteredEvent>(
+                                    message.Payload);
 
-                            continue;
+                            if (domainEvent is null)
+                            {
+                                message.MarkAsFailed(
+                                    "Failed to deserialize CustomerRegisteredEvent.");
+
+                                continue;
+                            }
+
+                            var integrationEvent =
+                                new CustomerRegisteredIntegrationEvent(
+                                    domainEvent.CustomerId,
+                                    domainEvent.OwnerUserId,
+                                    domainEvent.OwnerName,
+                                    domainEvent.OwnerEmail);
+
+                            await publisher.Publish(
+                                integrationEvent,
+                                stoppingToken);
                         }
+                        else if (message.Type ==
+                                 typeof(CustomerEmailChangedEvent)
+                                     .AssemblyQualifiedName)
+                        {
+                            var domainEvent =
+                                JsonSerializer.Deserialize<CustomerEmailChangedEvent>(
+                                    message.Payload);
 
-                        var integrationEvent =
-                            new CustomerRegisteredIntegrationEvent(
-                                domainEvent.CustomerId,
-                                domainEvent.OwnerUserId,
-                                domainEvent.OwnerName,
-                                domainEvent.OwnerEmail);
+                            if (domainEvent is null)
+                            {
+                                message.MarkAsFailed(
+                                    "Failed to deserialize CustomerEmailChangedEvent.");
 
-                        await publisher.Publish(
-                            integrationEvent,
-                            stoppingToken);
+                                continue;
+                            }
+
+                            var integrationEvent =
+                                new CustomerEmailChangedIntegrationEvent(
+                                    domainEvent.CustomerId,
+                                    domainEvent.OwnerUserId,
+                                    domainEvent.NewEmail);
+
+                            await publisher.Publish(
+                                integrationEvent,
+                                stoppingToken);
+                        }
+                        else if (message.Type ==
+                                 typeof(CustomerStatusChangedEvent)
+                                     .AssemblyQualifiedName)
+                        {
+                            var domainEvent =
+                                JsonSerializer.Deserialize<CustomerStatusChangedEvent>(
+                                    message.Payload);
+
+                            if (domainEvent is null)
+                            {
+                                message.MarkAsFailed(
+                                    "Failed to deserialize CustomerStatusChangedEvent.");
+
+                                continue;
+                            }
+
+                            var integrationEvent =
+                                new CustomerStatusChangedIntegrationEvent(
+                                    domainEvent.CustomerId,
+                                    domainEvent.NewStatus.ToString());
+
+                            await publisher.Publish(
+                                integrationEvent,
+                                stoppingToken);
+                        }
+                        else if (message.Type ==
+                                 typeof(CustomerDeletedEvent)
+                                     .AssemblyQualifiedName)
+                        {
+                            var domainEvent =
+                                JsonSerializer.Deserialize<CustomerDeletedEvent>(
+                                    message.Payload);
+
+                            if (domainEvent is null)
+                            {
+                                message.MarkAsFailed(
+                                    "Failed to deserialize CustomerDeletedEvent.");
+
+                                continue;
+                            }
+
+                            var integrationEvent =
+                                new CustomerDeletedIntegrationEvent(
+                                    domainEvent.CustomerId);
+
+                            await publisher.Publish(
+                                integrationEvent,
+                                stoppingToken);
+                        }
 
                         message.MarkAsProcessed(DateTime.UtcNow);
 

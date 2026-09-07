@@ -1,9 +1,9 @@
-﻿using Identity.Domain;
+﻿using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 using Schedules.Application.Abstractions;
 using Schedules.Application.Schedules.ExportSearchResults;
-using Schedules.Domain.Schedule;
+using Schedules.Domain.Enums;
 
 namespace Api.Modules.Schedules;
 

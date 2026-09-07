@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Reports.Application.Reports.DownloadReport;
 using Reports.Application.Abstractions;
-using Identity.Domain;
+using Identity.Domain.ValueObjects;
 
 namespace Api.Modules.Reports;
 

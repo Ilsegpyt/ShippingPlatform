@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.Application.Behaviors;
-using BuildingBlocks.Application.Contracts;
-using Customers.Application.Contracts;
-using Customers.Application.Customers.RegisterCustomer;
+using Customers.Application.Commands.RegisterCustomer;
+using Customers.Application.Services;
+using Customers.Contracts;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,11 +12,9 @@ public static class CustomersApplicationServiceCollectionExtensions
     public static IServiceCollection AddCustomersApplication(
         this IServiceCollection services)
     {
-        services.AddScoped<CustomerRegistrar>();
-        services.AddScoped<ICustomerRegistrar>(sp =>
-            sp.GetRequiredService<CustomerRegistrar>());
 
         services.AddScoped<CustomerQueries>();
+
         services.AddScoped<ICustomerQueries>(sp =>
             sp.GetRequiredService<CustomerQueries>());
 

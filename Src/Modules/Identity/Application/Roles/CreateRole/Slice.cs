@@ -1,7 +1,7 @@
 ﻿using BuildingBlocks.Application;
 using FluentValidation;
 using Identity.Application.Abstractions;
-using Identity.Domain;
+using Identity.Domain.Entities;
 using Identity.Domain.Repositories;
 using MediatR;
 

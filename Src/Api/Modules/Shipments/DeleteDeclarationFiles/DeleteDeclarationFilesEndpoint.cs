@@ -1,5 +1,5 @@
 ﻿using Api.Modules.Shipments.DeleteDeclarationFiles.DeleteDeclarationFiles;
-using Identity.Domain;
+using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

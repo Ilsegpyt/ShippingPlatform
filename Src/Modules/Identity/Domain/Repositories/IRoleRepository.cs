@@ -1,4 +1,6 @@
-﻿namespace Identity.Domain.Repositories;
+﻿using Identity.Domain.Entities;
+
+namespace Identity.Domain.Repositories;
 
 public interface IRoleRepository
 {

@@ -1,5 +1,5 @@
 ﻿
-using Reports.Domain.Report;
+using Reports.Domain.Entities;
 
 namespace Reports.Application.Abstractions;
 
