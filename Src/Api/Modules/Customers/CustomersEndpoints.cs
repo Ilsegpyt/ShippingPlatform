@@ -6,6 +6,7 @@ using Customers.Application.Customers.SuspendCustomer;
 using Customers.Application.Customers.UpdateCustomerEmail;
 using Customers.Application.Customers.UpdateCustomerProfile;
 using Customers.Application.Queries.GetCustomerById;
+using Customers.Application.Queries.GetSearchHistory;
 using Customers.Application.Queries.ListAllCustomers;
 using Customers.Application.Queries.ListCustomers;
 using Customers.Application.Schedules.SearchCustomerMultiSchedules;
@@ -35,6 +36,7 @@ public static class CustomersEndpoints
         MapSearchSchedules(group);
         MapMultiSearchSchedules(group);
         MapDelete(group);
+        MapGetSearchHistory(group);
     }
 
     private static void MapGetAll(IEndpointRouteBuilder customers)
@@ -247,6 +249,22 @@ public static class CustomersEndpoints
                 : Results.BadRequest(result.Error);
         })
         .RequirePermission(PermissionCatalog.CustomersDelete);
+    }
+    private static void MapGetSearchHistory(IEndpointRouteBuilder group)
+    {
+        group.MapGet("/search-history", async (
+            [AsParameters] PaginationRequest pagination,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var result = await sender.Send(
+                new GetSearchHistoryQuery(pagination),
+                ct);
+
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(result.Error);
+        });
     }
 
 

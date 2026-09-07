@@ -7,17 +7,23 @@ namespace Customers.Infrastructure.Persistence.Repositories;
 public sealed class SearchHistoryRepository(CustomersDbContext dbContext)
     : ISearchHistoryRepository
 {
-    public  void Add(SearchHistory searchHistory)
+    public void Add(SearchHistory searchHistory)
     {
-         dbContext.SearchHistories.Add(searchHistory);
+        dbContext.SearchHistories.Add(searchHistory);
     }
 
-    public async Task<IReadOnlyList<SearchHistory>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct)
+    public async Task<IReadOnlyList<SearchHistory>> GetAllAsync(int skip, int take, CancellationToken ct)
     {
         return await dbContext.SearchHistories
             .AsNoTracking()
-            .Where(x => x.CustomerId == customerId)
             .OrderByDescending(x => x.SearchedOnUtc)
+            .Skip(skip)
+            .Take(take)
             .ToListAsync(ct);
+    }
+
+    public async Task<int> CountAsync(CancellationToken ct)
+    {
+        return await dbContext.SearchHistories.CountAsync(ct);
     }
 }
