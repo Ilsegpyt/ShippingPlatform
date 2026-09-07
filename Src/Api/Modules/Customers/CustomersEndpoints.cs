@@ -1,4 +1,5 @@
-﻿using Customers.Application.Customers.ActivateCustomer;
+﻿using BuildingBlocks.Application;
+using Customers.Application.Customers.ActivateCustomer;
 using Customers.Application.Customers.DeleteCustomer;
 using Customers.Application.Customers.RegisterCustomer;
 using Customers.Application.Customers.SuspendCustomer;
@@ -36,27 +37,34 @@ public static class CustomersEndpoints
         MapDelete(group);
     }
 
-    private static void MapGetAll(IEndpointRouteBuilder group)
+    private static void MapGetAll(IEndpointRouteBuilder customers)
     {
-        group.MapGet("/", async (ISender sender) =>
+        customers.MapGet("/", async (
+            [AsParameters] PaginationRequest pagination,
+            ISender sender,
+            CancellationToken ct) =>
         {
-            var result = await sender.Send(new ListCustomersQuery());
+            var result = await sender.Send(
+                new ListCustomersQuery(pagination),
+                ct);
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(result.Error);
-        })
-        .RequirePermission(PermissionCatalog.CustomersView);
+        });
     }
 
     private static void MapGetAllIncludingDeleted(IEndpointRouteBuilder group)
     {
         group.MapGet("/all", async (
             [FromQuery] bool deletedOnly,
-            ISender sender) =>
+            [AsParameters] PaginationRequest pagination,
+            ISender sender,
+            CancellationToken ct) =>
         {
             var result = await sender.Send(
-                new ListAllCustomersQuery(deletedOnly));
+                new ListAllCustomersQuery(deletedOnly, pagination),
+                ct);
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
@@ -240,6 +248,7 @@ public static class CustomersEndpoints
         })
         .RequirePermission(PermissionCatalog.CustomersDelete);
     }
+
 
 }
 

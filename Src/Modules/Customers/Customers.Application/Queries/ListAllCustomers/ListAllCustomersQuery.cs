@@ -11,17 +11,47 @@ namespace Customers.Application.Queries.ListAllCustomers;
 /// DeletedOnly = true  → deleted customers only
 /// DeletedOnly = false → all customers (active + deleted)
 /// </summary>
-public sealed record ListAllCustomersQuery(bool DeletedOnly) : IRequest<Result<IReadOnlyList<CustomerResponse>>>;
+public sealed record ListAllCustomersQuery(bool DeletedOnly , PaginationRequest Pagination) : IRequest<Result<PagedResult<CustomerResponse>>>;
 
 public sealed class ListAllCustomersQueryHandler(ICustomerRepository repository)
-    : IRequestHandler<ListAllCustomersQuery, Result<IReadOnlyList<CustomerResponse>>>
+    : IRequestHandler<ListAllCustomersQuery, Result<PagedResult<CustomerResponse>>>
 {
-    public async Task<Result<IReadOnlyList<CustomerResponse>>> Handle(ListAllCustomersQuery query, CancellationToken ct)
+    public async Task<Result<PagedResult<CustomerResponse>>> Handle(
+        ListAllCustomersQuery query,
+        CancellationToken ct)
     {
-        var customers = await repository.ListIgnoringDeletedFilterAsync(query.DeletedOnly, ct);
-        var response = customers.Select(c => new CustomerResponse(
-            c.Id, c.OwnerName, c.CompanyName, c.OwnerPhone, c.OwnerEmail, c.Industry, c.Status.ToString())).ToList();
+        var page = query.Pagination.PageNumber;
+        var pageSize = query.Pagination.PageSize;
 
-        return Result.Success<IReadOnlyList<CustomerResponse>>(response);
+        var skip = (page - 1) * pageSize;
+
+        var customers = await repository.ListIgnoringDeletedFilterAsync(
+            query.DeletedOnly,
+            skip,
+            pageSize,
+            ct);
+
+        var totalCount = await repository.CountIgnoringDeletedFilterAsync(
+            query.DeletedOnly,
+            ct);
+
+        var items = customers
+            .Select(c => new CustomerResponse(
+                c.Id,
+                c.OwnerName,
+                c.CompanyName,
+                c.OwnerPhone,
+                c.OwnerEmail,
+                c.Industry,
+                c.Status.ToString()))
+            .ToList();
+
+        var result = new PagedResult<CustomerResponse>(
+            items,
+            totalCount,
+            page,
+            pageSize);
+
+        return Result.Success(result);
     }
 }

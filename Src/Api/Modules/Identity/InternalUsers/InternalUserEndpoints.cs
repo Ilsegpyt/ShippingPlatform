@@ -115,6 +115,6 @@ public static class InternalUserEndpoints
 
             return Results.Ok(result);
         })
-        .RequirePermission(PermissionCatalog.CustomersView);
+        .RequirePermission(PermissionCatalog.UsersView);
     }
 }

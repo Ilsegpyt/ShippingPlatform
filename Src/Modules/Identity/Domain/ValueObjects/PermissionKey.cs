@@ -61,6 +61,9 @@ public static class PermissionCatalog
     public static readonly PermissionKey RolesManage =
         PermissionKey.Of("identity.roles.manage");
 
+    public static readonly PermissionKey UsersView =
+       PermissionKey.Of("identity.users.view");
+
 
     // SubAccounts
     public static readonly PermissionKey SubAccountsView =
@@ -181,6 +184,7 @@ public static class PermissionCatalog
         ShipmentsTrack,
 
         ReportsView,
+        UsersView,
 
         SchedulesView,
         SchedulesCreate,
