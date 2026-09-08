@@ -4,23 +4,26 @@ using Schedules.Application.Abstractions;
 
 namespace Schedules.Application.Schedules.DeleteSchedule;
 
-public sealed class DeleteScheduleCommandHandler(
+public sealed class DeleteSchedulesCommandHandler(
     IScheduleRepository scheduleRepository,
     IUnitOfWork unitOfWork)
-    : IRequestHandler<DeleteScheduleCommand, Result>
+    : IRequestHandler<DeleteSchedulesCommand, Result>
 {
     public async Task<Result> Handle(
-        DeleteScheduleCommand command,
+        DeleteSchedulesCommand command,
         CancellationToken ct)
     {
-        var schedule = await scheduleRepository.GetByIdAsync(
-            command.Id,
-            ct);
+        foreach (var scheduleId in command.ScheduleIds)
+        {
+            var schedule = await scheduleRepository.GetByIdAsync(
+                scheduleId,
+                ct);
 
-        if (schedule is null)
-            return Result.Failure("Schedule not found.");
+            if (schedule is null)
+                return Result.Failure($"Schedule '{scheduleId}' not found.");
 
-        scheduleRepository.Remove(schedule);
+            scheduleRepository.Remove(schedule);
+        }
 
         await unitOfWork.SaveChangesAsync(ct);
 

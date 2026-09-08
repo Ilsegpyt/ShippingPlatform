@@ -12,7 +12,6 @@ public static class SchedulesEndpoints
         DeleteScheduleEndpoint.Map(app);
         ExportSchedulesEndpoint.Map(app);
         ExportSearchResultsEndpoint.Map(app);
-        BulkDeleteSchedulesEndpoint.Map(app);
         UpdateScheduleEndpoint.Map(app);
         MultiRouteSearchEndpoint.Map(app);
     }
