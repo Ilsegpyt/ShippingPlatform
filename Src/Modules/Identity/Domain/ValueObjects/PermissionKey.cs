@@ -170,7 +170,7 @@ public static class PermissionCatalog
     [
         CustomersView,
         CustomersEdit,
-        CustomersDelete,
+       
 
         SubAccountsView,
         SubAccountsCreate,

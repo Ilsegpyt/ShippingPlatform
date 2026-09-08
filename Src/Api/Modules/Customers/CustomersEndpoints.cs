@@ -1,6 +1,6 @@
 ﻿using BuildingBlocks.Application;
+using Customers.Application.Commands.DeleteCustomer;
 using Customers.Application.Customers.ActivateCustomer;
-using Customers.Application.Customers.DeleteCustomer;
 using Customers.Application.Customers.RegisterCustomer;
 using Customers.Application.Customers.SuspendCustomer;
 using Customers.Application.Customers.UpdateCustomerEmail;
@@ -232,8 +232,8 @@ public static class CustomersEndpoints
     }
     private static void MapDelete(IEndpointRouteBuilder group)
     {
-        group.MapDelete("/{id:guid}", async (
-            Guid id,
+        group.MapDelete("/", async (
+            [FromBody] DeleteCustomersRequest request,
             ClaimsPrincipal user,
             ISender sender,
             CancellationToken ct) =>
@@ -241,7 +241,9 @@ public static class CustomersEndpoints
             var deletedByUserId = user.GetUserId();
 
             var result = await sender.Send(
-                new DeleteCustomerCommand(id, deletedByUserId),
+                new DeleteCustomersCommand(
+                    request.CustomerIds,
+                    deletedByUserId),
                 ct);
 
             return result.IsSuccess

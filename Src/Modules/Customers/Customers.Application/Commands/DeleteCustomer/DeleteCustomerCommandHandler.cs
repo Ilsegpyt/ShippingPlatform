@@ -2,26 +2,29 @@
 using Customers.Application.Abstractions;
 using MediatR;
 
-namespace Customers.Application.Customers.DeleteCustomer;
+namespace Customers.Application.Commands.DeleteCustomer;
 
-public sealed class DeleteCustomerCommandHandler(ICustomerRepository customerRepository, ICustomersUnitOfWork IcustomersUnitOfWorkunitOfWork)
-    : IRequestHandler<DeleteCustomerCommand, Result>
+public sealed class DeleteCustomerCommandHandler(ICustomerRepository customerRepository, ICustomersUnitOfWork  icustomersUnitOfWorkunitOfWork)
+    : IRequestHandler<DeleteCustomersCommand, Result>
 {
     public async Task<Result> Handle(
-        DeleteCustomerCommand request,
-        CancellationToken ct)
+     DeleteCustomersCommand request,
+     CancellationToken ct)
     {
-        var customer = await customerRepository.GetByIdAsync(
-            request.CustomerId,
-            ct);
+        foreach (var customerId in request.CustomerIds)
+        {
+            var customer = await customerRepository.GetByIdAsync(
+                customerId,
+                ct);
 
-        if (customer is null)
-            return Result.Failure("Customer not found.");
+            if (customer is null)
+                return Result.Failure($"Customer '{customerId}' not found.");
 
-        customer.MarkAsDeleted(request.DeletedByUserId);
+            customer.MarkAsDeleted(request.DeletedByUserId);
+        }
 
-        await IcustomersUnitOfWorkunitOfWork.SaveChangesAsync(ct);
+        await icustomersUnitOfWorkunitOfWork.SaveChangesAsync(ct);
 
         return Result.Success();
     }
-}
+ }

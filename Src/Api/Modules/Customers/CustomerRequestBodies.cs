@@ -18,3 +18,6 @@ public sealed record UpdateCustomerEmailRequest(
     string Email);
 public sealed record SearchCustomerMultiSchedulesRequest(
     IReadOnlyList<SearchCustomerMultiRouteItem> Routes);
+
+public sealed record DeleteCustomersRequest(
+    IReadOnlyCollection<Guid> CustomerIds);
