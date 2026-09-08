@@ -39,6 +39,8 @@ public sealed class DeleteShipmentsCommandHandler(
                 ct);
         }
 
+        declarationFileRepository.RemoveRange(declarationFiles);
+
         shipmentRepository.RemoveRange(shipments);
 
         await unitOfWork.SaveChangesAsync(ct);
