@@ -55,4 +55,12 @@ public sealed class ShipmentRepository : IShipmentRepository
     {
         _dbContext.Shipments.RemoveRange(shipments);
     }
+    public async Task<IReadOnlyList<Shipment>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default)
+    {
+        return await _dbContext.Shipments
+            .AsNoTracking()
+            .Where(x => x.CustomerId == customerId)
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .ToListAsync(ct);
+    }
 }

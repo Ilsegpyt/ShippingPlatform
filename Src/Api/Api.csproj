@@ -30,6 +30,8 @@
 		<ProjectReference Include="..\Modules\Schedules\Schedules.Application\Schedules.Application.csproj" />
 		<ProjectReference Include="..\Modules\Schedules\Schedules.infrastructure\Schedules.Infrastructure.csproj" />
 		<ProjectReference Include="..\Modules\Shipments\Shipments.Infrastructure\Shipments.Infrastructure.csproj" />
+		<ProjectReference Include="..\Modules\Tracking\Tracking.Application\Tracking.Application.csproj" />
+		<ProjectReference Include="..\Modules\Tracking\Tracking.Infrastructure\Tracking.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -9,4 +9,9 @@ public interface ISearchHistoryRepository
     Task<IReadOnlyList<SearchHistory>> GetAllAsync(int skip, int take, CancellationToken ct);
 
     Task<int> CountAsync(CancellationToken ct);
+
+    void RemoveRange(IReadOnlyCollection<SearchHistory> searchHistories);
+    Task<IReadOnlyList<SearchHistory>> GetByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct);
+
+
 }

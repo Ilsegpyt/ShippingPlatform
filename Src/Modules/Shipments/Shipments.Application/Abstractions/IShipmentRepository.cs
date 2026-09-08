@@ -10,4 +10,7 @@ public interface IShipmentRepository
     Task<IReadOnlyList<Shipment>> GetAllAsync(int skip, int take, CancellationToken ct = default);
     Task<int> CountAsync(CancellationToken ct = default);
     void RemoveRange(IReadOnlyCollection<Shipment> shipments);
+    Task<IReadOnlyList<Shipment>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default);
+
+
 }

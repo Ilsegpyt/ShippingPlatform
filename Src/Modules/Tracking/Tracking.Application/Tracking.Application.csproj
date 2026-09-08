@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="14.2.0" />
   </ItemGroup>
@@ -15,8 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\Application\BuildingBlocks.Application.csproj" />
     <ProjectReference Include="..\..\Schedules\Schedules.Contracts\Schedules.Contracts.csproj" />
-    <ProjectReference Include="..\Shipments.Contracts\Shipments.Contracts.csproj" />
-    <ProjectReference Include="..\Shipments.Domain\Shipments.Domain.csproj" />
+    <ProjectReference Include="..\..\Shipments\Shipments.Contracts\Shipments.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

@@ -39,7 +39,13 @@
   </Folder>
   <Folder Name="/Src/Modules/Shipments/">
     <Project Path="Src/Modules/Shipments/Shipments.Application/Shipments.Application.csproj" Id="d55d5f62-aa01-4e61-901e-7fd2f5f26299" />
+    <Project Path="Src/Modules/Shipments/Shipments.Contracts/Shipments.Contracts.csproj" Id="0b8bb505-282b-41ba-be94-81a7a88dc463" />
     <Project Path="Src/Modules/Shipments/Shipments.Domain/Shipments.Domain.csproj" Id="c2128594-986a-4f1d-9754-58924a3ca8e9" />
     <Project Path="Src/Modules/Shipments/Shipments.Infrastructure/Shipments.Infrastructure.csproj" Id="4d91ec10-7dc4-492d-b501-1bb3ae251682" />
+  </Folder>
+  <Folder Name="/Src/Modules/Tracking/">
+    <Project Path="Src/Modules/Tracking/Tracking.Application/Tracking.Application.csproj" Id="f6d53762-4ccb-4f25-8501-83a1dc34ec4a" />
+    <Project Path="Src/Modules/Tracking/Tracking.Domain/Tracking.Domain.csproj" Id="76c79018-e73b-4fef-a5ef-fd0e82b2b17b" />
+    <Project Path="Src/Modules/Tracking/Tracking.Infrastructure/Tracking.Infrastructure.csproj" Id="60c160d6-4e36-4579-abd5-71a6b5298b8a" />
   </Folder>
 </Solution>

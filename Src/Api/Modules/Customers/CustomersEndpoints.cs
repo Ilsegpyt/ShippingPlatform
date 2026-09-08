@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Application;
 using Customers.Application.Commands.DeleteCustomer;
+using Customers.Application.Commands.DeleteSearchHistories;
 using Customers.Application.Customers.ActivateCustomer;
 using Customers.Application.Customers.RegisterCustomer;
 using Customers.Application.Customers.SuspendCustomer;
@@ -37,6 +38,7 @@ public static class CustomersEndpoints
         MapMultiSearchSchedules(group);
         MapDelete(group);
         MapGetSearchHistory(group);
+        DeleteSearchHistoriesEndpoint.Map(app);
     }
 
     private static void MapGetAll(IEndpointRouteBuilder customers)
@@ -252,6 +254,30 @@ public static class CustomersEndpoints
         })
         .RequirePermission(PermissionCatalog.CustomersDelete);
     }
+    public static class DeleteSearchHistoriesEndpoint
+    {
+        public static void Map(IEndpointRouteBuilder app)
+        {
+            app.MapDelete("/api/customers/search-history", async (
+                [FromBody] DeleteSearchHistoriesRequest request,
+                ISender sender,
+                CancellationToken ct) =>
+            {
+                var command = new DeleteSearchHistoriesCommand(
+                    request.SearchHistoryIds);
+
+                var result = await sender.Send(command, ct);
+
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.BadRequest(result.Error);
+            })
+            .RequirePermission(PermissionCatalog.CustomersDelete);
+        }
+    }
+
+    public sealed record DeleteSearchHistoriesRequest(
+        IReadOnlyCollection<Guid> SearchHistoryIds);
     private static void MapGetSearchHistory(IEndpointRouteBuilder group)
     {
         group.MapGet("/search-history", async (

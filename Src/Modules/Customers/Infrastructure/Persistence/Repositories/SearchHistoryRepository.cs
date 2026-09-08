@@ -26,4 +26,14 @@ public sealed class SearchHistoryRepository(CustomersDbContext dbContext)
     {
         return await dbContext.SearchHistories.CountAsync(ct);
     }
+    public void RemoveRange(IReadOnlyCollection<SearchHistory> searchHistories)
+    {
+        dbContext.SearchHistories.RemoveRange(searchHistories);
+    }
+    public async Task<IReadOnlyList<SearchHistory>> GetByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct)
+    {
+        return await dbContext.SearchHistories
+            .Where(x => ids.Contains(x.Id))
+            .ToListAsync(ct);
+    }
 }

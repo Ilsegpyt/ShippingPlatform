@@ -17,8 +17,10 @@ using Schedules.Application;
 using Identity.Application;
 using Schedules.Infrastructure;
 using Shipments.Application;
+using Tracking.Application;
 using Shipments.Infrastructure;
 using System.Text.Json.Serialization;
+using Api.Modules.Tracking;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,7 @@ builder.Services.AddReportsModule(builder.Configuration);
 builder.Services.AddSchedulesInfrastructure(builder.Configuration);
 builder.Services.AddShipmentsInfrastructure(builder.Configuration);
 builder.Services.AddShipmentsApplication();
+builder.Services.AddTrackingApplication();
 
 builder.Services.AddBuildingBlocksInfrastructure();
 builder.Services.AddReportsApplication();
@@ -87,5 +90,6 @@ app.MapCustomersEndpoints();
 app.MapReportsEndpoints();
 app.MapSchedulesEndpoints();
 app.MapShipmentsEndpoints();
+app.MapTrackingEndpoints();
 
 app.Run();
