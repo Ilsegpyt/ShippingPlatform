@@ -5,31 +5,35 @@ using MediatR;
 
 namespace Identity.Application.InternalUsers.DeleteInternalUser;
 
-public sealed class DeleteInternalUserCommandHandler(
+public sealed class DeleteInternalUsersCommandHandler(
     IInternalUserRepository internalUsers,
     IIdentityUserService identityUsers,
     IIdentityUnitOfWork identityUnitOfWork)
-    : IRequestHandler<DeleteInternalUserCommand, Result>
+    : IRequestHandler<DeleteInternalUsersCommand, Result>
 {
     public async Task<Result> Handle(
-        DeleteInternalUserCommand request,
+        DeleteInternalUsersCommand request,
         CancellationToken ct)
     {
-        var internalUser = await internalUsers.GetByIdAsync(
-            request.InternalUserId,
-            ct);
+        foreach (var internalUserId in request.InternalUserIds)
+        {
+            var internalUser = await internalUsers.GetByIdAsync(
+                internalUserId,
+                ct);
 
-        if (internalUser is null)
-            return Result.Failure("Internal user not found.");
+            if (internalUser is null)
+                return Result.Failure(
+                    $"Internal user '{internalUserId}' not found.");
 
-        var identityResult = await identityUsers.DeleteUserAsync(
-            internalUser.UserId,
-            ct);
+            var identityResult = await identityUsers.DeleteUserAsync(
+                internalUser.UserId,
+                ct);
 
-        if (!identityResult.Succeeded)
-            return Result.Failure(identityResult.Error!);
+            if (!identityResult.Succeeded)
+                return Result.Failure(identityResult.Error!);
 
-        internalUsers.Delete(internalUser);
+            internalUsers.Delete(internalUser);
+        }
 
         await identityUnitOfWork.SaveChangesAsync(ct);
 

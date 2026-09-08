@@ -8,6 +8,7 @@ using Identity.Application.InternalUsers.UpdateInternalUserProfile;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Modules.Identity.InternalUsers;
 
@@ -85,23 +86,22 @@ public static class InternalUserEndpoints
         .RequirePermission(PermissionCatalog.UsersEdit);
     }
 
-    private static void MapDelete(IEndpointRouteBuilder users)
+    private static void MapDelete(IEndpointRouteBuilder group)
     {
-        users.MapDelete("/{id:guid}", async (
-            Guid id,
+        group.MapDelete("/", async (
+            [FromBody] DeleteInternalUsersCommand command,
             ISender sender,
             CancellationToken ct) =>
         {
-            var result = await sender.Send(
-                new DeleteInternalUserCommand(id),
-                ct);
+            var result = await sender.Send(command, ct);
 
             return result.IsSuccess
                 ? Results.NoContent()
                 : Results.BadRequest(result.Error);
         })
-        .RequirePermission(PermissionCatalog.UsersDelete);
+            .RequirePermission(PermissionCatalog.UsersDelete);
     }
+
     private static void MapGetAll(IEndpointRouteBuilder users)
     {
         users.MapGet("/", async (

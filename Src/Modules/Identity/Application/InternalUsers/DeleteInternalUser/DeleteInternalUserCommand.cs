@@ -3,5 +3,6 @@ using MediatR;
 
 namespace Identity.Application.InternalUsers.DeleteInternalUser;
 
-public sealed record DeleteInternalUserCommand(
-    Guid InternalUserId) : IRequest<Result>;
+public sealed record DeleteInternalUsersCommand(
+    IReadOnlyCollection<Guid> InternalUserIds)
+    : IRequest<Result>;
