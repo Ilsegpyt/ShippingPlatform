@@ -1,4 +1,5 @@
-﻿using Identity.Infrastructure.Authorization;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
 using MediatR;
 using System.Security.Claims;
 using Tracking.Application.Tracking.GetMyShipmentsTracking;
@@ -25,6 +26,6 @@ public static class GetMyShipmentsTrackingEndpoint
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.BadRequest(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.ShipmentsTrack);
     }
 }

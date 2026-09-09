@@ -1,4 +1,5 @@
-﻿using Identity.Infrastructure.Authorization;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
 using Notifications.Application.Services;
 using System.Security.Claims;
 
@@ -20,6 +21,6 @@ public static class NotificationEndpoints
                 ct);
 
             return Results.Ok(notifications);
-        });
+        }).RequirePermission(PermissionCatalog.NotificationsView);
     }
 }

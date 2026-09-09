@@ -45,6 +45,7 @@ public static class PermissionCatalog
     //public static readonly PermissionKey ImpersonateCustomer =
     //PermissionKey.Of("identity.impersonation.customer");
 
+
     // Identity
     public static readonly PermissionKey UsersCreate =
         PermissionKey.Of("identity.users.create");
@@ -62,7 +63,7 @@ public static class PermissionCatalog
         PermissionKey.Of("identity.roles.manage");
 
     public static readonly PermissionKey UsersView =
-       PermissionKey.Of("identity.users.view");
+        PermissionKey.Of("identity.users.view");
 
 
     // SubAccounts
@@ -119,9 +120,6 @@ public static class PermissionCatalog
         PermissionKey.Of("shipments.track");
 
 
-
-
-
     // Reports
     public static readonly PermissionKey ReportsView =
         PermissionKey.Of("reports.view");
@@ -146,23 +144,30 @@ public static class PermissionCatalog
     public static readonly PermissionKey SchedulesExport =
         PermissionKey.Of("schedules.export");
 
-
     public static readonly PermissionKey SchedulesUpdate =
         PermissionKey.Of("schedules.update");
 
     public static readonly PermissionKey SchedulesSearch =
         PermissionKey.Of("schedules.search");
+
+
+    // Notifications
+    public static readonly PermissionKey NotificationsView =
+        PermissionKey.Of("notifications.view");
+
+
     // Permissions available to SubAccounts
     public static readonly IReadOnlyCollection<PermissionKey> SubAccountPermissions =
     [
-       
         ReportsView
     ];
 
-      public static readonly IReadOnlyCollection<PermissionKey> AccountManagerPermissions =
-      [
-      ReportsUpload
-      ];
+
+    public static readonly IReadOnlyCollection<PermissionKey> AccountManagerPermissions =
+    [
+        ReportsUpload,
+        ShipmentsEdit
+    ];
 
 
     // Permissions available to Customer Owners
@@ -170,7 +175,6 @@ public static class PermissionCatalog
     [
         CustomersView,
         CustomersEdit,
-       
 
         SubAccountsView,
         SubAccountsCreate,
@@ -179,7 +183,6 @@ public static class PermissionCatalog
         SubAccountsSuspend,
 
         ShipmentsView,
-        ShipmentsEdit,
         ShipmentsBook,
         ShipmentsTrack,
 
@@ -191,7 +194,9 @@ public static class PermissionCatalog
         SchedulesDelete,
         SchedulesImport,
         SchedulesExport,
-        SchedulesSearch
+        SchedulesSearch,
+
+        NotificationsView
     ];
 
 
@@ -206,6 +211,7 @@ public static class PermissionCatalog
         UsersSuspend,
         UsersDelete,
         RolesManage,
+        UsersView,
 
         // SubAccounts
         SubAccountsView,
@@ -229,10 +235,6 @@ public static class PermissionCatalog
         ShipmentsBook,
         ShipmentsTrack,
 
-        // Documents
-        //DocumentsView,
-        //DocumentsUpload,
-
         // Reports
         ReportsView,
         ReportsUpload,
@@ -244,7 +246,9 @@ public static class PermissionCatalog
         SchedulesImport,
         SchedulesExport,
         SchedulesUpdate,
+        SchedulesSearch,
 
-        SchedulesSearch
+        // Notifications
+        NotificationsView
     };
 }
