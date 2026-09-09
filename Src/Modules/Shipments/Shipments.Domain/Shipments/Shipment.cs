@@ -1,9 +1,10 @@
-﻿namespace Shipments.Domain.Shipments;
+﻿using BuildingBlocks.Domain;
+using Shipments.Domain.Events;
 
-public sealed class Shipment
+namespace Shipments.Domain.Shipments;
+
+public sealed class Shipment : AggregateRoot<Guid>
 {
-    public Guid Id { get; private set; }
-
     public string ShipmentRef { get; private set; } = null!;
 
     public Guid CustomerId { get; private set; }
@@ -37,19 +38,63 @@ public sealed class Shipment
     private Shipment()
     {
     }
-    public void Update(
-    ShipmentStatus status,
-    string? mbl,
-    string? hbl,
-    string? mawb,
-    string? bookingConfirmationNumber)
+
+    private Shipment(
+        Guid id,
+        string shipmentRef,
+        Guid customerId,
+        Guid scheduleId,
+        string mode,
+        string carrier,
+        string containerType,
+        int quantity,
+        decimal rate,
+        decimal total,
+        ShipmentStatus status,
+        DateTime createdAtUtc)
+        : base(id)
     {
+        ShipmentRef = shipmentRef;
+        CustomerId = customerId;
+        ScheduleId = scheduleId;
+        Mode = mode;
+        Carrier = carrier;
+        ContainerType = containerType;
+        Quantity = quantity;
+        Rate = rate;
+        Total = total;
+        Status = status;
+        CreatedAtUtc = createdAtUtc;
+    }
+
+    public void Update(
+        ShipmentStatus status,
+        string? mbl,
+        string? hbl,
+        string? mawb,
+        string? bookingConfirmationNumber)
+    {
+        var oldStatus = Status;
+
         Status = status;
         MBL = mbl;
         HBL = hbl;
         MAWB = mawb;
         BookingConfirmationNumber = bookingConfirmationNumber;
+
+        if (oldStatus != status)
+        {
+            RaiseDomainEvent(
+                new ShipmentStatusChangedDomainEvent(
+                   Id,
+                    ShipmentRef,
+                    CustomerId,
+                    oldStatus,
+                    status,
+                    DateTime.UtcNow));
+        }
     }
+
     public static Shipment Create(
         Guid customerId,
         Guid scheduleId,
@@ -69,21 +114,22 @@ public sealed class Shipment
                 nameof(rate),
                 "Rate cannot be negative.");
 
-        return new Shipment
-        {
-            Id = Guid.NewGuid(),
-            ShipmentRef = GenerateShipmentReference(),
-            CustomerId = customerId,
-            ScheduleId = scheduleId,
-            Mode = mode,
-            Carrier = carrier,
-            ContainerType = containerType,
-            Quantity = quantity,
-            Rate = rate,
-            Total = quantity * rate,
-            Status = ShipmentStatus.Received,
-            CreatedAtUtc = DateTime.UtcNow
-        };
+        var id = Guid.NewGuid();
+        var createdAtUtc = DateTime.UtcNow;
+
+        return new Shipment(
+            id,
+            GenerateShipmentReference(),
+            customerId,
+            scheduleId,
+            mode,
+            carrier,
+            containerType,
+            quantity,
+            rate,
+            quantity * rate,
+            ShipmentStatus.Received,
+            createdAtUtc);
     }
 
     private static string GenerateShipmentReference()

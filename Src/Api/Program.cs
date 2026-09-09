@@ -45,6 +45,7 @@ builder.Services.AddProblemDetails(); // obligatory
 
 builder.Services.AddHostedService<IdentityOutboxProcessorWorker>();
 builder.Services.AddHostedService<CustomersOutboxProcessorWorker>();
+builder.Services.AddHostedService<ShipmentsOutboxProcessorWorker>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();

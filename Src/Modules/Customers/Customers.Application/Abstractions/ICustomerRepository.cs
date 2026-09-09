@@ -11,4 +11,7 @@ public interface ICustomerRepository
     Task<IReadOnlyList<Customer>> ListIgnoringDeletedFilterAsync(bool deletedOnly, int skip, int take, CancellationToken ct);
     Task<int> CountIgnoringDeletedFilterAsync(bool deletedOnly, CancellationToken ct);
     Task<Customer?> GetByUserIdAsync(Guid userId, CancellationToken ct);
+    Task<Customer?> GetOwnerByCustomerIdAsync(Guid customerId, CancellationToken ct);
+
+
 }

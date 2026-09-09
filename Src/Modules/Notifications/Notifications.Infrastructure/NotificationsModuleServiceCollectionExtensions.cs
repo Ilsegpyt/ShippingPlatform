@@ -37,6 +37,11 @@ public static class NotificationsModuleServiceCollectionExtensions
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
 
+
+        services.AddScoped<INotificationsUnitOfWork>(
+           sp => sp.GetRequiredService<NotificationsDbContext>());
+
+
         return services;
     }
 }

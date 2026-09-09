@@ -32,4 +32,19 @@ internal sealed class CustomerQueries(ICustomerRepository repository) : ICustome
                 customer.Id,
                 customer.Status == CustomerStatus.Active);
     }
+    public async Task<CustomerOwnerInfo?> GetOwnerByCustomerIdAsync(
+     Guid customerId,
+     CancellationToken ct)
+    {
+        var customer = await repository.GetOwnerByCustomerIdAsync(
+            customerId,
+            ct);
+
+        return customer is null
+            ? null
+            : new CustomerOwnerInfo(
+                customer.Id,
+                customer.OwnerUserId,
+                  customer.OwnerEmail);
+    }
 }
