@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using Notifications.Application.Services;
 using System.Security.Claims;
 
-namespace Api.Modules.Notifications.Notifications;
+namespace Api.Modules.Notifications;
 
 public static class NotificationEndpoints
 {
@@ -21,6 +21,24 @@ public static class NotificationEndpoints
                 ct);
 
             return Results.Ok(notifications);
+        }).RequirePermission(PermissionCatalog.NotificationsView);
+
+        app.MapPatch("/api/notifications/{notificationId:guid}/read", async (
+            Guid notificationId,
+            ClaimsPrincipal user,
+            NotificationQueries notificationQueries,
+            CancellationToken ct) =>
+        {
+            var userId = user.GetUserId();
+
+            var marked = await notificationQueries.MarkAsReadAsync(
+                notificationId,
+                userId,
+                ct);
+
+            return marked
+                ? Results.NoContent()
+                : Results.NotFound();
         }).RequirePermission(PermissionCatalog.NotificationsView);
     }
 }

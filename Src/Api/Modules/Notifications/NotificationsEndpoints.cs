@@ -1,6 +1,4 @@
-﻿using Api.Modules.Notifications.Notifications;
-
-namespace Api.Modules.Notifications;
+﻿namespace Api.Modules.Notifications;
 
 public static class NotificationsEndpoints
 {

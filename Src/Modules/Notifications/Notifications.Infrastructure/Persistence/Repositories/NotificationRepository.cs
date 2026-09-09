@@ -21,4 +21,14 @@ public sealed class NotificationRepository(
             .OrderByDescending(x => x.CreatedAtUtc)
             .ToListAsync(ct);
     }
+    public async Task<Notification?> GetByIdAsync(
+    Guid notificationId,
+    Guid userId,
+    CancellationToken ct = default)
+    {
+        return await dbContext.Notifications
+            .FirstOrDefaultAsync(
+                x => x.Id == notificationId && x.UserId == userId,
+                ct);
+    }
 }
