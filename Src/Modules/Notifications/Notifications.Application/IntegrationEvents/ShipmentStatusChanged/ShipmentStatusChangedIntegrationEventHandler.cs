@@ -1,18 +1,17 @@
 ﻿using BuildingBlocks.Contracts.IntegrationEvents.Shipments;
 using Customers.Contracts;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using Notifications.Application.Abstractions;
 using Notifications.Domain.Notifications;
+using Notifications.Domain.Outbox;
 
 namespace Notifications.Application.IntegrationEvents.ShipmentStatusChanged;
 
 public sealed class ShipmentStatusChangedIntegrationEventHandler(
     ICustomerQueries customerQueries,
     INotificationsUnitOfWork notificationsUnitOfWork,
-    IEmailSender emailSender,
-    INotificationRepository notificationRepository,
-    ILogger<ShipmentStatusChangedIntegrationEventHandler> logger)
+    IEmailOutboxRepository emailOutboxRepository,
+    INotificationRepository notificationRepository)
     : INotificationHandler<ShipmentStatusChangedIntegrationEvent>
 {
     public async Task Handle(
@@ -26,8 +25,7 @@ public sealed class ShipmentStatusChangedIntegrationEventHandler(
         if (customer is null)
             return;
 
-        var title =
-            $"Shipment {notification.ShipmentRef} - Status Update";
+        var title = $"Shipment {notification.ShipmentRef} - Status Update";
 
         var message =
             $"Your shipment {notification.ShipmentRef} status has been updated " +
@@ -38,27 +36,15 @@ public sealed class ShipmentStatusChangedIntegrationEventHandler(
             title,
             message);
 
-        await notificationRepository.AddAsync(
-            newNotification,
-            ct);
+        var emailMessage = new EmailOutboxMessage(
+            Guid.NewGuid(),
+            customer.OwnerEmail,
+            title,
+            message,
+            DateTime.UtcNow);
 
+        await notificationRepository.AddAsync(newNotification, ct);
+        await emailOutboxRepository.AddAsync(emailMessage, ct);
         await notificationsUnitOfWork.SaveChangesAsync(ct);
-
-        try
-        {
-            await emailSender.SendAsync(
-                customer.OwnerEmail,
-                title,
-                message,
-                ct);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(
-                ex,
-                "Failed to send shipment status email for Shipment {ShipmentId} to {Email}",
-                notification.ShipmentId,
-                customer.OwnerEmail);
-        }
     }
 }

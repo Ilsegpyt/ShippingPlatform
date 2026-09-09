@@ -2,11 +2,15 @@ using Api.BackgroundJobs;
 using Api.Infrastructure.ExceptionHandling;
 using Api.Modules.Customers;
 using Api.Modules.Identity;
+using Api.Modules.Notifications;
 using Api.Modules.Reports;
 using Api.Modules.Schedules;
 using Api.Modules.Shipments;
+using Api.Modules.Tracking;
 using BuildingBlocks.Infrastructure;
 using Customers.Infrastructure;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using Identity.Application;
 using Identity.Infrastructure;
 using Identity.Infrastructure.Seeding;
 using Notifications.Application;
@@ -14,13 +18,11 @@ using Notifications.Infrastructure;
 using Reports.Application;
 using Reports.Infrastructure;
 using Schedules.Application;
-using Identity.Application;
 using Schedules.Infrastructure;
 using Shipments.Application;
-using Tracking.Application;
 using Shipments.Infrastructure;
 using System.Text.Json.Serialization;
-using Api.Modules.Tracking;
+using Tracking.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +48,7 @@ builder.Services.AddProblemDetails(); // obligatory
 builder.Services.AddHostedService<IdentityOutboxProcessorWorker>();
 builder.Services.AddHostedService<CustomersOutboxProcessorWorker>();
 builder.Services.AddHostedService<ShipmentsOutboxProcessorWorker>();
+builder.Services.AddHostedService<EmailOutboxProcessorWorker>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
@@ -92,5 +95,6 @@ app.MapReportsEndpoints();
 app.MapSchedulesEndpoints();
 app.MapShipmentsEndpoints();
 app.MapTrackingEndpoints();
+app.MapNotificationsEndpoints();
 
 app.Run();

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Notifications.Application.Abstractions;
+using Notifications.Application.Services;
 using Notifications.Infrastructure.Email;
 using Notifications.Infrastructure.Persistence;
 using Notifications.Infrastructure.Persistence.Repositories;
@@ -36,7 +37,8 @@ public static class NotificationsModuleServiceCollectionExtensions
 
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
-
+        services.AddScoped<IEmailOutboxRepository, EmailOutboxRepository>();
+        services.AddScoped<NotificationQueries>();
 
         services.AddScoped<INotificationsUnitOfWork>(
            sp => sp.GetRequiredService<NotificationsDbContext>());

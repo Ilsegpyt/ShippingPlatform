@@ -21,6 +21,8 @@ public static class NotificationsApplicationServiceCollectionExtensions
         services.AddValidatorsFromAssembly(
             typeof(NotificationsApplicationServiceCollectionExtensions).Assembly);
 
+
+
         return services;
     }
 }
