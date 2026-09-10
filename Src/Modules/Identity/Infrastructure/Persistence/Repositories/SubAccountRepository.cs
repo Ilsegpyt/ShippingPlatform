@@ -1,6 +1,5 @@
 ﻿using Identity.Domain.Entities;
 using Identity.Domain.Repositories;
-using Identity.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Infrastructure.Persistence.Repositories;
@@ -17,8 +16,8 @@ public sealed class SubAccountRepository : ISubAccountRepository
     public async Task<SubAccount?> GetByUserIdAsync(Guid userId, CancellationToken ct = default) =>
         await _db.SubAccounts.FirstOrDefaultAsync(x => x.UserId == userId, ct);
 
-    public async Task<IReadOnlyList<SubAccount>> GetByOrganizationIdAsync(Guid organizationId, CancellationToken ct = default) =>
-        await _db.SubAccounts.Where(x => x.OrganizationId == organizationId).ToListAsync(ct);
+    public async Task<IReadOnlyList<SubAccount>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default) =>
+        await _db.SubAccounts.Where(x => x.CustomerId == customerId).ToListAsync(ct);
     public void Add(SubAccount subAccount) => _db.SubAccounts.Add(subAccount);
 
     public void Update(SubAccount subAccount) => _db.SubAccounts.Update(subAccount);

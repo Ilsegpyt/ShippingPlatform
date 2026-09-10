@@ -38,7 +38,7 @@ public sealed class TokenClaimsBuilder(ICustomerQueries customerQueries, ISubAcc
             {
                 ["sub"] = userId.ToString(),
                 ["token_type"] = "subaccount",
-                ["org_id"] = subAccount.OrganizationId.ToString()
+                ["org_id"] = subAccount.CustomerId.ToString()
             });
         }
 

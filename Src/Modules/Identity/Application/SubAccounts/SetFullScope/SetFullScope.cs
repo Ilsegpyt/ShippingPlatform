@@ -6,7 +6,7 @@ using MediatR;
 namespace Identity.Application.SubAccounts.SetFullScope;
 
 public sealed record SetFullScopeCommand(
-    Guid OrganizationId,
+    Guid CustomerId,
     Guid SubAccountId) : IRequest<Result>;
 
 public sealed class SetFullScopeHandler
@@ -34,7 +34,7 @@ public sealed class SetFullScopeHandler
         if (subAccount is null)
             return Result.Failure("Sub-account not found.");
 
-        if (subAccount.OrganizationId != request.OrganizationId)
+        if (subAccount.CustomerId != request.CustomerId)
             return Result.Failure(
                 "Sub-account does not belong to this organization.");
 

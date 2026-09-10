@@ -44,10 +44,10 @@ public static class SubAccountEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var organizationId = user.GetOrganizationId();
+            var customerId = user.GetOrganizationId();
 
             var command = new CreateSubAccountCommand(
-                organizationId,
+                customerId,
                 body.Name,
                 body.Email,
                 body.GrantFullScope,
@@ -74,10 +74,10 @@ public static class SubAccountEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var organizationId = user.GetOrganizationId();
+            var customerId = user.GetOrganizationId();
 
             var result = await sender.Send(
-                new GetSubAccountsQuery(organizationId),
+                new GetSubAccountsQuery(customerId),
                 ct);
 
             return result.IsSuccess
@@ -96,11 +96,11 @@ public static class SubAccountEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var organizationId = user.GetOrganizationId();
+            var customerId = user.GetOrganizationId();
 
             var result = await sender.Send(
                 new UpdateSubAccountProfileCommand(
-                    organizationId,
+                    customerId,
                     id,
                     body.Name),
                 ct);
@@ -111,6 +111,7 @@ public static class SubAccountEndpoints
         })
         .RequirePermission(PermissionCatalog.SubAccountsEdit);
     }
+
     private static void MapUpdateEmail(IEndpointRouteBuilder subAccounts)
     {
         subAccounts.MapPut("/{id:guid}/email", async (
@@ -131,6 +132,7 @@ public static class SubAccountEndpoints
         })
         .RequirePermission(PermissionCatalog.SubAccountsEdit);
     }
+
     private static void MapDelete(IEndpointRouteBuilder subAccounts)
     {
         subAccounts.MapDelete("/{id:guid}", async (
@@ -139,11 +141,11 @@ public static class SubAccountEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var organizationId = user.GetOrganizationId();
+            var customerId = user.GetOrganizationId();
 
             var result = await sender.Send(
                 new DeleteSubAccountCommand(
-                    organizationId,
+                    customerId,
                     id),
                 ct);
 
@@ -162,11 +164,11 @@ public static class SubAccountEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var organizationId = user.GetOrganizationId();
+            var customerId = user.GetOrganizationId();
 
             var result = await sender.Send(
                 new ActivateSubAccountCommand(
-                    organizationId,
+                    customerId,
                     id),
                 ct);
 
@@ -182,11 +184,11 @@ public static class SubAccountEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var organizationId = user.GetOrganizationId();
+            var customerId = user.GetOrganizationId();
 
             var result = await sender.Send(
                 new DeactivateSubAccountCommand(
-                    organizationId,
+                    customerId,
                     id),
                 ct);
 
@@ -206,11 +208,11 @@ public static class SubAccountEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var organizationId = user.GetOrganizationId();
+            var customerId = user.GetOrganizationId();
 
             var result = await sender.Send(
                 new ResetSubAccountPasswordCommand(
-                    organizationId,
+                    customerId,
                     id,
                     body.NewPassword),
                 ct);
@@ -231,11 +233,11 @@ public static class SubAccountEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var organizationId = user.GetOrganizationId();
+            var customerId = user.GetOrganizationId();
 
             var result = await sender.Send(
                 new GrantSubAccountPermissionCommand(
-                    organizationId,
+                    customerId,
                     id,
                     body.PermissionKey),
                 ct);
@@ -255,11 +257,11 @@ public static class SubAccountEndpoints
                 ISender sender,
                 CancellationToken ct) =>
             {
-                var organizationId = user.GetOrganizationId();
+                var customerId = user.GetOrganizationId();
 
                 var result = await sender.Send(
                     new RevokeSubAccountPermissionCommand(
-                        organizationId,
+                        customerId,
                         id,
                         permissionKey),
                     ct);
@@ -280,11 +282,11 @@ public static class SubAccountEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var organizationId = user.GetOrganizationId();
+            var customerId = user.GetOrganizationId();
 
             var result = await sender.Send(
                 new AddScopeCommand(
-                    organizationId,
+                    customerId,
                     id,
                     body.Category,
                     body.Service,
@@ -306,11 +308,11 @@ public static class SubAccountEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var organizationId = user.GetOrganizationId();
+            var customerId = user.GetOrganizationId();
 
             var result = await sender.Send(
                 new RemoveScopeCommand(
-                    organizationId,
+                    customerId,
                     id,
                     category,
                     service,
@@ -329,11 +331,11 @@ public static class SubAccountEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var organizationId = user.GetOrganizationId();
+            var customerId = user.GetOrganizationId();
 
             var result = await sender.Send(
                 new SetFullScopeCommand(
-                    organizationId,
+                    customerId,
                     id),
                 ct);
 
@@ -349,11 +351,11 @@ public static class SubAccountEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var organizationId = user.GetOrganizationId();
+            var customerId = user.GetOrganizationId();
 
             var result = await sender.Send(
                 new SetCustomScopeCommand(
-                    organizationId,
+                    customerId,
                     id),
                 ct);
 

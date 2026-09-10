@@ -7,7 +7,7 @@ using MediatR;
 namespace Identity.Application.SubAccounts.GrantSubAccountPermission;
 
 public sealed record GrantSubAccountPermissionCommand(
-    Guid OrganizationId,
+    Guid CustomerId,
     Guid SubAccountId,
     string PermissionKey) : IRequest<Result>;
 
@@ -37,7 +37,7 @@ public sealed class GrantSubAccountPermissionHandler
             return Result.Failure("Sub-account not found.");
 
         // Make sure the sub-account belongs to the authenticated user's organization.
-        if (subAccount.OrganizationId != request.OrganizationId)
+        if (subAccount.CustomerId != request.CustomerId)
             return Result.Failure("Sub-account does not belong to this organization.");
 
         var key = PermissionKey.Of(request.PermissionKey);

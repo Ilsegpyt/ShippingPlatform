@@ -25,8 +25,8 @@ public sealed class RefreshTokenConfiguration
             .HasMaxLength(50)
             .IsRequired();
 
-        builder.Property(x => x.ImpersonatedOrganizationId);
+        builder.Property(x => x.ImpersonatedCustomerId);
 
-        builder.HasIndex(x => x.ImpersonatedOrganizationId);
+        builder.HasIndex(x => x.ImpersonatedCustomerId );
     }
 }

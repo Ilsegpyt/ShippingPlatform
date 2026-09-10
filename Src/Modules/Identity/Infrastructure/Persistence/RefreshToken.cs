@@ -26,7 +26,7 @@ public sealed class RefreshToken
 
     public string TokenType { get; private set; } = null!;
 
-    public Guid? ImpersonatedOrganizationId { get; private set; }
+    public Guid? ImpersonatedCustomerId { get; private set; }
 
     public bool IsActive =>
         RevokedAtUtc is null &&
@@ -52,7 +52,7 @@ public sealed class RefreshToken
             ExpiresAtUtc = expiresAtUtc,
             CreatedAtUtc = DateTime.UtcNow,
             TokenType = "normal",
-            ImpersonatedOrganizationId = null
+            ImpersonatedCustomerId = null
         };
     }
 
@@ -73,7 +73,7 @@ public sealed class RefreshToken
             ExpiresAtUtc = expiresAtUtc,
             CreatedAtUtc = DateTime.UtcNow,
             TokenType = "impersonation",
-            ImpersonatedOrganizationId = impersonatedOrganizationId
+            ImpersonatedCustomerId = impersonatedOrganizationId
         };
     }
 

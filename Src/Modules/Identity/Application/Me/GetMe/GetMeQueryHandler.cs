@@ -61,7 +61,7 @@ public sealed class GetMeQueryHandler(
             return new MeResponse(
                 query.UserId,
                 "subaccount",
-                subAccount.OrganizationId,
+                subAccount.CustomerId,
                 permissions);
         }
 
@@ -80,7 +80,7 @@ public sealed class GetMeQueryHandler(
                 "This account has been deactivated.");
         }
 
-        var role = await roles.GetByIdAsync(internalUser.RoleId);
+        var role = await roles.GetByIdAsync(internalUser.RoleId, ct);
 
         if (role is null || role.Status != RoleStatus.Active)
         {

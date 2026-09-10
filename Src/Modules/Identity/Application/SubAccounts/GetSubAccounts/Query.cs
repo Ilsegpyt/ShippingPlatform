@@ -5,7 +5,7 @@ namespace Identity.Application.SubAccounts.GetSubAccounts;
 
 public interface ISubAccountReadRepository
 {
-    Task<IReadOnlyList<SubAccountListItem>> GetByOrganizationIdAsync(
+    Task<IReadOnlyList<SubAccountListItem>> GetByCustomerIdAsync(
         Guid organizationId,
         CancellationToken ct);
 }
@@ -17,7 +17,7 @@ public sealed record SubAccountListItem(
     string Status,
     IReadOnlyList<string> ScopeDescriptions);
 
-public sealed record GetSubAccountsQuery(Guid OrganizationId)
+public sealed record GetSubAccountsQuery(Guid CustomerId)
     : IRequest<Result<IReadOnlyList<SubAccountListItem>>>;
 
 public sealed class GetSubAccountsHandler
@@ -32,8 +32,8 @@ public sealed class GetSubAccountsHandler
         GetSubAccountsQuery request,
         CancellationToken ct)
     {
-        var items = await _reads.GetByOrganizationIdAsync(
-            request.OrganizationId,
+        var items = await _reads.GetByCustomerIdAsync(
+            request.CustomerId,
             ct);
 
         return Result.Success(items);

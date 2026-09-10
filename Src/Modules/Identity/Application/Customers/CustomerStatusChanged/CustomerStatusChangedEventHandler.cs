@@ -11,7 +11,7 @@ public sealed class CustomerStatusChangedEventHandler(ISubAccountRepository subA
     public async Task Handle(CustomerStatusChangedIntegrationEvent notification, CancellationToken ct)
     {
         var subAccounts =
-            await subAccountRepository.GetByOrganizationIdAsync(notification.CustomerId, ct);
+            await subAccountRepository.GetByCustomerIdAsync(notification.CustomerId, ct);
 
 
         foreach (var subAccount in subAccounts)

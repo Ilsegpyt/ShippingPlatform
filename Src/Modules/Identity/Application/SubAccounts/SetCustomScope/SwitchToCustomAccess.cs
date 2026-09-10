@@ -6,7 +6,7 @@ using MediatR;
 namespace Identity.Application.SubAccounts.SetCustomScope;
 
 public sealed record SetCustomScopeCommand(
-    Guid OrganizationId,
+    Guid CustomerId,
     Guid SubAccountId) : IRequest<Result>;
 
 public sealed class SetCustomScopeHandler
@@ -34,7 +34,7 @@ public sealed class SetCustomScopeHandler
         if (subAccount is null)
             return Result.Failure("Sub-account not found.");
 
-        if (subAccount.OrganizationId != request.OrganizationId)
+        if (subAccount.CustomerId != request.CustomerId)
             return Result.Failure(
                 "Sub-account does not belong to this organization.");
 

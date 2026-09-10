@@ -9,7 +9,7 @@ using MediatR;
 namespace Identity.Application.SubAccounts.UpdateSubAccountScope;
 
 public sealed record AddScopeCommand(
-    Guid OrganizationId,
+    Guid CustomerId,
     Guid SubAccountId,
     ScopeCategory Category,
     ScopeService Service,
@@ -17,7 +17,7 @@ public sealed record AddScopeCommand(
 
 
 public sealed record RemoveScopeCommand(
-    Guid OrganizationId,
+    Guid CustomerId,
     Guid SubAccountId,
     ScopeCategory Category,
     ScopeService Service,
@@ -50,7 +50,7 @@ public sealed class AddScopeHandler
         if (subAccount is null)
             return Result.Failure("Sub-account not found.");
 
-        if (subAccount.OrganizationId != request.OrganizationId)
+        if (subAccount.CustomerId != request.CustomerId)
             return Result.Failure(
                 "Sub-account does not belong to this organization.");
 
@@ -101,7 +101,7 @@ public sealed class RemoveScopeHandler
         if (subAccount is null)
             return Result.Failure("Sub-account not found.");
 
-        if (subAccount.OrganizationId != request.OrganizationId)
+        if (subAccount.CustomerId != request.CustomerId)
             return Result.Failure(
                 "Sub-account does not belong to this organization.");
 

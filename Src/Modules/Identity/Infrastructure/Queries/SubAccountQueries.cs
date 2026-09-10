@@ -20,7 +20,7 @@ public sealed class SubAccountQueries(
 
         return new SubAccountAccessInfo(
             subAccount.Id,
-            subAccount.OrganizationId,
+            subAccount.CustomerId,
             subAccount.Status == SubAccountStatus.Active,
             subAccount.Permissions
                 .Select(p => p.Value)

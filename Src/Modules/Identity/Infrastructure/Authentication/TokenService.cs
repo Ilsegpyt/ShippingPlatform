@@ -47,19 +47,19 @@ public sealed class TokenService : ITokenService
         return new TokenPair(accessToken, refreshTokenPlain, expiresAtUtc);
     }
 
-    public async Task<TokenPair> IssueImpersonationTokensAsync(Guid impersonatorUserId, Guid impersonatedOrganizationId, CancellationToken ct = default)
+    public async Task<TokenPair> IssueImpersonationTokensAsync(Guid impersonatorUserId, Guid impersonatedCustomerId, CancellationToken ct = default)
     {
         var claims = new Dictionary<string, string>
         {
             ["token_type"] = "impersonation",
-            ["org_id"] = impersonatedOrganizationId.ToString()
+            ["org_id"] = impersonatedCustomerId.ToString()
         };
 
         var (accessToken, expiresAtUtc) = CreateAccessToken(impersonatorUserId, claims);
 
         var refreshTokenPlain = GenerateSecureRandomToken();
 
-        var refreshToken = RefreshToken.CreateImpersonation(impersonatorUserId, Hash(refreshTokenPlain), DateTime.UtcNow.AddDays(_options.RefreshTokenDays), impersonatedOrganizationId);
+        var refreshToken = RefreshToken.CreateImpersonation(impersonatorUserId, Hash(refreshTokenPlain), DateTime.UtcNow.AddDays(_options.RefreshTokenDays), impersonatedCustomerId);
 
         _db.RefreshTokens.Add(refreshToken);
 
@@ -85,10 +85,10 @@ public sealed class TokenService : ITokenService
 
         if (existingRefreshToken.TokenType == "impersonation")
         {
-            if (existingRefreshToken.ImpersonatedOrganizationId is null)
+            if (existingRefreshToken.ImpersonatedCustomerId is null)
                 return null;
 
-            var customer = await _customers.GetByIdAsync(existingRefreshToken.ImpersonatedOrganizationId.Value, ct);
+            var customer = await _customers.GetByIdAsync(existingRefreshToken.ImpersonatedCustomerId.Value, ct);
 
             if (customer is null || !customer.IsActive)
                 return null;
@@ -96,7 +96,7 @@ public sealed class TokenService : ITokenService
             claims = new Dictionary<string, string>
             {
                 ["token_type"] = "impersonation",
-                ["org_id"] = existingRefreshToken.ImpersonatedOrganizationId.Value.ToString()
+                ["org_id"] = existingRefreshToken.ImpersonatedCustomerId.Value.ToString()
             };
         }
         else // if refresh token was normal
@@ -118,7 +118,7 @@ public sealed class TokenService : ITokenService
 
         if (existingRefreshToken.TokenType == "impersonation")
         {
-            newRefreshToken = RefreshToken.CreateImpersonation(existingRefreshToken.UserId, Hash(newRefreshTokenPlain), DateTime.UtcNow.AddDays(_options.RefreshTokenDays), existingRefreshToken.ImpersonatedOrganizationId!.Value);
+            newRefreshToken = RefreshToken.CreateImpersonation(existingRefreshToken.UserId, Hash(newRefreshTokenPlain), DateTime.UtcNow.AddDays(_options.RefreshTokenDays), existingRefreshToken.ImpersonatedCustomerId!.Value);
         }
         else
         {

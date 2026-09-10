@@ -10,7 +10,7 @@ public sealed class ImpersonationAuditLogRepository(IdentityDbContext dbContext)
   
     public void Add(ImpersonationAuditLog auditLog, CancellationToken ct)
     {
-        throw new NotImplementedException();
+         dbContext.Add(auditLog);
     }
 
     public async Task<ImpersonationAuditLog?> GetByIdAsync(Guid id, CancellationToken ct)

@@ -16,7 +16,7 @@ public sealed class SubAccount : AggregateRoot<Guid>
 
     public string Name { get; private set; } = null!;
 
-    public Guid OrganizationId { get; private set; }
+    public Guid CustomerId { get; private set; }
 
     /// <summary>
     /// Links to the ASP.NET Core Identity user.
@@ -42,7 +42,7 @@ public sealed class SubAccount : AggregateRoot<Guid>
 
     private SubAccount(Guid id, Guid organizationId, Guid userId, string name, string email, ScopeType scopeType, SubAccountStatus status) : base(id)
     {
-        OrganizationId = organizationId;
+        CustomerId = organizationId;
         UserId = userId;
         ScopeType = scopeType;
         Status = status;

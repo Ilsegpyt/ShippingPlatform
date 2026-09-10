@@ -79,7 +79,7 @@ public sealed class CreateSubAccountCommandHandler
                 : ScopeType.Custom;
 
             var subAccount = SubAccount.Create(
-                command.OrganizationId,
+                command.CustomerId,
                 userId,
                 command.Name,
                 command.Email,

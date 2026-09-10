@@ -7,7 +7,7 @@ namespace Identity.Application.SubAccounts.CreateSubAccount;
 public sealed record ScopeInput(ScopeCategory Category, ScopeService Service, ScopeShipmentType Type);
 
 public sealed record CreateSubAccountCommand(
-    Guid OrganizationId,
+    Guid CustomerId,
     string Name,
     string Email,
     bool GrantFullScope,

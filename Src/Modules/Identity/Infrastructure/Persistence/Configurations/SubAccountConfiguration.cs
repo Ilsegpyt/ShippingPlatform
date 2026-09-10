@@ -12,7 +12,7 @@ public sealed class SubAccountConfiguration : IEntityTypeConfiguration<SubAccoun
         builder.ToTable("SubAccounts");
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.OrganizationId).IsRequired();
+        builder.Property(x => x.CustomerId).IsRequired();
         builder.Property(x => x.Name).HasMaxLength(200).IsRequired();
         builder.Property(x => x.UserId).IsRequired();
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
@@ -46,7 +46,7 @@ public sealed class SubAccountConfiguration : IEntityTypeConfiguration<SubAccoun
         });
         builder.Navigation("Permissions").UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.HasIndex(x => x.OrganizationId);
+        builder.HasIndex(x => x.CustomerId);
         builder.HasIndex(x => x.UserId).IsUnique();
     }
 }

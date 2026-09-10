@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Identity.Application.SubAccounts.ResetSubAccountPassword;
 
-public sealed record ResetSubAccountPasswordCommand(Guid OrganizationId, Guid SubAccountId, string NewPassword) : IRequest<Result>;
+public sealed record ResetSubAccountPasswordCommand(Guid CustomerId, Guid SubAccountId, string NewPassword) : IRequest<Result>;
 
 
 public sealed class ResetSubAccountPasswordHandler : IRequestHandler<ResetSubAccountPasswordCommand, Result>
@@ -28,7 +28,7 @@ public sealed class ResetSubAccountPasswordHandler : IRequestHandler<ResetSubAcc
         if (subAccount is null)
             return Result.Failure("Sub-account not found.");
 
-        if (subAccount.OrganizationId != request.OrganizationId)
+        if (subAccount.CustomerId != request.CustomerId)
             return Result.Failure(
                 "Sub-account does not belong to this organization.");
 

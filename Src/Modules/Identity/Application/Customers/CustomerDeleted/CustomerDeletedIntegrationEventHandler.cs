@@ -11,7 +11,7 @@ public sealed class CustomerDeletedIntegrationEventHandler(ISubAccountRepository
     public async Task Handle(CustomerDeletedIntegrationEvent notification, CancellationToken cancellationToken)
     {
         var subAccounts =
-          await subAccountRepository.GetByOrganizationIdAsync(notification.CustomerId, cancellationToken);
+          await subAccountRepository.GetByCustomerIdAsync(notification.CustomerId, cancellationToken);
 
         foreach (var subAccount in subAccounts)
         {

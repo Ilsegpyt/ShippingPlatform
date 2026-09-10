@@ -6,7 +6,7 @@ public sealed class CreateSubAccountValidator : AbstractValidator<CreateSubAccou
 {
     public CreateSubAccountValidator()
     {
-        RuleFor(x => x.OrganizationId).NotEmpty();
+        RuleFor(x => x.CustomerId).NotEmpty();
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
 
         RuleFor(x => x.Scopes)

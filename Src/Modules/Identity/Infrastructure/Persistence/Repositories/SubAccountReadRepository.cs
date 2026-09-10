@@ -12,10 +12,10 @@ public sealed class SubAccountReadRepository : ISubAccountReadRepository
 
     public SubAccountReadRepository(IdentityDbContext db) => _db = db;
 
-    public async Task<IReadOnlyList<SubAccountListItem>> GetByOrganizationIdAsync(Guid organizationId, CancellationToken ct)
+    public async Task<IReadOnlyList<SubAccountListItem>> GetByCustomerIdAsync(Guid organizationId, CancellationToken ct)
     {
         var subAccounts = await _db.SubAccounts
-            .Where(x => x.OrganizationId == organizationId)
+            .Where(x => x.CustomerId == organizationId)
             .ToListAsync(ct);
 
         var userIds = subAccounts.Select(x => x.UserId).ToList();

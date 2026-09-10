@@ -6,11 +6,11 @@ using MediatR;
 namespace Identity.Application.SubAccounts.ActivateSubAccount;
 
 public sealed record ActivateSubAccountCommand(
-    Guid OrganizationId,
+    Guid CustomerId,
     Guid SubAccountId) : IRequest<Result>;
 
 public sealed record DeactivateSubAccountCommand(
-    Guid OrganizationId,
+    Guid CustomerId,
     Guid SubAccountId) : IRequest<Result>;
 
 public sealed class ActivateSubAccountHandler
@@ -39,7 +39,7 @@ public sealed class ActivateSubAccountHandler
             return Result.Failure("Sub-account not found.");
 
         // Make sure the sub-account belongs to the authenticated user's organization.
-        if (subAccount.OrganizationId != request.OrganizationId)
+        if (subAccount.CustomerId != request.CustomerId)
             return Result.Failure(
                 "Sub-account does not belong to this organization.");
 
@@ -78,7 +78,7 @@ public sealed class DeactivateSubAccountHandler
             return Result.Failure("Sub-account not found.");
 
         // Make sure the sub-account belongs to the authenticated user's organization.
-        if (subAccount.OrganizationId != request.OrganizationId)
+        if (subAccount.CustomerId != request.CustomerId)
             return Result.Failure(
                 "Sub-account does not belong to this organization.");
 
