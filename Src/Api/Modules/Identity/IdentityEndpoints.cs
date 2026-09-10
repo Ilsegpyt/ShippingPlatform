@@ -2,6 +2,7 @@
 using Api.Modules.Identity.Auth;
 using Api.Modules.Identity.Impersonation;
 using Api.Modules.Identity.InternalUsers;
+using Api.Modules.Identity.Me;
 using Api.Modules.Identity.Roles;
 using Api.Modules.Identity.SubAccounts;
 
@@ -18,6 +19,7 @@ public static class IdentityEndpoints
         InternalUserEndpoints.Map(app);
         AccountManagerAssignmentEndpoints.Map(app);
         ImpersonationEndpoints.Map(app);
+        GetMeEndpoint.Map(app);
 
         return app;
     }
