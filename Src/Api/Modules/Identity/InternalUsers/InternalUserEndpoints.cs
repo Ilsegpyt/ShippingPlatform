@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Application;
 using Identity.Api.InternalUsers;
+using Identity.Application.InternalUsers.ChangeInternalUserStatus;
 using Identity.Application.InternalUsers.CreateInternalUser;
 using Identity.Application.InternalUsers.DeleteInternalUser;
 using Identity.Application.InternalUsers.GetInternalUsers;
@@ -24,6 +25,7 @@ public static class InternalUserEndpoints
         MapUpdateEmail(users);
         MapDelete(users);
         MapGetAll(users);
+        MapChangeStatus(users);
 
     }
 
@@ -117,4 +119,41 @@ public static class InternalUserEndpoints
         })
         .RequirePermission(PermissionCatalog.UsersView);
     }
+    private static void MapChangeStatus(IEndpointRouteBuilder users)
+    {
+        users.MapPut("/{id:guid}/activate", async (
+            Guid id,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var result = await sender.Send(
+                new ChangeInternalUserStatusCommand(
+                    id,
+                    InternalUserStatusAction.Activate),
+                ct);
+
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.UsersEdit);
+
+        users.MapPut("/{id:guid}/deactivate", async (
+            Guid id,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var result = await sender.Send(
+                new ChangeInternalUserStatusCommand(
+                    id,
+                    InternalUserStatusAction.Deactivate),
+                ct);
+
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.UsersEdit);
+    }
+
 }

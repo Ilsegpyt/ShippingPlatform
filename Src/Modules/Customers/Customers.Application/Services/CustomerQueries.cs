@@ -10,7 +10,6 @@ namespace Customers.Application.Services;
 /// </summary>
 internal sealed class CustomerQueries(ICustomerRepository repository) : ICustomerQueries
 {
-    
     public async Task<CustomerAuthInfo?> GetByUserIdAsync(Guid userId, CancellationToken ct)
     {
         var customer = await repository.GetByUserIdAsync(userId, ct);
@@ -21,7 +20,6 @@ internal sealed class CustomerQueries(ICustomerRepository repository) : ICustome
                 customer.Id,
                 customer.Status == CustomerStatus.Active);
     }
-  
     public async Task<CustomerInfo?> GetByIdAsync(Guid customerId, CancellationToken ct)
     {
         var customer = await repository.GetByIdAsync(customerId, ct);
@@ -32,13 +30,9 @@ internal sealed class CustomerQueries(ICustomerRepository repository) : ICustome
                 customer.Id,
                 customer.Status == CustomerStatus.Active);
     }
-    public async Task<CustomerOwnerInfo?> GetOwnerByCustomerIdAsync(
-     Guid customerId,
-     CancellationToken ct)
+    public async Task<CustomerOwnerInfo?> GetOwnerByCustomerIdAsync(Guid customerId, CancellationToken ct)
     {
-        var customer = await repository.GetOwnerByCustomerIdAsync(
-            customerId,
-            ct);
+        var customer = await repository.GetOwnerByCustomerIdAsync(customerId, ct);
 
         return customer is null
             ? null
@@ -46,5 +40,18 @@ internal sealed class CustomerQueries(ICustomerRepository repository) : ICustome
                 customer.Id,
                 customer.OwnerUserId,
                   customer.OwnerEmail);
+    }
+    public async Task<CustomerMeInfo?> GetMeByUserIdAsync(Guid userId, CancellationToken ct)
+    {
+        var customer = await repository.GetByUserIdAsync(userId, ct);
+
+        return customer is null
+            ? null
+            : new CustomerMeInfo(
+                customer.Id,
+                customer.OwnerName,
+                customer.CompanyName,
+                customer.OwnerPhone,
+                customer.OwnerEmail);
     }
 }

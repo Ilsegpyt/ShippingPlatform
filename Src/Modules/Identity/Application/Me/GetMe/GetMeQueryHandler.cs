@@ -31,19 +31,30 @@ public sealed class GetMeQueryHandler(
                     "This account has been deactivated.");
             }
 
+            var customerMe = await customerQueries.GetMeByUserIdAsync(
+                query.UserId,
+                ct);
+
             var permissions = PermissionCatalog.CustomerOwnerPermissions
                 .Select(x => x.Value)
                 .ToList();
 
             return new MeResponse(
                 query.UserId,
+                customer.CustomerId,
                 "customer",
                 customer.CustomerId,
+                customerMe.OwnerName,
+                customerMe.OwnerEmail,
+                customerMe.OwnerPhone,
+                customerMe.CompanyName,
+                null,
                 permissions);
         }
 
         var subAccount = await subAccounts.GetByUserIdAsync(
-            query.UserId);
+            query.UserId,
+            ct);
 
         if (subAccount is not null)
         {
@@ -60,13 +71,20 @@ public sealed class GetMeQueryHandler(
 
             return new MeResponse(
                 query.UserId,
+                subAccount.Id,
                 "subaccount",
                 subAccount.CustomerId,
+                subAccount.Name,
+                subAccount.Email,
+                null,
+                null,
+                null,
                 permissions);
         }
 
         var internalUser = await internalUsers.GetByUserIdAsync(
-            query.UserId);
+            query.UserId,
+            ct);
 
         if (internalUser is null)
         {
@@ -80,7 +98,9 @@ public sealed class GetMeQueryHandler(
                 "This account has been deactivated.");
         }
 
-        var role = await roles.GetByIdAsync(internalUser.RoleId, ct);
+        var role = await roles.GetByIdAsync(
+            internalUser.RoleId,
+            ct);
 
         if (role is null || role.Status != RoleStatus.Active)
         {
@@ -95,8 +115,14 @@ public sealed class GetMeQueryHandler(
 
         return new MeResponse(
             query.UserId,
+            internalUser.Id,
             "internal",
             null,
+            internalUser.Name,
+            internalUser.Email,
+            internalUser.Phone,
+            null,
+            role.Name,
             internalPermissions);
     }
 }

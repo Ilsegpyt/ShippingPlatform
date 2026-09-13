@@ -8,6 +8,12 @@ public sealed record GetMeQuery(Guid UserId)
 
 public sealed record MeResponse(
     Guid UserId,
+    Guid ProfileId,
     string TokenType,
     Guid? OrganizationId,
+    string Name,
+    string Email,
+    string? Phone,
+    string? CompanyName,
+    string? RoleName,
     IReadOnlyCollection<string> Permissions);
