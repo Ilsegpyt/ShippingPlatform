@@ -1,10 +1,12 @@
 ﻿using BuildingBlocks.Application;
-using Identity.Application.InternalUsers.GetInternalUsers;
 using Identity.Domain.Repositories;
 using MediatR;
 
+namespace Identity.Application.InternalUsers.GetInternalUsers;
+
 public sealed class GetInternalUsersQueryHandler(
-    IInternalUserRepository internalUserRepository)
+    IInternalUserRepository internalUserRepository,
+    IRoleRepository roleRepository)
     : IRequestHandler<
         GetInternalUsersQuery,
         PagedResult<InternalUserResponse>>
@@ -27,11 +29,23 @@ public sealed class GetInternalUsersQueryHandler(
                 pageSize,
                 ct);
 
+        var roleIds = users
+            .Select(x => x.RoleId)
+            .Distinct()
+            .ToList();
+
+        var roles = await roleRepository.GetAllAsync(ct);
+
+        var roleNames = roles
+            .Where(x => roleIds.Contains(x.Id))
+            .ToDictionary(x => x.Id, x => x.Name);
+
         var items = users
             .Select(x => new InternalUserResponse(
                 x.Id,
                 x.UserId,
                 x.RoleId,
+                roleNames.GetValueOrDefault(x.RoleId, "Unknown"),
                 x.Name,
                 x.Email,
                 x.Phone,
