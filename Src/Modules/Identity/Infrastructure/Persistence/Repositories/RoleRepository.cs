@@ -1,6 +1,5 @@
 ﻿using Identity.Domain.Entities;
 using Identity.Domain.Repositories;
-using Identity.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace Identity.Infrastructure.Persistence.Repositories;

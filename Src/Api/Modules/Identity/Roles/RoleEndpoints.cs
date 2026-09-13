@@ -1,4 +1,5 @@
 ﻿using Identity.Application.Roles.CreateRole;
+using Identity.Application.Roles.GetRoles;
 using Identity.Application.Roles.GrantPermissionToRole;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
@@ -15,6 +16,7 @@ public static class RoleEndpoints
 
         MapCreate(roles);
         MapPermissions(roles);
+        MapGetAll(roles);
     }
 
     private static void MapCreate(IEndpointRouteBuilder roles)
@@ -53,4 +55,21 @@ public static class RoleEndpoints
         })
         .RequirePermission(PermissionCatalog.RolesManage);
     }
+    private static void MapGetAll(IEndpointRouteBuilder roles)
+    {
+        roles.MapGet("/", async (
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var result = await sender.Send(
+                new GetRolesQuery(),
+                ct);
+
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.UsersCreate);
+    }
 }
+
