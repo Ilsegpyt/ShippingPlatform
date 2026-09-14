@@ -36,7 +36,7 @@ public sealed class GetDeclarationFilesByShipmentIdQueryHandler(
         }
 
         if (query.CustomerId.HasValue &&
-         shipment.CustomerId != query.CustomerId.Value)
+            shipment.CustomerId != query.CustomerId.Value)
         {
             return Result.Failure<IReadOnlyList<DeclarationFileResponse>>(
                 "Shipment was not found.");

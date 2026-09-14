@@ -1,6 +1,7 @@
 ﻿using Api.Modules.Shipments.CreateShipment;
 using Api.Modules.Shipments.DeleteDeclarationFiles;
 using Api.Modules.Shipments.DeleteShipments;
+using Api.Modules.Shipments.DownloadDeclarationFile;
 using Api.Modules.Shipments.GetAllShipments;
 using Api.Modules.Shipments.GetDeclarationFilesByShipmentId;
 using Api.Modules.Shipments.GetShipmentById;
@@ -22,5 +23,6 @@ public static class ShipmentsEndpoints
         DeleteShipmentsEndpoint.Map(app);
         GetShipmentByIdEndpoint.Map(app);
         GetDeclarationFilesByShipmentIdEndpoint.Map(app);
+        DownloadDeclarationFileEndpoint.Map(app);
     }
 }
