@@ -13,42 +13,45 @@ public sealed class UpdateScheduleCommandHandler(
         UpdateScheduleCommand command,
         CancellationToken ct)
     {
-        var schedule = await scheduleRepository.GetByIdAsync(
-            command.Id,
-            ct);
+        var schedule = await scheduleRepository
+            .GetByIdAsync(command.Id, ct);
 
         if (schedule is null)
-        {
-            return Result.Failure(
-                "Schedule not found.");
-        }
+            return Result.Failure("Schedule not found.");
 
-        schedule.Patch(
-            command.RouteId,
-            command.Mode,
-            command.DepartureDate,
-            command.Vessel,
-            command.Origin,
-            command.DeparturePortCode,
-            command.DepartureCountry,
-            command.Destination,
-            command.ArrivalPortCode,
-            command.ArrivalCountry,
-            command.Carrier,
-            command.CarrierCode,
-            command.VoyageNumber,
-            command.Arrival,
-            command.TransitTime,
-            command.CutoffDate,
-            command.RateCurrency,
-            command.ContainerSize,
-            command.RateAmount,
-            command.RateRemarks,
-            command.ValidityDate,
-            command.FreeTimeAtPOD,
-            command.FreeTimeAtPOL,
-            command.TransshipmentData,
-            command.Notes);
+        try
+        {
+            schedule.Patch(
+                command.RouteId,
+                command.Mode,
+                command.DepartureDate,
+                command.Vessel,
+                command.Origin,
+                command.DeparturePortCode,
+                command.DepartureCountry,
+                command.Destination,
+                command.ArrivalPortCode,
+                command.ArrivalCountry,
+                command.Carrier,
+                command.CarrierCode,
+                command.VoyageNumber,
+                command.Arrival,
+                command.TransitTime,
+                command.CutoffDate,
+                command.RateCurrency,
+                command.ContainerSize,
+                command.RateAmount,
+                command.RateRemarks,
+                command.ValidityDate,
+                command.FreeTimeAtPOD,
+                command.FreeTimeAtPOL,
+                command.TransshipmentData,
+                command.Notes);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result.Failure(ex.Message);
+        }
 
         await unitOfWork.SaveChangesAsync(ct);
 
