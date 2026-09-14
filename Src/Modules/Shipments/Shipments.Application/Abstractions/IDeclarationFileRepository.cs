@@ -19,4 +19,8 @@ public interface IDeclarationFileRepository
     IReadOnlyCollection<Guid> shipmentIds,
     CancellationToken ct = default);
 
+    Task<IReadOnlyList<DeclarationFile>> GetByShipmentIdAsync(
+    Guid shipmentId,
+    CancellationToken ct = default);
+
 }
