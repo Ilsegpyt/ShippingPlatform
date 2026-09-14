@@ -22,7 +22,27 @@ public sealed class CreateShipmentCommandValidator
             .WithMessage("At least one declaration file is required.");
 
         RuleForEach(x => x.DeclarationFiles)
-            .Must(file => file.Content.Length <= MaxFileSize)
-            .WithMessage("Each declaration file must not exceed 10 MB.");
+            .ChildRules(file =>
+            {
+                file.RuleFor(x => x.FileName)
+                    .NotEmpty()
+                    .WithMessage("File name is required.");
+
+                file.RuleFor(x => x.Content)
+                    .NotNull()
+                    .WithMessage("File content is required.");
+
+                file.RuleFor(x => x.Content)
+                    .Must(content =>
+                        content is not null &&
+                        content.Length > 0)
+                    .WithMessage("File must not be empty.");
+
+                file.RuleFor(x => x.Content)
+                    .Must(content =>
+                        content is not null &&
+                        content.Length <= MaxFileSize)
+                    .WithMessage("Each declaration file must not exceed 10 MB.");
+            });
     }
 }
