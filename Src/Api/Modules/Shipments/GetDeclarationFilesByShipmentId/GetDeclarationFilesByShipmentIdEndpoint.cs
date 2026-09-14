@@ -18,7 +18,14 @@ public static class GetDeclarationFilesByShipmentIdEndpoint
                 ClaimsPrincipal user,
                 CancellationToken ct) =>
             {
-                var customerId = user.GetOrganizationId();
+                var tokenType = user.FindFirstValue("token_type");
+
+                Guid? customerId = null;
+
+                if (tokenType != "internal")
+                {
+                    customerId = user.GetOrganizationId();
+                }
 
                 var result = await sender.Send(
                     new GetDeclarationFilesByShipmentIdQuery(

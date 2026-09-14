@@ -6,7 +6,7 @@ namespace Shipments.Application.Shipments.GetDeclarationFilesByShipmentId;
 
 public sealed record GetDeclarationFilesByShipmentIdQuery(
     Guid ShipmentId,
-    Guid CustomerId)
+    Guid? CustomerId)
     : IRequest<Result<IReadOnlyList<DeclarationFileResponse>>>;
 
 public sealed record DeclarationFileResponse(
@@ -35,7 +35,8 @@ public sealed class GetDeclarationFilesByShipmentIdQueryHandler(
                 "Shipment was not found.");
         }
 
-        if (shipment.CustomerId != query.CustomerId)
+        if (query.CustomerId.HasValue &&
+         shipment.CustomerId != query.CustomerId.Value)
         {
             return Result.Failure<IReadOnlyList<DeclarationFileResponse>>(
                 "Shipment was not found.");
