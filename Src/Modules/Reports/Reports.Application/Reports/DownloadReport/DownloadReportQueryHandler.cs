@@ -1,4 +1,5 @@
-﻿using Identity.Contracts;
+﻿using Customers.Contracts;
+using Identity.Contracts;
 using MediatR;
 using Reports.Application.Abstractions;
 
@@ -6,6 +7,8 @@ namespace Reports.Application.Reports.DownloadReport;
 
 public sealed class DownloadReportQueryHandler(
     ISubAccountQueries subAccountQueries,
+    IUserAccessQueries userAccessQueries,
+    ICustomerQueries customerQueries,
     IReportRepository reportRepository)
     : IRequestHandler<DownloadReportQuery, DownloadReportResult?>
 {
@@ -13,23 +16,55 @@ public sealed class DownloadReportQueryHandler(
         DownloadReportQuery request,
         CancellationToken ct)
     {
-        var access =
-            await subAccountQueries.GetAccessInfoAsync(
-                request.UserId,
-                ct);
+        var report = await reportRepository.GetByIdAsync(
+            request.ReportId,
+            ct);
+
+        if (report is null)
+            return null;
+
+        // 1. Super Admin can download any report
+        var userAccess = await userAccessQueries.GetAccessInfoAsync(
+            request.UserId,
+            ct);
+
+        if (userAccess is not null &&
+            userAccess.IsActive &&
+            userAccess.TokenType == "internal" &&
+            userAccess.RoleName == "Super Admin")
+        {
+            return new DownloadReportResult(
+                report.FileName,
+                report.StorageKey);
+        }
+
+        // 2. Customer can download reports belonging to their customer
+        var customerAccess = await customerQueries.GetByUserIdAsync(
+            request.UserId,
+            ct);
+
+        if (customerAccess is not null)
+        {
+            if (!customerAccess.IsActive)
+                return null;
+
+            if (report.CustomerId != customerAccess.CustomerId)
+                return null;
+
+            return new DownloadReportResult(
+                report.FileName,
+                report.StorageKey);
+        }
+
+        // 3. SubAccount access
+        var access = await subAccountQueries.GetAccessInfoAsync(
+            request.UserId,
+            ct);
 
         if (access is null || !access.IsActive)
             return null;
 
         if (!access.Permissions.Contains("reports.view"))
-            return null;
-
-        var report =
-            await reportRepository.GetByIdAsync(
-                request.ReportId,
-                ct);
-
-        if (report is null)
             return null;
 
         if (report.CustomerId != access.OrganizationId)
