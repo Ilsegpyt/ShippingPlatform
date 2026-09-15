@@ -52,6 +52,7 @@ public static class IdentityModuleServiceCollectionExtensions
                 configuration.GetConnectionString("IdentityDb")));
 
         services.AddScoped<ISubAccountQueries, SubAccountQueries>();
+        services.AddScoped<IUserAccessQueries, UserAccessQueries>();
 
         services.AddScoped<IIdentityUnitOfWork>(
             sp => sp.GetRequiredService<IdentityDbContext>());
