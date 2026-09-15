@@ -12,6 +12,14 @@ public sealed class AccountManagerAssignmentRepository
 
     public AccountManagerAssignmentRepository(IdentityDbContext db)
         => _db = db;
+    public async Task<IReadOnlyList<AccountManagerAssignment>>
+        ListByAccountManagerIdAsync(
+         Guid accountManagerId,
+         CancellationToken ct = default) =>
+         await _db.AccountManagerAssignments
+         .AsNoTracking()
+         .Where(x => x.AccountManagerId == accountManagerId)
+         .ToListAsync(ct);
 
     public async Task<AccountManagerAssignment?> GetByCustomerIdAsync(
         Guid customerId,

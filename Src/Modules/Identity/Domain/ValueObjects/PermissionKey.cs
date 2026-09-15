@@ -166,14 +166,15 @@ public static class PermissionCatalog
     public static readonly IReadOnlyCollection<PermissionKey> AccountManagerPermissions =
     [
         ReportsUpload,
-        ShipmentsEdit
+        ShipmentsEdit,
+        CustomersView,
     ];
 
 
     // Permissions available to Customer Owners
     public static readonly IReadOnlyCollection<PermissionKey> CustomerOwnerPermissions =
     [
-        CustomersView,
+        //CustomersView,
         CustomersEdit,
 
         SubAccountsView,

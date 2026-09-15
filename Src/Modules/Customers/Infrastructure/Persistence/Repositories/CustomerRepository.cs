@@ -55,13 +55,36 @@ public sealed class CustomerRepository(CustomersDbContext dbContext) : ICustomer
 
         return await query.CountAsync(ct);
     }
-    public async Task<Customer?> GetOwnerByCustomerIdAsync(
-    Guid customerId,
-    CancellationToken ct)
+    public async Task<Customer?> GetOwnerByCustomerIdAsync(Guid customerId, CancellationToken ct)
     => await dbContext.Customers
         .AsNoTracking()
         .FirstOrDefaultAsync(c => c.Id == customerId, ct);
 
     public async Task<Customer?> GetByUserIdAsync(Guid userId, CancellationToken ct)
         => await dbContext.Customers.FirstOrDefaultAsync(c => c.OwnerUserId == userId, ct);
+
+    public async Task<IReadOnlyList<Customer>> ListByIdsAsync(IReadOnlyCollection<Guid> customerIds, int skip, int take, CancellationToken ct)
+    {
+        if (customerIds.Count == 0)
+            return [];
+
+        return await dbContext.Customers
+            .AsNoTracking()
+            .Where(c => customerIds.Contains(c.Id))
+            .OrderBy(c => c.CompanyName)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(ct);
+    }
+    public async Task<int> CountByIdsAsync(IReadOnlyCollection<Guid> customerIds, CancellationToken ct)
+    {
+        if (customerIds.Count == 0)
+            return 0;
+
+        return await dbContext.Customers
+            .AsNoTracking()
+            .CountAsync(
+                c => customerIds.Contains(c.Id),
+                ct);
+    }
 }

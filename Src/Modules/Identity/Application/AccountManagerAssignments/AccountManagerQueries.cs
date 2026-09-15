@@ -30,4 +30,22 @@ public sealed class AccountManagerQueries(
         return assignment is not null
             && assignment.AccountManagerId == internalUser.Id;
     }
+    public async Task<IReadOnlyList<Guid>> GetAssignedCustomerIdsAsync(Guid accountManagerUserId, CancellationToken ct)
+    {
+        var internalUser =
+            await internalUsersRepository.GetByUserIdAsync(
+                accountManagerUserId,
+                ct);
+
+        if (internalUser is null)
+            return [];
+
+        var assignments =
+            await accountManagerAssignmentRepository
+                .ListByAccountManagerIdAsync(internalUser.Id, ct);
+
+        return assignments
+            .Select(x => x.CustomerId)
+            .ToList();
+    }
 }

@@ -45,17 +45,21 @@ public static class CustomersEndpoints
     {
         customers.MapGet("/", async (
             [AsParameters] PaginationRequest pagination,
+            ClaimsPrincipal user,
             ISender sender,
             CancellationToken ct) =>
         {
+            var userId = user.GetUserId();
+
             var result = await sender.Send(
-                new ListCustomersQuery(pagination),
+                new ListCustomersQuery(pagination, userId),
                 ct);
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(result.Error);
-        });
+        })
+        .RequirePermission(PermissionCatalog.CustomersView);
     }
 
     private static void MapGetAllIncludingDeleted(IEndpointRouteBuilder group)
@@ -275,9 +279,6 @@ public static class CustomersEndpoints
             .RequirePermission(PermissionCatalog.CustomersDelete);
         }
     }
-
-    public sealed record DeleteSearchHistoriesRequest(
-        IReadOnlyCollection<Guid> SearchHistoryIds);
     private static void MapGetSearchHistory(IEndpointRouteBuilder group)
     {
         group.MapGet("/search-history", async (
@@ -294,6 +295,9 @@ public static class CustomersEndpoints
                 : Results.BadRequest(result.Error);
         });
     }
+    public sealed record DeleteSearchHistoriesRequest(
+        IReadOnlyCollection<Guid> SearchHistoryIds);
+   
 
 
 }

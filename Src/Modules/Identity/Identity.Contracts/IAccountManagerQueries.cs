@@ -6,4 +6,9 @@ public interface IAccountManagerQueries
         Guid accountManagerId,
         Guid customerId,
         CancellationToken ct);
+
+
+    Task<IReadOnlyList<Guid>> GetAssignedCustomerIdsAsync(
+     Guid accountManagerId,
+     CancellationToken ct);
 }
