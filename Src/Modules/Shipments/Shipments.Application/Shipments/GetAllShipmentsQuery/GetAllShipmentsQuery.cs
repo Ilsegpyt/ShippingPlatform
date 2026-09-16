@@ -1,11 +1,14 @@
 ﻿using BuildingBlocks.Application;
+using Identity.Contracts;
 using MediatR;
 using Shipments.Application.Abstractions;
 using Shipments.Domain.Shipments;
 
 namespace Shipments.Application.Shipments.GetAllShipmentsQuery;
 
-public sealed record GetAllShipmentsQuery(PaginationRequest Pagination)
+public sealed record GetAllShipmentsQuery(
+    PaginationRequest Pagination,
+    Guid UserId)
     : IRequest<PagedResult<ShipmentResponse>>;
 
 public sealed record ShipmentResponse(
@@ -27,7 +30,9 @@ public sealed record ShipmentResponse(
     DateTime CreatedAtUtc);
 
 public sealed class GetAllShipmentsQueryHandler(
-    IShipmentRepository repository)
+    IShipmentRepository repository,
+    IAccountManagerQueries accountManagerQueries,
+    IUserAccessQueries userAccessQueries)
     : IRequestHandler<GetAllShipmentsQuery, PagedResult<ShipmentResponse>>
 {
     public async Task<PagedResult<ShipmentResponse>> Handle(
@@ -38,9 +43,59 @@ public sealed class GetAllShipmentsQueryHandler(
         var pageSize = query.Pagination.PageSize;
         var skip = (page - 1) * pageSize;
 
-        var totalCount = await repository.CountAsync(ct);
+        var userAccess =
+            await userAccessQueries.GetAccessInfoAsync(
+                query.UserId,
+                ct);
 
-        var shipments = await repository.GetAllAsync(skip, pageSize, ct);
+        var isAccountManager =
+            userAccess is not null &&
+            userAccess.IsActive &&
+            userAccess.TokenType == "internal" &&
+            userAccess.RoleName == "Account Manager";
+
+        int totalCount;
+        IReadOnlyList<Shipment> shipments;
+
+        if (isAccountManager)
+        {
+            var assignedCustomerIds =
+                await accountManagerQueries.GetAssignedCustomerIdsAsync(
+                    query.UserId,
+                    ct);
+
+            if (assignedCustomerIds.Count == 0)
+            {
+                return new PagedResult<ShipmentResponse>(
+                    [],
+                    0,
+                    page,
+                    pageSize);
+            }
+
+            totalCount =
+                await repository.CountByCustomerIdsAsync(
+                    assignedCustomerIds,
+                    ct);
+
+            shipments =
+                await repository.GetByCustomerIdsAsync(
+                    assignedCustomerIds,
+                    skip,
+                    pageSize,
+                    ct);
+        }
+        else
+        {
+            totalCount =
+                await repository.CountAsync(ct);
+
+            shipments =
+                await repository.GetAllAsync(
+                    skip,
+                    pageSize,
+                    ct);
+        }
 
         var items = shipments
             .Select(x => new ShipmentResponse(

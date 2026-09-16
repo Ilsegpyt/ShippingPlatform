@@ -12,15 +12,20 @@ public static class GetAllShipmentsEndpoint
     {
         app.MapGet("/api/shipments", async (
             [AsParameters] PaginationRequest pagination,
+            HttpContext httpContext,
             ISender sender,
             CancellationToken ct) =>
         {
+            var userId = httpContext.User.GetUserId();
+
             var result = await sender.Send(
-                new GetAllShipmentsQuery(pagination),
+                new GetAllShipmentsQuery(
+                    pagination,
+                    userId),
                 ct);
 
             return Results.Ok(result);
-        }).RequirePermission(PermissionCatalog.ShipmentsView);
-        
+        })
+        .RequirePermission(PermissionCatalog.ShipmentsView);
     }
 }

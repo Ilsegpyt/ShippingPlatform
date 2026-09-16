@@ -11,6 +11,6 @@ public interface IShipmentRepository
     Task<int> CountAsync(CancellationToken ct = default);
     void RemoveRange(IReadOnlyCollection<Shipment> shipments);
     Task<IReadOnlyList<Shipment>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default);
-
-
+    Task<IReadOnlyList<Shipment>> GetByCustomerIdsAsync(IReadOnlyCollection<Guid> customerIds, int skip, int take, CancellationToken ct = default);
+    Task<int> CountByCustomerIdsAsync(IReadOnlyCollection<Guid> customerIds, CancellationToken ct = default);
 }

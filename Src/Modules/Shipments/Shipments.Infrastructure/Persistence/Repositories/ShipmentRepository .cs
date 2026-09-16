@@ -13,24 +13,18 @@ public sealed class ShipmentRepository : IShipmentRepository
         _dbContext = dbContext;
     }
 
-    public async Task AddAsync(
-        Shipment shipment,
-        CancellationToken ct = default)
+    public async Task AddAsync(Shipment shipment, CancellationToken ct = default)
     {
         await _dbContext.Shipments.AddAsync(shipment, ct);
     }
 
-    public async Task<Shipment?> GetByIdAsync(
-        Guid shipmentId,
-        CancellationToken ct = default)
+    public async Task<Shipment?> GetByIdAsync(Guid shipmentId, CancellationToken ct = default)
     {
         return await _dbContext.Shipments
             .FirstOrDefaultAsync(x => x.Id == shipmentId, ct);
     }
 
-    public async Task<IReadOnlyList<Shipment>> GetByIdsAsync(
-        IReadOnlyCollection<Guid> shipmentIds,
-        CancellationToken ct = default)
+    public async Task<IReadOnlyList<Shipment>> GetByIdsAsync(IReadOnlyCollection<Guid> shipmentIds, CancellationToken ct = default)
     {
         return await _dbContext.Shipments
             .Where(x => shipmentIds.Contains(x.Id))
@@ -50,11 +44,11 @@ public sealed class ShipmentRepository : IShipmentRepository
     {
         return await _dbContext.Shipments.CountAsync(ct);
     }
-    public void RemoveRange(
-        IReadOnlyCollection<Shipment> shipments)
+    public void RemoveRange(IReadOnlyCollection<Shipment> shipments)
     {
         _dbContext.Shipments.RemoveRange(shipments);
     }
+
     public async Task<IReadOnlyList<Shipment>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default)
     {
         return await _dbContext.Shipments
@@ -62,5 +56,24 @@ public sealed class ShipmentRepository : IShipmentRepository
             .Where(x => x.CustomerId == customerId)
             .OrderByDescending(x => x.CreatedAtUtc)
             .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<Shipment>> GetByCustomerIdsAsync(IReadOnlyCollection<Guid> customerIds, int skip, int take, CancellationToken ct = default)
+    {
+        return await _dbContext.Shipments
+            .AsNoTracking()
+            .Where(x => customerIds.Contains(x.CustomerId))
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(ct);
+    }
+
+    public async Task<int> CountByCustomerIdsAsync(IReadOnlyCollection<Guid> customerIds, CancellationToken ct = default)
+    {
+        return await _dbContext.Shipments
+            .CountAsync(
+                x => customerIds.Contains(x.CustomerId),
+                ct);
     }
 }
