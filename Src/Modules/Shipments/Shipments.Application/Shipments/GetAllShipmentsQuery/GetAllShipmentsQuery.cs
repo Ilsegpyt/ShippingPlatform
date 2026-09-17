@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Application;
+using Customers.Contracts;
 using Identity.Contracts;
 using MediatR;
 using Shipments.Application.Abstractions;
@@ -30,9 +31,10 @@ public sealed record ShipmentResponse(
     DateTime CreatedAtUtc);
 
 public sealed class GetAllShipmentsQueryHandler(
-    IShipmentRepository repository,
+    IShipmentRepository shipmentrepository,
     IAccountManagerQueries accountManagerQueries,
-    IUserAccessQueries userAccessQueries)
+    IUserAccessQueries userAccessQueries,
+    ICustomerQueries customerQueries)
     : IRequestHandler<GetAllShipmentsQuery, PagedResult<ShipmentResponse>>
 {
     public async Task<PagedResult<ShipmentResponse>> Handle(
@@ -54,6 +56,11 @@ public sealed class GetAllShipmentsQueryHandler(
             userAccess.TokenType == "internal" &&
             userAccess.RoleName == "Account Manager";
 
+        var customer =
+            await customerQueries.GetByUserIdAsync(
+                query.UserId,
+                ct);
+
         int totalCount;
         IReadOnlyList<Shipment> shipments;
 
@@ -74,24 +81,38 @@ public sealed class GetAllShipmentsQueryHandler(
             }
 
             totalCount =
-                await repository.CountByCustomerIdsAsync(
+                await shipmentrepository.CountByCustomerIdsAsync(
                     assignedCustomerIds,
                     ct);
 
             shipments =
-                await repository.GetByCustomerIdsAsync(
+                await shipmentrepository.GetByCustomerIdsAsync(
                     assignedCustomerIds,
                     skip,
                     pageSize,
                     ct);
         }
+        else if (customer is not null && customer.IsActive)
+        {
+            var customerShipments =
+                await shipmentrepository.GetByCustomerIdAsync(
+                    customer.CustomerId,
+                    ct);
+
+            totalCount = customerShipments.Count;
+
+            shipments = customerShipments
+                .Skip(skip)
+                .Take(pageSize)
+                .ToList();
+        }
         else
         {
             totalCount =
-                await repository.CountAsync(ct);
+                await shipmentrepository.CountAsync(ct);
 
             shipments =
-                await repository.GetAllAsync(
+                await shipmentrepository.GetAllAsync(
                     skip,
                     pageSize,
                     ct);
