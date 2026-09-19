@@ -36,7 +36,7 @@ public static class DownloadReportEndpoint
                 GetContentType(result.FileName),
                 result.FileName);
         })
-        .RequirePermission(PermissionCatalog.ReportsView);
+        .RequirePermission(PermissionCatalog.ReportsDownload);
     }
 
     private static string GetContentType(string fileName)

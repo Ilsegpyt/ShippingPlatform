@@ -127,6 +127,9 @@ public static class PermissionCatalog
     public static readonly PermissionKey ReportsUpload =
         PermissionKey.Of("reports.upload");
 
+    public static readonly PermissionKey ReportsDownload =
+        PermissionKey.Of("reports.download");
+
 
     // Schedules
     public static readonly PermissionKey SchedulesView =
@@ -177,27 +180,29 @@ public static class PermissionCatalog
         //CustomersView,
         CustomersEdit,
 
-        SubAccountsView,
-        SubAccountsCreate,
-        SubAccountsEdit,
-        SubAccountsDelete,
-        SubAccountsSuspend,
+    SubAccountsView,
+    SubAccountsCreate,
+    SubAccountsEdit,
+    SubAccountsDelete,
+    SubAccountsSuspend,
 
-        ShipmentsView,
-        ShipmentsBook,
-        ShipmentsTrack,
+    ShipmentsView,
+    ShipmentsBook,
+    ShipmentsTrack,
 
-        ReportsView,
-        UsersView,
+    ReportsView,
+    ReportsDownload,
 
-        SchedulesView,
-        SchedulesCreate,
-        SchedulesDelete,
-        SchedulesImport,
-        SchedulesExport,
-        SchedulesSearch,
+    UsersView,
 
-        NotificationsView
+    SchedulesView,
+    SchedulesCreate,
+    SchedulesDelete,
+    SchedulesImport,
+    SchedulesExport,
+    SchedulesSearch,
+
+    NotificationsView
     ];
 
 
@@ -239,6 +244,7 @@ public static class PermissionCatalog
         // Reports
         ReportsView,
         ReportsUpload,
+        ReportsDownload,
 
         // Schedules
         SchedulesView,
