@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Application;
+using Identity.Contracts;
 using MediatR;
 using Shipments.Application.Abstractions;
 
@@ -6,7 +7,9 @@ namespace Shipments.Application.Shipments.UpdateShipment;
 
 public sealed class UpdateShipmentCommandHandler(
     IShipmentRepository shipmentRepository,
-    IShipmentsUnitOfWork unitOfWork)
+    IShipmentsUnitOfWork unitOfWork,
+    IAccountManagerQueries accountManagerQueries,
+    IUserAccessQueries userAccessQueries)
     : IRequestHandler<
         UpdateShipmentCommand,
         Result<UpdateShipmentResponse>>
@@ -23,6 +26,32 @@ public sealed class UpdateShipmentCommandHandler(
         {
             return Result.Failure<UpdateShipmentResponse>(
                 "Shipment was not found.");
+        }
+
+        var userAccess =
+            await userAccessQueries.GetAccessInfoAsync(
+                command.UserId,
+                ct);
+
+        var isAccountManager =
+            userAccess is not null &&
+            userAccess.IsActive &&
+            userAccess.TokenType == "internal" &&
+            userAccess.RoleName == "Account Manager";
+
+        if (isAccountManager)
+        {
+            var isAssigned =
+                await accountManagerQueries.IsAssignedToCustomerAsync(
+                    command.UserId,
+                    shipment.CustomerId,
+                    ct);
+
+            if (!isAssigned)
+            {
+                return Result.Failure<UpdateShipmentResponse>(
+                    "You are not allowed to edit this shipment.");
+            }
         }
 
         // Sea shipment cannot have MAWB

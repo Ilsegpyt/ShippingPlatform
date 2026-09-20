@@ -6,6 +6,7 @@ namespace Shipments.Application.Shipments.UpdateShipment;
 
 public sealed record UpdateShipmentCommand(
     Guid ShipmentId,
+    Guid UserId,
     ShipmentStatus Status,
     string? MBL,
     string? HBL,

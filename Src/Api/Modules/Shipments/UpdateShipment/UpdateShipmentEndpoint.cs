@@ -13,11 +13,15 @@ public static class UpdateShipmentEndpoint
         app.MapPut("/api/shipments/{shipmentId:guid}", async (
             Guid shipmentId,
             [FromBody] UpdateShipmentRequest request,
+            HttpContext httpContext,
             ISender sender,
             CancellationToken ct) =>
         {
+            var userId = httpContext.User.GetUserId();
+
             var command = new UpdateShipmentCommand(
                 shipmentId,
+                userId,
                 request.Status,
                 request.MBL,
                 request.HBL,
