@@ -71,6 +71,11 @@ public sealed class IdentitySeeder
 
                     superAdminRole = role;
                 }
+                else if (name == "Account Manager")
+                {
+                    foreach (var permission in PermissionCatalog.AccountManagerPermissions)
+                        role.GrantPermission(permission);
+                }
 
                 _roles.Add(role);
             }
@@ -138,7 +143,7 @@ public sealed class IdentitySeeder
             internalUser = InternalUser.Create(
                 userId,
                 superAdminRole.Id,
-                  "Super Admin",
+                "Super Admin",
                 _seedOptions.SuperAdminEmail,
                 null);
 

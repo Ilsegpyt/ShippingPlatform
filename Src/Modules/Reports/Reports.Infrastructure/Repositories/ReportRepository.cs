@@ -32,5 +32,15 @@ public sealed class ReportRepository(ReportsDbContext db) : IReportRepository
             .OrderByDescending(r => r.UploadedAtUtc)
             .ToListAsync(ct);
     }
+    public async Task<IReadOnlyList<Report>> GetByCustomerIdsAsync(
+    IReadOnlyCollection<Guid> customerIds,
+    CancellationToken ct)
+    {
+        return await db.Reports
+            .AsNoTracking()
+            .Where(x => customerIds.Contains(x.CustomerId))
+            .OrderByDescending(x => x.UploadedAtUtc)
+            .ToListAsync(ct);
+    }
 }
 

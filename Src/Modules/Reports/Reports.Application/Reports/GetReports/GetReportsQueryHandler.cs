@@ -10,6 +10,7 @@ public sealed class GetReportsQueryHandler(
     ISubAccountQueries subAccountQueries,
     IUserAccessQueries userAccessQueries,
     ICustomerQueries customerQueries,
+    IAccountManagerQueries accountManagerQueries,
     IReportRepository reportRepository)
     : IRequestHandler<GetReportsQuery, IReadOnlyList<Report>>
 {
@@ -31,7 +32,29 @@ public sealed class GetReportsQueryHandler(
             return await reportRepository.GetAllAsync(ct);
         }
 
-        // 2. Check Customer
+        // 2. Check Account Manager
+        var isAccountManager =
+            userAccess is not null &&
+            userAccess.IsActive &&
+            userAccess.TokenType == "internal" &&
+            userAccess.RoleName == "Account Manager";
+
+        if (isAccountManager)
+        {
+            var assignedCustomerIds =
+                await accountManagerQueries.GetAssignedCustomerIdsAsync(
+                    request.UserId,
+                    ct);
+
+            if (assignedCustomerIds.Count == 0)
+                return [];
+
+            return await reportRepository.GetByCustomerIdsAsync(
+                assignedCustomerIds,
+                ct);
+        }
+
+        // 3. Check Customer
         var customerAccess =
             await customerQueries.GetByUserIdAsync(
                 request.UserId,
@@ -47,7 +70,7 @@ public sealed class GetReportsQueryHandler(
                 ct);
         }
 
-        // 3. Check SubAccount
+        // 4. Check SubAccount
         var access =
             await subAccountQueries.GetAccessInfoAsync(
                 request.UserId,
@@ -64,11 +87,11 @@ public sealed class GetReportsQueryHandler(
                 access.OrganizationId,
                 ct);
 
-        // 4. SubAccount with Full Scope
+        // 5. SubAccount with Full Scope
         if (access.HasFullScope)
             return reports;
 
-        // 5. SubAccount with Custom Scope
+        // 6. SubAccount with Custom Scope
         return reports
             .Where(report => access.Scopes.Any(scope =>
                 scope.Category == (int)report.Category &&

@@ -11,6 +11,9 @@ public interface IReportRepository
     Task<IReadOnlyList<Report>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct);
 
     Task<IReadOnlyList<Report>> GetAllAsync(CancellationToken ct);
+    Task<IReadOnlyList<Report>> GetByCustomerIdsAsync(
+    IReadOnlyCollection<Guid> customerIds,
+    CancellationToken ct);
 
 }
 
