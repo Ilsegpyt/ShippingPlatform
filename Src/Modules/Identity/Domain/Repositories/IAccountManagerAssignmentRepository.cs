@@ -13,4 +13,7 @@ public interface IAccountManagerAssignmentRepository
     void Update(AccountManagerAssignment assignment);
 
     void Delete(AccountManagerAssignment assignment);
+
+    Task<IReadOnlyList<AccountManagerAssignment>> ListAllAsync(
+    CancellationToken ct = default);
 }

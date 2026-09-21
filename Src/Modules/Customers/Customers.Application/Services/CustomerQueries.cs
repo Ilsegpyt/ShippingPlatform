@@ -54,4 +54,26 @@ internal sealed class CustomerQueries(ICustomerRepository repository) : ICustome
                 customer.OwnerPhone,
                 customer.OwnerEmail);
     }
+    public async Task<IReadOnlyList<CustomerAssignmentInfo>> GetByIdsAsync(
+    IReadOnlyCollection<Guid> customerIds,
+    CancellationToken ct)
+    {
+        if (customerIds.Count == 0)
+            return [];
+
+        var customers = await repository.ListByIdsAsync(
+            customerIds,
+            0,
+            customerIds.Count,
+            ct);
+
+        return customers
+            .Select(customer => new CustomerAssignmentInfo(
+                customer.Id,
+                customer.OwnerName,
+                customer.CompanyName,
+                customer.Status == CustomerStatus.Active,
+                customer.IsDeleted))
+            .ToList();
+    }
 }

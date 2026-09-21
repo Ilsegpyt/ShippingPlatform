@@ -35,4 +35,12 @@ public sealed class AccountManagerAssignmentRepository
 
     public void Delete(AccountManagerAssignment assignment) =>
         _db.AccountManagerAssignments.Remove(assignment);
+
+    public async Task<IReadOnlyList<AccountManagerAssignment>> ListAllAsync(
+    CancellationToken ct = default)
+    {
+        return await _db.AccountManagerAssignments
+            .AsNoTracking()
+            .ToListAsync(ct);
+    }
 }
