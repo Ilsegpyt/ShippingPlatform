@@ -162,7 +162,8 @@ public static class PermissionCatalog
     // Permissions available to SubAccounts
     public static readonly IReadOnlyCollection<PermissionKey> SubAccountPermissions =
     [
-        ReportsView
+         ReportsView,
+        ReportsDownload
     ];
 
 

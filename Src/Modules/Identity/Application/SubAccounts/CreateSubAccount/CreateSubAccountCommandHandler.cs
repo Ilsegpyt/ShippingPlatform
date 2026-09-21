@@ -86,6 +86,10 @@ public sealed class CreateSubAccountCommandHandler
                 scopeType,
                 SubAccountStatus.Active);
 
+            // Reports permissions are available to every SubAccount.
+            subAccount.GrantPermission(PermissionCatalog.ReportsView);
+            subAccount.GrantPermission(PermissionCatalog.ReportsDownload);
+
             if (!command.GrantFullScope)
             {
                 foreach (var scope in scopes)
