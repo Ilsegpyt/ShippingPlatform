@@ -159,18 +159,22 @@ public static class PermissionCatalog
         PermissionKey.Of("notifications.view");
 
 
+    public static readonly PermissionKey ImpersonatedCustomerView =
+        PermissionKey.Of("customers.impersonation.view");
+
+
     // Permissions available to SubAccounts
     public static readonly IReadOnlyCollection<PermissionKey> SubAccountPermissions =
     [
-         ReportsView,
+        ReportsView,
         ReportsDownload
     ];
 
 
     public static readonly IReadOnlyCollection<PermissionKey> AccountManagerPermissions =
     [
-         ReportsView,
-         ReportsUpload,
+        ReportsView,
+        ReportsUpload,
         ShipmentsEdit,
         CustomersView,
     ];
@@ -179,32 +183,32 @@ public static class PermissionCatalog
     // Permissions available to Customer Owners
     public static readonly IReadOnlyCollection<PermissionKey> CustomerOwnerPermissions =
     [
-        //CustomersView,
         CustomersEdit,
 
-    SubAccountsView,
-    SubAccountsCreate,
-    SubAccountsEdit,
-    SubAccountsDelete,
-    SubAccountsSuspend,
+        SubAccountsView,
+        SubAccountsCreate,
+        SubAccountsEdit,
+        SubAccountsDelete,
+        SubAccountsSuspend,
 
-    ShipmentsView,
-    ShipmentsBook,
-    ShipmentsTrack,
+        ShipmentsView,
+        ShipmentsBook,
+        ShipmentsTrack,
 
-    ReportsView,
-    ReportsDownload,
+        ReportsView,
+        ReportsDownload,
 
-    UsersView,
+        UsersView,
 
-    SchedulesView,
-    SchedulesCreate,
-    SchedulesDelete,
-    SchedulesImport,
-    SchedulesExport,
-    SchedulesSearch,
+        SchedulesView,
+        SchedulesCreate,
+        SchedulesDelete,
+        SchedulesImport,
+        SchedulesExport,
+        SchedulesSearch,
 
-    NotificationsView
+        NotificationsView,
+
     ];
 
 
@@ -258,6 +262,8 @@ public static class PermissionCatalog
         SchedulesSearch,
 
         // Notifications
-        NotificationsView
+        NotificationsView,
+
+        ImpersonatedCustomerView
     };
 }

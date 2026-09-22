@@ -28,15 +28,12 @@ public sealed class PermissionAuthorizationHandler
         AuthorizationHandlerContext context,
         PermissionRequirement requirement)
     {
-        // Get the authenticated user's ID from the JWT.
         var userIdClaim =
             context.User.FindFirstValue(ClaimTypes.NameIdentifier)
             ?? context.User.FindFirstValue("sub");
 
-        // Determine the type of authenticated account.
         var tokenType = context.User.FindFirstValue("token_type");
 
-        // The requirement cannot be satisfied without a valid user ID.
         if (userIdClaim is null ||
             !Guid.TryParse(userIdClaim, out var userId))
         {
@@ -49,8 +46,8 @@ public sealed class PermissionAuthorizationHandler
             "customer" => HasCustomerPermission(
                 requirement.Permission),
 
-            // Impersonation uses Customer owner permissions.
-            "impersonation" => HasCustomerPermission(
+            // Impersonation permissions.
+            "impersonation" => HasImpersonationPermission(
                 requirement.Permission),
 
             // SubAccount permissions.
@@ -72,12 +69,23 @@ public sealed class PermissionAuthorizationHandler
 
     /// <summary>
     /// Checks whether the customer owner has the required permission.
-    /// Customer owner permissions are defined as a fixed set.
     /// </summary>
     private static bool HasCustomerPermission(
         PermissionKey permission)
     {
         return PermissionCatalog.CustomerOwnerPermissions.Contains(permission);
+    }
+
+    /// <summary>
+    /// Checks permissions available specifically during impersonation.
+    /// Impersonation keeps the customer's normal permissions and adds
+    /// impersonation-specific permissions.
+    /// </summary>
+    private static bool HasImpersonationPermission(
+        PermissionKey permission)
+    {
+        return PermissionCatalog.CustomerOwnerPermissions.Contains(permission)
+            || permission == PermissionCatalog.ImpersonatedCustomerView;
     }
 
     /// <summary>

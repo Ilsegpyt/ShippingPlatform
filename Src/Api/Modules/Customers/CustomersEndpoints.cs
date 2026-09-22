@@ -12,6 +12,7 @@ using Customers.Application.Queries.ListAllCustomers;
 using Customers.Application.Queries.ListCustomers;
 using Customers.Application.Schedules.SearchCustomerMultiSchedules;
 using Customers.Application.Schedules.SearchCustomerSchedules;
+using Customers.Contracts;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
@@ -39,6 +40,7 @@ public static class CustomersEndpoints
         MapDelete(group);
         MapGetSearchHistory(group);
         DeleteSearchHistoriesEndpoint.Map(app);
+        MapGetOwner(group);
     }
 
     private static void MapGetAll(IEndpointRouteBuilder customers)
@@ -297,8 +299,22 @@ public static class CustomersEndpoints
     }
     public sealed record DeleteSearchHistoriesRequest(
         IReadOnlyCollection<Guid> SearchHistoryIds);
-   
 
+    private static void MapGetOwner(IEndpointRouteBuilder group)
+    {
+        group.MapGet("/{id:guid}/owner", async (
+            Guid id,
+            ICustomerQueries customerQueries,
+            CancellationToken ct) =>
+        {
+            var result = await customerQueries.GetOwnerByCustomerIdAsync(id, ct);
+
+            return result is not null
+                ? Results.Ok(result)
+                : Results.NotFound("Customer not found.");
+        })
+        .RequirePermission(PermissionCatalog.CustomersImpersonate);
+    }
 
 }
 
