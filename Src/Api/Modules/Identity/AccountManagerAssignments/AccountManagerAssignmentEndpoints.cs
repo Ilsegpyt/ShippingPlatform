@@ -2,9 +2,11 @@
 using Identity.Application.AccountManagerAssignments.ChangeAccountManager;
 using Identity.Application.AccountManagerAssignments.GetAssignments;
 using Identity.Application.AccountManagerAssignments.GetUnassignedCustomers;
+using Identity.Application.AccountManagerAssignments.RemoveAccountManager;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Modules.Identity.AccountManagerAssignments;
 
@@ -19,6 +21,7 @@ public static class AccountManagerAssignmentEndpoints
         MapGetUnassigned(assignments);
         MapAssign(assignments);
         MapChange(assignments);
+        MapRemove(assignments);
     }
 
     private static void MapGetAll(IEndpointRouteBuilder assignments)
@@ -77,6 +80,24 @@ public static class AccountManagerAssignmentEndpoints
     {
         assignments.MapPut("/", async (
             ChangeAccountManagerCommand command,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var result = await sender.Send(
+                command,
+                ct);
+
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.UsersView);
+    }
+    private static void MapRemove(
+    IEndpointRouteBuilder assignments)
+    {
+        assignments.MapDelete("/", async (
+           [FromBody] RemoveAccountManagerCommand command,
             ISender sender,
             CancellationToken ct) =>
         {
