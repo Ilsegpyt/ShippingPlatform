@@ -1,4 +1,5 @@
-﻿using Identity.Application.AccountManagerAssignments.GetAssignments;
+﻿using Identity.Application.AccountManagerAssignments.AssignAccountManager;
+using Identity.Application.AccountManagerAssignments.GetAssignments;
 using Identity.Application.AccountManagerAssignments.GetUnassignedCustomers;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
@@ -15,6 +16,7 @@ public static class AccountManagerAssignmentEndpoints
 
         MapGetAll(assignments);
         MapGetUnassigned(assignments);
+        MapAssign(assignments);
     }
 
     private static void MapGetAll(IEndpointRouteBuilder assignments)
@@ -46,6 +48,24 @@ public static class AccountManagerAssignmentEndpoints
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.UsersView);
+    }
+    private static void MapAssign(
+    IEndpointRouteBuilder assignments)
+    {
+        assignments.MapPost("/", async (
+            AssignAccountManagerCommand command,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var result = await sender.Send(
+                command,
+                ct);
+
+            return result.IsSuccess
+                ? Results.NoContent()
                 : Results.BadRequest(result.Error);
         })
         .RequirePermission(PermissionCatalog.UsersView);
