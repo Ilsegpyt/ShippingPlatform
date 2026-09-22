@@ -39,4 +39,17 @@ public sealed class InternalUserRepository : IInternalUserRepository
         return await _db.InternalUsers.CountAsync(ct);
 
     }
+    public async Task<IReadOnlyList<InternalUser>> GetByIdsAsync(
+    IReadOnlyCollection<Guid> ids,
+    CancellationToken ct = default)
+    {
+        if (ids.Count == 0)
+            return [];
+
+        return await _db.InternalUsers
+            .AsNoTracking()
+            .Where(x => ids.Contains(x.Id))
+            .OrderBy(x => x.Name)
+            .ToListAsync(ct);
+    }
 }

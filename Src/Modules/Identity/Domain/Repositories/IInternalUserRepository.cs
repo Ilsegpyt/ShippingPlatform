@@ -13,4 +13,8 @@ public interface IInternalUserRepository
     Task<IReadOnlyList<InternalUser>> GetAllAsync(int skip, int take, CancellationToken ct = default);
     Task<int> CountAsync(CancellationToken ct = default);
 
+    Task<IReadOnlyList<InternalUser>> GetByIdsAsync(
+    IReadOnlyCollection<Guid> ids,
+    CancellationToken ct = default);
+
 }

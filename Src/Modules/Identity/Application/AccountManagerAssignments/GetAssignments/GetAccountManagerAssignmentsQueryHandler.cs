@@ -33,45 +33,51 @@ public sealed class GetAccountManagerAssignmentsQueryHandler(
             .Distinct()
             .ToList();
 
-        var internalUsers = new List<Identity.Domain.Entities.InternalUser>();
-
-        foreach (var accountManagerId in accountManagerIds)
-        {
-            var internalUser = await internalUserRepository.GetByIdAsync(
-                accountManagerId,
+        var internalUsers =
+            await internalUserRepository.GetByIdsAsync(
+                accountManagerIds,
                 ct);
 
-            if (internalUser is not null)
-                internalUsers.Add(internalUser);
-        }
+        var customers =
+            await customerQueries.GetByIdsAsync(
+                customerIds,
+                ct);
 
-        var customers = await customerQueries.GetByIdsAsync(
-            customerIds,
-            ct);
+        var internalUsersById = internalUsers
+            .ToDictionary(x => x.Id);
 
-        var customersById = customers.ToDictionary(x => x.CustomerId);
+        var customersById = customers
+            .ToDictionary(x => x.CustomerId);
 
         var result = new List<AccountManagerAssignmentResponse>();
 
-        foreach (var accountManager in internalUsers)
+        foreach (var accountManagerId in accountManagerIds)
         {
-            var managerAssignments = assignments
-                .Where(x => x.AccountManagerId == accountManager.Id)
-                .ToList();
+            if (!internalUsersById.TryGetValue(
+                    accountManagerId,
+                    out var accountManager))
+            {
+                continue;
+            }
 
-            var managerCustomers = managerAssignments
-                .Where(x => customersById.ContainsKey(x.CustomerId))
+            var managerCustomers = assignments
+                .Where(x => x.AccountManagerId == accountManagerId)
                 .Select(x =>
                 {
-                    var customer = customersById[x.CustomerId];
+                    customersById.TryGetValue(
+                        x.CustomerId,
+                        out var customer);
 
-                    return new AccountManagerCustomerResponse(
-                        customer.CustomerId,
+                    return customer;
+                })
+                .Where(x => x is not null)
+                .Select(customer =>
+                    new AccountManagerCustomerResponse(
+                        customer!.CustomerId,
                         customer.OwnerName,
                         customer.CompanyName,
                         customer.IsActive,
-                        customer.IsDeleted);
-                })
+                        customer.IsDeleted))
                 .ToList();
 
             result.Add(

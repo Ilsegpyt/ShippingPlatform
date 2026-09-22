@@ -1,12 +1,7 @@
-﻿using BuildingBlocks.Application;
-using BuildingBlocks.Domain;
-using Identity.Application.AccountManagerAssignments.AssignAccountManager;
-using Identity.Application.AccountManagerAssignments.ChangeAccountManager;
-using Identity.Application.AccountManagerAssignments.RemoveAccountManager;
+﻿using Identity.Application.AccountManagerAssignments.GetAssignments;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Modules.Identity.AccountManagerAssignments;
 
@@ -14,58 +9,26 @@ public static class AccountManagerAssignmentEndpoints
 {
     public static void Map(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/account-manager-assignments");
+        var assignments = app.MapGroup("/api/account-manager-assignments")
+            .WithTags("AccountManagerAssignments");
 
-        MapAssign(group);
-        MapChange(group);
-        MapRemove(group);
+        MapGetAll(assignments);
     }
 
-    private static void MapAssign(IEndpointRouteBuilder group)
+    private static void MapGetAll(IEndpointRouteBuilder assignments)
     {
-        group.MapPost("/", async (
-            AssignAccountManagerCommand command,
+        assignments.MapGet("/", async (
             ISender sender,
             CancellationToken ct) =>
         {
-            var result = await sender.Send(command, ct);
+            var result = await sender.Send(
+                new GetAccountManagerAssignmentsQuery(),
+                ct);
 
             return result.IsSuccess
-                ? Results.Ok()
+                ? Results.Ok(result.Value)
                 : Results.BadRequest(result.Error);
         })
-        .RequirePermission(
-            PermissionCatalog.CustomersAssignAccountManager);
-    }
-
-    private static void MapChange(IEndpointRouteBuilder group)
-    {
-        group.MapPut("/", async (
-            ChangeAccountManagerCommand command,
-            ISender sender,
-            CancellationToken ct) =>
-        {
-            var result = await sender.Send(command, ct);
-
-            return result.IsSuccess
-                ? Results.Ok()
-                : Results.BadRequest(result.Error);
-        })
-        .RequirePermission(
-            PermissionCatalog.CustomersAssignAccountManager);
-    }
-    private static void MapRemove(IEndpointRouteBuilder group)
-    { 
-        group.MapDelete("/", async (
-       [FromBody] RemoveAccountManagerCommand command,
-        ISender sender, 
-        CancellationToken ct) =>
-    { 
-        var result = await sender.Send(command, ct);
-        return result.IsSuccess
-        ? Results.Ok()
-        : Results.BadRequest(result.Error);
-    }).RequirePermission(PermissionCatalog.CustomersAssignAccountManager);
+        .RequirePermission(PermissionCatalog.UsersView);
     }
 }
-
