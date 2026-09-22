@@ -8,6 +8,7 @@ namespace Identity.Application.AccountManagerAssignments.GetAssignments;
 public sealed class GetAccountManagerAssignmentsQueryHandler(
     IAccountManagerAssignmentRepository assignmentRepository,
     IInternalUserRepository internalUserRepository,
+    IRoleRepository roleRepository,
     ICustomerQueries customerQueries)
     : IRequestHandler<
         GetAccountManagerAssignmentsQuery,
@@ -17,51 +18,51 @@ public sealed class GetAccountManagerAssignmentsQueryHandler(
         GetAccountManagerAssignmentsQuery query,
         CancellationToken ct)
     {
-        var assignments =
-            await assignmentRepository.ListAllAsync(ct);
+        var accountManagerRole =
+            await roleRepository.GetByNameAsync(
+                "Account Manager",
+                ct);
 
-        if (assignments.Count == 0)
+        if (accountManagerRole is null)
             return Array.Empty<AccountManagerAssignmentResponse>();
 
-        var accountManagerIds = assignments
-            .Select(x => x.AccountManagerId)
-            .Distinct()
+        var allInternalUsers =
+            await internalUserRepository.GetAllAsync(
+                0,
+                int.MaxValue,
+                ct);
+
+        var accountManagers = allInternalUsers
+            .Where(x => x.RoleId == accountManagerRole.Id)
             .ToList();
+
+        if (accountManagers.Count == 0)
+            return Array.Empty<AccountManagerAssignmentResponse>();
+
+        var assignments =
+            await assignmentRepository.ListAllAsync(ct);
 
         var customerIds = assignments
             .Select(x => x.CustomerId)
             .Distinct()
             .ToList();
 
-        var internalUsers =
-            await internalUserRepository.GetByIdsAsync(
-                accountManagerIds,
-                ct);
-
-        var customers =
-            await customerQueries.GetByIdsAsync(
+        var customers = customerIds.Count > 0
+            ? await customerQueries.GetByIdsAsync(
                 customerIds,
-                ct);
-
-        var internalUsersById = internalUsers
-            .ToDictionary(x => x.Id);
+                ct)
+            : [];
 
         var customersById = customers
             .ToDictionary(x => x.CustomerId);
 
         var result = new List<AccountManagerAssignmentResponse>();
 
-        foreach (var accountManagerId in accountManagerIds)
+        foreach (var accountManager in accountManagers)
         {
-            if (!internalUsersById.TryGetValue(
-                    accountManagerId,
-                    out var accountManager))
-            {
-                continue;
-            }
-
             var managerCustomers = assignments
-                .Where(x => x.AccountManagerId == accountManagerId)
+                .Where(x =>
+                    x.AccountManagerId == accountManager.Id)
                 .Select(x =>
                 {
                     customersById.TryGetValue(

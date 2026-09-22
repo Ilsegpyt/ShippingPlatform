@@ -1,4 +1,5 @@
 ﻿using Identity.Application.AccountManagerAssignments.GetAssignments;
+using Identity.Application.AccountManagerAssignments.GetUnassignedCustomers;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
@@ -13,6 +14,7 @@ public static class AccountManagerAssignmentEndpoints
             .WithTags("AccountManagerAssignments");
 
         MapGetAll(assignments);
+        MapGetUnassigned(assignments);
     }
 
     private static void MapGetAll(IEndpointRouteBuilder assignments)
@@ -23,6 +25,23 @@ public static class AccountManagerAssignmentEndpoints
         {
             var result = await sender.Send(
                 new GetAccountManagerAssignmentsQuery(),
+                ct);
+
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.UsersView);
+    }
+    private static void MapGetUnassigned(
+    IEndpointRouteBuilder assignments)
+    {
+        assignments.MapGet("/unassigned", async (
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var result = await sender.Send(
+                new GetUnassignedCustomersQuery(),
                 ct);
 
             return result.IsSuccess
