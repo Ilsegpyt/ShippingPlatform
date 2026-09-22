@@ -76,4 +76,22 @@ internal sealed class CustomerQueries(ICustomerRepository repository) : ICustome
                 customer.IsDeleted))
             .ToList();
     }
+    public async Task<IReadOnlyList<CustomerAssignmentInfo>> GetAllForAssignmentAsync(
+    CancellationToken ct)
+    {
+        var customers = await repository.ListAsync(
+            0,
+            int.MaxValue,
+            ct);
+
+        return customers
+            .Select(customer =>
+                new CustomerAssignmentInfo(
+                    customer.Id,
+                    customer.OwnerName,
+                    customer.CompanyName,
+                    customer.Status == CustomerStatus.Active,
+                    customer.IsDeleted))
+            .ToList();
+    }
 }
