@@ -7,6 +7,9 @@ using Customers.Application.Customers.SuspendCustomer;
 using Customers.Application.Customers.UpdateCustomerEmail;
 using Customers.Application.Customers.UpdateCustomerProfile;
 using Customers.Application.CustomerVoices.CreateCustomerVoice;
+using Customers.Application.CustomerVoices.GetAllCustomerVoices;
+using Customers.Application.CustomerVoices.GetCustomerVoices;
+using Customers.Application.CustomerVoices.UpdateCustomerVoiceStatus;
 using Customers.Application.Queries.GetCustomerById;
 using Customers.Application.Queries.GetSearchHistory;
 using Customers.Application.Queries.ListAllCustomers;
@@ -43,6 +46,9 @@ public static class CustomersEndpoints
         DeleteSearchHistoriesEndpoint.Map(app);
         MapGetOwner(group);
         MapCreateCustomerVoice(group);
+        MapGetCustomerVoices(group);
+        MapGetAllCustomerVoices(group);
+        MapUpdateCustomerVoiceStatus(group);
     }
 
     private static void MapGetAll(IEndpointRouteBuilder customers)
@@ -341,8 +347,61 @@ public static class CustomersEndpoints
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(result.Error);
         })
-        .RequirePermission(PermissionCatalog.ShipmentsView);
+    .RequirePermission(PermissionCatalog.CustomerVoiceCreate);
     }
+    private static void MapGetCustomerVoices(IEndpointRouteBuilder group)
+    {
+        group.MapGet("/customer-voices", async (
+            ClaimsPrincipal user,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var customerId = user.GetOrganizationId();
 
+            var result = await sender.Send(
+                new GetCustomerVoicesQuery(customerId),
+                ct);
+
+            return Results.Ok(result);
+        })
+    .RequirePermission(PermissionCatalog.CustomerVoiceView);
+    }
+    private static void MapGetAllCustomerVoices(IEndpointRouteBuilder group)
+    {
+        group.MapGet("/customer-voices/all", async (
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var result = await sender.Send(
+                new GetAllCustomerVoicesQuery(),
+                ct);
+
+            return Results.Ok(result);
+        })
+    .RequirePermission(PermissionCatalog.CustomerVoiceView);
+    }
+    private static void MapUpdateCustomerVoiceStatus(
+    IEndpointRouteBuilder group)
+    {
+        group.MapPatch(
+            "/customer-voices/{id:guid}/status",
+            async (
+                Guid id,
+                UpdateCustomerVoiceStatusRequest request,
+                ISender sender,
+                CancellationToken ct) =>
+            {
+                var result = await sender.Send(
+                    new UpdateCustomerVoiceStatusCommand(
+                        id,
+                        request.Status),
+                    ct);
+
+                return result.IsSuccess
+                    ? Results.NoContent()
+                    : Results.NotFound(result.Error);
+            })
+        .RequirePermission(PermissionCatalog.CustomerVoiceStatusUpdate);
+    }
 }
 

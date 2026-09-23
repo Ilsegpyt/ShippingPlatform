@@ -103,6 +103,17 @@ public static class PermissionCatalog
         PermissionKey.Of("customers.impersonate");
 
 
+    // Customer Voice
+    public static readonly PermissionKey CustomerVoiceView =
+        PermissionKey.Of("customers.voice.view");
+
+    public static readonly PermissionKey CustomerVoiceCreate =
+        PermissionKey.Of("customers.voice.create");
+
+    public static readonly PermissionKey CustomerVoiceStatusUpdate =
+        PermissionKey.Of("customers.voice.status.update");
+
+
     // Shipments
     public static readonly PermissionKey ShipmentsView =
         PermissionKey.Of("shipments.view");
@@ -209,6 +220,8 @@ public static class PermissionCatalog
 
         NotificationsView,
 
+        CustomerVoiceView,
+        CustomerVoiceCreate
     ];
 
 
@@ -239,6 +252,11 @@ public static class PermissionCatalog
         CustomersSuspend,
         CustomersDelete,
         CustomersImpersonate,
+
+        // Customer Voice
+        CustomerVoiceView,
+        CustomerVoiceCreate,
+        CustomerVoiceStatusUpdate,
 
         // Shipments
         ShipmentsView,

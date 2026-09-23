@@ -1,4 +1,5 @@
 ﻿using Customers.Application.Schedules.SearchCustomerMultiSchedules;
+using Customers.Domain.Entities;
 
 namespace Api.Modules.Customers;
 
@@ -26,3 +27,6 @@ public sealed record CreateCustomerVoiceRequest(
     Guid ShipmentId,
     string Subject,
     string Message);
+
+public sealed record UpdateCustomerVoiceStatusRequest(
+    CustomerVoiceStatus Status);
