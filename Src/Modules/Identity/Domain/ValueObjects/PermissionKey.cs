@@ -255,7 +255,7 @@ public static class PermissionCatalog
 
         // Customer Voice
         CustomerVoiceView,
-        CustomerVoiceCreate,
+       // CustomerVoiceCreate,
         CustomerVoiceStatusUpdate,
 
         // Shipments
