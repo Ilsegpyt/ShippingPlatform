@@ -17,4 +17,8 @@ public interface IInternalUserRepository
     IReadOnlyCollection<Guid> ids,
     CancellationToken ct = default);
 
+    Task<IReadOnlyList<InternalUser>> GetByRoleIdAsync(
+    Guid roleId,
+    CancellationToken ct = default);
+
 }

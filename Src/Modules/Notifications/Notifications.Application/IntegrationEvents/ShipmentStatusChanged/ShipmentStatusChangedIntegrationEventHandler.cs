@@ -33,8 +33,10 @@ public sealed class ShipmentStatusChangedIntegrationEventHandler(
 
         var newNotification = Notification.Create(
             customer.OwnerUserId,
+            NotificationType.ShipmentStatusChanged,
             title,
-            message);
+            message,
+            notification.ShipmentId);
 
         var emailMessage = new EmailOutboxMessage(
             Guid.NewGuid(),

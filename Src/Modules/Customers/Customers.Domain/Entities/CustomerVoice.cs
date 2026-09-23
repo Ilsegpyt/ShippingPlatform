@@ -1,6 +1,9 @@
-﻿namespace Customers.Domain.Entities;
+﻿using BuildingBlocks.Domain;
+using Customers.Domain.Events;
 
-public sealed class CustomerVoice
+namespace Customers.Domain.Entities;
+
+public sealed class CustomerVoice : AggregateRoot<Guid>
 {
     public Guid Id { get; private set; }
 
@@ -50,13 +53,24 @@ public sealed class CustomerVoice
         string subject,
         string message)
     {
-        return new CustomerVoice(
+        var customerVoice = new CustomerVoice(
             Guid.NewGuid(),
             customerId,
             shipmentId,
             userId,
             subject,
             message);
+
+        customerVoice.RaiseDomainEvent(
+            new CustomerVoiceCreatedDomainEvent(
+                customerVoice.Id,
+                customerVoice.CustomerId,
+                customerVoice.ShipmentId,
+                customerVoice.UserId,
+                customerVoice.Subject,
+                customerVoice.CreatedAtUtc));
+
+        return customerVoice;
     }
 
     public void ChangeStatus(CustomerVoiceStatus status)

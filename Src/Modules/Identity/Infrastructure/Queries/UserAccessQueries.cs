@@ -8,9 +8,7 @@ public sealed class UserAccessQueries(
     IRoleRepository roleRepository)
     : IUserAccessQueries
 {
-    public async Task<UserAccessInfo?> GetAccessInfoAsync(
-        Guid userId,
-        CancellationToken ct)
+    public async Task<UserAccessInfo?> GetAccessInfoAsync(Guid userId, CancellationToken ct)
     {
         var internalUser =
             await internalUserRepository.GetByUserIdAsync(userId, ct);
@@ -37,5 +35,22 @@ public sealed class UserAccessQueries(
             "internal",
             role.Name,
             []);
+    }
+    public async Task<IReadOnlyList<Guid>> GetSuperAdminUserIdsAsync(CancellationToken ct)
+    {
+        var role = await roleRepository.GetByNameAsync(
+            "Super Admin",
+            ct);
+
+        if (role is null)
+            return [];
+
+        var users = await internalUserRepository.GetByRoleIdAsync(
+            role.Id,
+            ct);
+
+        return users
+            .Select(x => x.UserId)
+            .ToList();
     }
 }

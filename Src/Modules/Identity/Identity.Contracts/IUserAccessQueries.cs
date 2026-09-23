@@ -2,9 +2,10 @@
 
 public interface IUserAccessQueries
 {
-    Task<UserAccessInfo?> GetAccessInfoAsync(
-        Guid userId,
-        CancellationToken ct);
+    Task<UserAccessInfo?> GetAccessInfoAsync(Guid userId, CancellationToken ct);
+    Task<IReadOnlyList<Guid>> GetSuperAdminUserIdsAsync(CancellationToken ct);
+
+
 }
 
 public sealed record UserAccessInfo(
@@ -12,3 +13,4 @@ public sealed record UserAccessInfo(
     string TokenType,
     string? RoleName,
     IReadOnlyCollection<string> Permissions);
+

@@ -52,4 +52,14 @@ public sealed class InternalUserRepository : IInternalUserRepository
             .OrderBy(x => x.Name)
             .ToListAsync(ct);
     }
+    public async Task<IReadOnlyList<InternalUser>> GetByRoleIdAsync(
+    Guid roleId,
+    CancellationToken ct = default)
+    {
+        return await _db.InternalUsers
+            .AsNoTracking()
+            .Where(x => x.RoleId == roleId)
+            .OrderBy(x => x.Name)
+            .ToListAsync(ct);
+    }
 }

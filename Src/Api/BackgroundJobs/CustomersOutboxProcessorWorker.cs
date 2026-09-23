@@ -1,5 +1,4 @@
-﻿
-using BuildingBlocks.Contracts.IntegrationEvents.Customers;
+﻿using BuildingBlocks.Contracts.IntegrationEvents.Customers;
 using Customers.Domain.Events;
 using Customers.Infrastructure.Persistence;
 using MediatR;
@@ -55,6 +54,10 @@ public sealed class CustomersOutboxProcessorWorker : BackgroundService
                             ||
                             x.Type ==
                             typeof(CustomerDeletedEvent)
+                                .AssemblyQualifiedName
+                            ||
+                            x.Type ==
+                            typeof(CustomerVoiceCreatedDomainEvent)
                                 .AssemblyQualifiedName
                         ))
                     .OrderBy(x => x.OccurredOnUtc)
@@ -167,6 +170,35 @@ public sealed class CustomersOutboxProcessorWorker : BackgroundService
                                 integrationEvent,
                                 stoppingToken);
                         }
+                        else if (message.Type ==
+                                 typeof(CustomerVoiceCreatedDomainEvent)
+                                     .AssemblyQualifiedName)
+                        {
+                            var domainEvent =
+                                JsonSerializer.Deserialize<CustomerVoiceCreatedDomainEvent>(
+                                    message.Payload);
+
+                            if (domainEvent is null)
+                            {
+                                message.MarkAsFailed(
+                                    "Failed to deserialize CustomerVoiceCreatedDomainEvent.");
+
+                                continue;
+                            }
+
+                            var integrationEvent =
+                                new CustomerVoiceCreatedIntegrationEvent(
+                                    domainEvent.CustomerVoiceId,
+                                    domainEvent.CustomerId,
+                                    domainEvent.ShipmentId,
+                                    domainEvent.UserId,
+                                    domainEvent.Subject,
+                                    domainEvent.OccurredOnUtc);
+
+                            await publisher.Publish(
+                                integrationEvent,
+                                stoppingToken);
+                        }
 
                         message.MarkAsProcessed(DateTime.UtcNow);
 
@@ -201,4 +233,3 @@ public sealed class CustomersOutboxProcessorWorker : BackgroundService
         }
     }
 }
-
