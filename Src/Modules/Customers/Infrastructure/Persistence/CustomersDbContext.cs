@@ -21,7 +21,7 @@ public sealed class CustomersDbContext : DbContext, ICustomersUnitOfWork
     public DbSet<SearchHistory> SearchHistories => Set<SearchHistory>();
 
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
-
+    public DbSet<CustomerVoice> CustomerVoices => Set<CustomerVoice>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(

@@ -6,6 +6,7 @@ using Customers.Application.Customers.RegisterCustomer;
 using Customers.Application.Customers.SuspendCustomer;
 using Customers.Application.Customers.UpdateCustomerEmail;
 using Customers.Application.Customers.UpdateCustomerProfile;
+using Customers.Application.CustomerVoices.CreateCustomerVoice;
 using Customers.Application.Queries.GetCustomerById;
 using Customers.Application.Queries.GetSearchHistory;
 using Customers.Application.Queries.ListAllCustomers;
@@ -41,6 +42,7 @@ public static class CustomersEndpoints
         MapGetSearchHistory(group);
         DeleteSearchHistoriesEndpoint.Map(app);
         MapGetOwner(group);
+        MapCreateCustomerVoice(group);
     }
 
     private static void MapGetAll(IEndpointRouteBuilder customers)
@@ -314,6 +316,32 @@ public static class CustomersEndpoints
                 : Results.NotFound("Customer not found.");
         })
         .RequirePermission(PermissionCatalog.CustomersImpersonate);
+    }
+    private static void MapCreateCustomerVoice(IEndpointRouteBuilder group)
+    {
+        group.MapPost("/customer-voices", async (
+            CreateCustomerVoiceRequest request,
+            ClaimsPrincipal user,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var customerId = user.GetOrganizationId();
+            var userId = user.GetUserId();
+
+            var result = await sender.Send(
+                new CreateCustomerVoiceCommand(
+                    customerId,
+                    request.ShipmentId,
+                    userId,
+                    request.Subject,
+                    request.Message),
+                ct);
+
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.ShipmentsView);
     }
 
 }

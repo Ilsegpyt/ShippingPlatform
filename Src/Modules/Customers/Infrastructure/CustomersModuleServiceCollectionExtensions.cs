@@ -1,5 +1,4 @@
-﻿using BuildingBlocks.Application;
-using Customers.Application; 
+﻿using Customers.Application; 
 using Customers.Application.Abstractions;
 using Customers.Infrastructure.Persistence;
 using Customers.Infrastructure.Persistence.Repositories;
@@ -30,6 +29,10 @@ public static class CustomersModuleServiceCollectionExtensions
         services.AddScoped<
         ISearchHistoryRepository,
        SearchHistoryRepository>();
+
+        services.AddScoped<
+    ICustomerVoiceRepository,
+    CustomerVoiceRepository>();
 
         return services;
     }

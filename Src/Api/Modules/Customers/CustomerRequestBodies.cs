@@ -21,3 +21,8 @@ public sealed record SearchCustomerMultiSchedulesRequest(
 
 public sealed record DeleteCustomersRequest(
     IReadOnlyCollection<Guid> CustomerIds);
+
+public sealed record CreateCustomerVoiceRequest(
+    Guid ShipmentId,
+    string Subject,
+    string Message);
