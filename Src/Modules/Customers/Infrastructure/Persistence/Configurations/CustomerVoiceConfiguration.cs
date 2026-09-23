@@ -32,6 +32,7 @@ public sealed class CustomerVoiceConfiguration
             .HasMaxLength(4000);
 
         builder.Property(x => x.Status)
+            .HasConversion<string>()
             .IsRequired();
 
         builder.Property(x => x.CreatedAtUtc)
