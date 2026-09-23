@@ -369,16 +369,24 @@ public static class CustomersEndpoints
     private static void MapGetAllCustomerVoices(IEndpointRouteBuilder group)
     {
         group.MapGet("/customer-voices/all", async (
+            ClaimsPrincipal user,
             ISender sender,
             CancellationToken ct) =>
         {
+            var userId = user.GetUserId();
+            var tokenType = user.FindFirstValue("token_type");
+            var organizationId = user.FindFirstValue("org_id");
+
             var result = await sender.Send(
-                new GetAllCustomerVoicesQuery(),
+                new GetAllCustomerVoicesQuery(
+                    userId,
+                    tokenType,
+                    organizationId),
                 ct);
 
             return Results.Ok(result);
         })
-    .RequirePermission(PermissionCatalog.CustomerVoiceView);
+        .RequirePermission(PermissionCatalog.CustomerVoiceView);
     }
     private static void MapUpdateCustomerVoiceStatus(
     IEndpointRouteBuilder group)
