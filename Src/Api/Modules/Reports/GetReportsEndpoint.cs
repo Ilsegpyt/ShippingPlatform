@@ -17,8 +17,15 @@ public static class GetReportsEndpoint
         {
             var userId = user.GetUserId();
 
+            var tokenType = user.FindFirst("token_type")?.Value;
+
+            var organizationId = user.FindFirst("org_id")?.Value;
+
             var result = await sender.Send(
-                new GetReportsQuery(userId),
+                new GetReportsQuery(
+                    userId,
+                    tokenType,
+                    organizationId),
                 ct);
 
             return Results.Ok(result);

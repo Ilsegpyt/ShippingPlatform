@@ -18,7 +18,26 @@ public sealed class GetReportsQueryHandler(
         GetReportsQuery request,
         CancellationToken ct)
     {
-        // 1. Check InternalUser / SuperAdmin
+        // 1. Check Impersonation first
+        if (request.TokenType == "impersonation" &&
+            Guid.TryParse(
+                request.OrganizationId,
+                out var impersonatedCustomerId))
+        {
+            var customer =
+                await customerQueries.GetByIdAsync(
+                    impersonatedCustomerId,
+                    ct);
+
+            if (customer is null || !customer.IsActive)
+                return [];
+
+            return await reportRepository.GetByCustomerIdAsync(
+                impersonatedCustomerId,
+                ct);
+        }
+
+        // 2. Check InternalUser / SuperAdmin
         var userAccess =
             await userAccessQueries.GetAccessInfoAsync(
                 request.UserId,
@@ -32,7 +51,7 @@ public sealed class GetReportsQueryHandler(
             return await reportRepository.GetAllAsync(ct);
         }
 
-        // 2. Check Account Manager
+        // 3. Check Account Manager
         var isAccountManager =
             userAccess is not null &&
             userAccess.IsActive &&
@@ -54,7 +73,7 @@ public sealed class GetReportsQueryHandler(
                 ct);
         }
 
-        // 3. Check Customer
+        // 4. Check Customer
         var customerAccess =
             await customerQueries.GetByUserIdAsync(
                 request.UserId,
@@ -70,7 +89,7 @@ public sealed class GetReportsQueryHandler(
                 ct);
         }
 
-        // 4. Check SubAccount
+        // 5. Check SubAccount
         var access =
             await subAccountQueries.GetAccessInfoAsync(
                 request.UserId,
@@ -87,11 +106,11 @@ public sealed class GetReportsQueryHandler(
                 access.OrganizationId,
                 ct);
 
-        // 5. SubAccount with Full Scope
+        // 6. SubAccount with Full Scope
         if (access.HasFullScope)
             return reports;
 
-        // 6. SubAccount with Custom Scope
+        // 7. SubAccount with Custom Scope
         return reports
             .Where(report => access.Scopes.Any(scope =>
                 scope.Category == (int)report.Category &&

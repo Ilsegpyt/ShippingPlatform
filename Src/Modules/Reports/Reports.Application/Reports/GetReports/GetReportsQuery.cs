@@ -4,5 +4,7 @@ using Reports.Domain.Entities;
 namespace Reports.Application.Reports.GetReports;
 
 public sealed record GetReportsQuery(
-    Guid UserId)
+    Guid UserId,
+    string? TokenType,
+    string? OrganizationId)
     : IRequest<IReadOnlyList<Report>>;
