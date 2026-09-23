@@ -8,10 +8,18 @@ public sealed class ScheduleSearchService(
     IScheduleRepository scheduleRepository)
     : IScheduleSearchService, IScheduleQueryService
 {
-    public async Task<IReadOnlyList<ScheduleSearchResult>> SearchAsync(string origin, string destination, DateOnly departureDate, string containerSize, CancellationToken ct)
+    public async Task<IReadOnlyList<ScheduleSearchResult>> SearchAsync(
+    string origin,
+    string destination,
+    DateOnly departureDate,
+    string containerSize,
+    CancellationToken ct)
     {
+        var normalizedContainerSize =
+            containerSize.Replace(" ", string.Empty);
+
         if (!Enum.TryParse<ContainerSize>(
-                containerSize,
+                normalizedContainerSize,
                 ignoreCase: true,
                 out var parsedContainerSize))
         {
