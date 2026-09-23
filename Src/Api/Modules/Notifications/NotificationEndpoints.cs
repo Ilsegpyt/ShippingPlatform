@@ -16,12 +16,20 @@ public static class NotificationEndpoints
         {
             var userId = user.GetUserId();
 
-            var notifications = await notificationQueries.GetByUserIdAsync(
-                userId,
-                ct);
+            var tokenType = user.FindFirst("token_type")?.Value;
+
+            var organizationId = user.FindFirst("org_id")?.Value;
+
+            var notifications =
+                await notificationQueries.GetByUserIdAsync(
+                    userId,
+                    tokenType,
+                    organizationId,
+                    ct);
 
             return Results.Ok(notifications);
-        }).RequirePermission(PermissionCatalog.NotificationsView);
+        })
+        .RequirePermission(PermissionCatalog.NotificationsView);
 
         app.MapPatch("/api/notifications/{notificationId:guid}/read", async (
             Guid notificationId,
@@ -31,14 +39,22 @@ public static class NotificationEndpoints
         {
             var userId = user.GetUserId();
 
-            var marked = await notificationQueries.MarkAsReadAsync(
-                notificationId,
-                userId,
-                ct);
+            var tokenType = user.FindFirst("token_type")?.Value;
+
+            var organizationId = user.FindFirst("org_id")?.Value;
+
+            var marked =
+                await notificationQueries.MarkAsReadAsync(
+                    notificationId,
+                    userId,
+                    tokenType,
+                    organizationId,
+                    ct);
 
             return marked
                 ? Results.NoContent()
                 : Results.NotFound();
-        }).RequirePermission(PermissionCatalog.NotificationsView);
+        })
+        .RequirePermission(PermissionCatalog.NotificationsView);
     }
 }
