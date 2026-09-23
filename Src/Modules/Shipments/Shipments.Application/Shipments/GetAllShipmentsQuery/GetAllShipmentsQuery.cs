@@ -9,7 +9,9 @@ namespace Shipments.Application.Shipments.GetAllShipmentsQuery;
 
 public sealed record GetAllShipmentsQuery(
     PaginationRequest Pagination,
-    Guid UserId)
+    Guid UserId,
+    string? TokenType,
+    string? OrganizationId)
     : IRequest<PagedResult<ShipmentResponse>>;
 
 public sealed record ShipmentResponse(
@@ -91,6 +93,37 @@ public sealed class GetAllShipmentsQueryHandler(
                     skip,
                     pageSize,
                     ct);
+        }
+        else if (
+            query.TokenType == "impersonation" &&
+            Guid.TryParse(query.OrganizationId, out var impersonatedCustomerId))
+        {
+            var impersonatedCustomer =
+                await customerQueries.GetByIdAsync(
+                    impersonatedCustomerId,
+                    ct);
+
+            if (impersonatedCustomer is null ||
+                !impersonatedCustomer.IsActive)
+            {
+                return new PagedResult<ShipmentResponse>(
+                    [],
+                    0,
+                    page,
+                    pageSize);
+            }
+
+            var customerShipments =
+                await shipmentrepository.GetByCustomerIdAsync(
+                    impersonatedCustomerId,
+                    ct);
+
+            totalCount = customerShipments.Count;
+
+            shipments = customerShipments
+                .Skip(skip)
+                .Take(pageSize)
+                .ToList();
         }
         else if (customer is not null && customer.IsActive)
         {

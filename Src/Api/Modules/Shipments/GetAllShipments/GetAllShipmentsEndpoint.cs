@@ -18,10 +18,16 @@ public static class GetAllShipmentsEndpoint
         {
             var userId = httpContext.User.GetUserId();
 
+            var tokenType = httpContext.User.FindFirst("token_type")?.Value;
+
+            var organizationId = httpContext.User.FindFirst("org_id")?.Value;
+
             var result = await sender.Send(
                 new GetAllShipmentsQuery(
                     pagination,
-                    userId),
+                    userId,
+                    tokenType,
+                    organizationId),
                 ct);
 
             return Results.Ok(result);
