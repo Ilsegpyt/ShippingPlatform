@@ -5,7 +5,9 @@ using MediatR;
 namespace Customers.Application.CustomerVoices.GetCustomerVoices;
 
 public sealed record GetCustomerVoicesQuery(
-    Guid CustomerId)
+    Guid UserId,
+    string? TokenType,
+    string? OrganizationId)
     : IRequest<IReadOnlyList<CustomerVoice>>;
 
 public sealed class GetCustomerVoicesQueryHandler(
@@ -18,8 +20,19 @@ public sealed class GetCustomerVoicesQueryHandler(
         GetCustomerVoicesQuery request,
         CancellationToken ct)
     {
-        return await customerVoiceRepository.GetByCustomerIdAsync(
-            request.CustomerId,
-            ct);
+        if (request.TokenType == "customer" &&
+            Guid.TryParse(request.OrganizationId, out var customerId))
+        {
+            return await customerVoiceRepository.GetByCustomerIdAsync(
+                customerId,
+                ct);
+        }
+
+        if (request.TokenType == "internal")
+        {
+            return await customerVoiceRepository.GetAllAsync(ct);
+        }
+
+        return [];
     }
 }

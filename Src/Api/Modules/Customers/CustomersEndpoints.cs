@@ -7,7 +7,6 @@ using Customers.Application.Customers.SuspendCustomer;
 using Customers.Application.Customers.UpdateCustomerEmail;
 using Customers.Application.Customers.UpdateCustomerProfile;
 using Customers.Application.CustomerVoices.CreateCustomerVoice;
-using Customers.Application.CustomerVoices.GetAllCustomerVoices;
 using Customers.Application.CustomerVoices.GetCustomerVoices;
 using Customers.Application.CustomerVoices.UpdateCustomerVoiceStatus;
 using Customers.Application.Queries.GetCustomerById;
@@ -47,7 +46,6 @@ public static class CustomersEndpoints
         MapGetOwner(group);
         MapCreateCustomerVoice(group);
         MapGetCustomerVoices(group);
-        MapGetAllCustomerVoices(group);
         MapUpdateCustomerVoiceStatus(group);
     }
 
@@ -356,29 +354,12 @@ public static class CustomersEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var customerId = user.GetOrganizationId();
-
-            var result = await sender.Send(
-                new GetCustomerVoicesQuery(customerId),
-                ct);
-
-            return Results.Ok(result);
-        })
-    .RequirePermission(PermissionCatalog.CustomerVoiceView);
-    }
-    private static void MapGetAllCustomerVoices(IEndpointRouteBuilder group)
-    {
-        group.MapGet("/customer-voices/all", async (
-            ClaimsPrincipal user,
-            ISender sender,
-            CancellationToken ct) =>
-        {
             var userId = user.GetUserId();
             var tokenType = user.FindFirstValue("token_type");
             var organizationId = user.FindFirstValue("org_id");
 
             var result = await sender.Send(
-                new GetAllCustomerVoicesQuery(
+                new GetCustomerVoicesQuery(
                     userId,
                     tokenType,
                     organizationId),
@@ -388,6 +369,7 @@ public static class CustomersEndpoints
         })
         .RequirePermission(PermissionCatalog.CustomerVoiceView);
     }
+
     private static void MapUpdateCustomerVoiceStatus(
     IEndpointRouteBuilder group)
     {
