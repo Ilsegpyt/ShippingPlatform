@@ -18,6 +18,7 @@ public sealed record ShipmentResponse(
     Guid Id,
     string ShipmentRef,
     Guid CustomerId,
+    string CustomerName,
     Guid ScheduleId,
     string Mode,
     string Carrier,
@@ -96,7 +97,9 @@ public sealed class GetAllShipmentsQueryHandler(
         }
         else if (
             query.TokenType == "impersonation" &&
-            Guid.TryParse(query.OrganizationId, out var impersonatedCustomerId))
+            Guid.TryParse(
+                query.OrganizationId,
+                out var impersonatedCustomerId))
         {
             var impersonatedCustomer =
                 await customerQueries.GetByIdAsync(
@@ -151,24 +154,56 @@ public sealed class GetAllShipmentsQueryHandler(
                     ct);
         }
 
+        if (shipments.Count == 0)
+        {
+            return new PagedResult<ShipmentResponse>(
+                [],
+                totalCount,
+                page,
+                pageSize);
+        }
+
+        var customerIds = shipments
+            .Select(x => x.CustomerId)
+            .Distinct()
+            .ToList();
+
+        var customers =
+            await customerQueries.GetByIdsAsync(
+                customerIds,
+                ct);
+
+        var customerNames = customers
+            .ToDictionary(
+                x => x.CustomerId,
+                x => x.CompanyName);
+
         var items = shipments
-            .Select(x => new ShipmentResponse(
-                x.Id,
-                x.ShipmentRef,
-                x.CustomerId,
-                x.ScheduleId,
-                x.Mode,
-                x.Carrier,
-                x.ContainerType,
-                x.Quantity,
-                x.Rate,
-                x.Total,
-                x.Status,
-                x.MBL,
-                x.HBL,
-                x.MAWB,
-                x.BookingConfirmationNumber,
-                x.CreatedAtUtc))
+            .Select(x =>
+            {
+                customerNames.TryGetValue(
+                    x.CustomerId,
+                    out var customerName);
+
+                return new ShipmentResponse(
+                    x.Id,
+                    x.ShipmentRef,
+                    x.CustomerId,
+                    customerName ?? "Unknown Customer",
+                    x.ScheduleId,
+                    x.Mode,
+                    x.Carrier,
+                    x.ContainerType,
+                    x.Quantity,
+                    x.Rate,
+                    x.Total,
+                    x.Status,
+                    x.MBL,
+                    x.HBL,
+                    x.MAWB,
+                    x.BookingConfirmationNumber,
+                    x.CreatedAtUtc);
+            })
             .ToList();
 
         return new PagedResult<ShipmentResponse>(

@@ -1,4 +1,5 @@
 ﻿using BuildingBlocks.Application;
+using Customers.Contracts;
 using MediatR;
 using Shipments.Application.Abstractions;
 using Shipments.Application.Shipments.GetAllShipmentsQuery;
@@ -9,7 +10,8 @@ public sealed record GetShipmentByIdQuery(Guid Id)
     : IRequest<Result<ShipmentResponse>>;
 
 public sealed class GetShipmentByIdQueryHandler(
-    IShipmentRepository repository)
+    IShipmentRepository repository,
+    ICustomerQueries customerQueries)
     : IRequestHandler<GetShipmentByIdQuery, Result<ShipmentResponse>>
 {
     public async Task<Result<ShipmentResponse>> Handle(
@@ -26,10 +28,22 @@ public sealed class GetShipmentByIdQueryHandler(
                 "Shipment not found.");
         }
 
+        var customers =
+            await customerQueries.GetByIdsAsync(
+                [shipment.CustomerId],
+                ct);
+
+        var customerName =
+            customers
+                .FirstOrDefault()
+                ?.CompanyName
+            ?? "Unknown Customer";
+
         var response = new ShipmentResponse(
             shipment.Id,
             shipment.ShipmentRef,
             shipment.CustomerId,
+            customerName,
             shipment.ScheduleId,
             shipment.Mode,
             shipment.Carrier,
