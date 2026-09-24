@@ -76,4 +76,11 @@ public sealed class ShipmentRepository : IShipmentRepository
                 x => customerIds.Contains(x.CustomerId),
                 ct);
     }
+    public async Task<int> CountByStatusAsync(
+    ShipmentStatus status,
+    CancellationToken ct = default)
+    {
+        return await _dbContext.Shipments
+            .CountAsync(x => x.Status == status, ct);
+    }
 }

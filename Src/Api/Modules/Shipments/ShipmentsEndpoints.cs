@@ -5,6 +5,7 @@ using Api.Modules.Shipments.DownloadDeclarationFile;
 using Api.Modules.Shipments.GetAllShipments;
 using Api.Modules.Shipments.GetDeclarationFilesByShipmentId;
 using Api.Modules.Shipments.GetShipmentById;
+using Api.Modules.Shipments.GetShipmentExceptions;
 using Api.Modules.Shipments.UpdateShipment;
 using Api.Modules.Shipments.UploadDeclarationFile;
 
@@ -24,5 +25,6 @@ public static class ShipmentsEndpoints
         GetShipmentByIdEndpoint.Map(app);
         GetDeclarationFilesByShipmentIdEndpoint.Map(app);
         DownloadDeclarationFileEndpoint.Map(app);
+        GetShipmentExceptionsEndpoint.Map(app);
     }
 }

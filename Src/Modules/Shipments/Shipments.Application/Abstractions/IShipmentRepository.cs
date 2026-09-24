@@ -13,4 +13,7 @@ public interface IShipmentRepository
     Task<IReadOnlyList<Shipment>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct = default);
     Task<IReadOnlyList<Shipment>> GetByCustomerIdsAsync(IReadOnlyCollection<Guid> customerIds, int skip, int take, CancellationToken ct = default);
     Task<int> CountByCustomerIdsAsync(IReadOnlyCollection<Guid> customerIds, CancellationToken ct = default);
+    Task<int> CountByStatusAsync(
+    ShipmentStatus status,
+    CancellationToken ct = default);
 }
