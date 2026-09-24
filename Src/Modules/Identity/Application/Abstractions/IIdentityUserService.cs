@@ -10,7 +10,7 @@ public interface IIdentityUserService
     /// <summary>
     /// Creates a new Identity user.
     /// </summary>
-    Task<Guid> CreateUserAsync(string email, string defaultPassword, bool isInternal, string? phone, CancellationToken ct = default);
+    Task<Guid> CreateUserAsync(string email, bool isInternal, string? phone, CancellationToken ct = default);
 
     /// <summary>
     /// Validates user credentials.
@@ -40,16 +40,17 @@ public interface IIdentityUserService
     /// <summary>
     /// Updates the user's password.
     /// </summary>
-    Task<IdentityUserOperationResult> UpdatePasswordAsync(
-        Guid userId,
-        string currentPassword,
-        string newPassword,
-        CancellationToken ct = default);
+    Task<IdentityUserOperationResult> UpdatePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken ct = default);
 
     /// <summary>
     /// Deletes the user.
     /// </summary>
     Task<IdentityUserOperationResult> DeleteUserAsync(Guid userId, CancellationToken ct = default);
+
+    Task<string> GenerateActivationTokenAsync(Guid userId, CancellationToken ct = default);
+
+
+    Task<IdentityUserOperationResult> ActivateUserAsync(Guid userId, string activationToken, string newPassword, CancellationToken ct = default);
 
 }
 

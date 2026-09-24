@@ -1,18 +1,24 @@
 ﻿using Identity.Application.Abstractions;
-using Identity.Application.Options;
 using Identity.Contracts;
-using Microsoft.Extensions.Options;
 
 namespace Identity.Infrastructure.Integrations;
 
-internal sealed class IdentityUserRegistrar(IIdentityUserService identityUsers, IOptions<SubAccountOptions> options) : IIdentityUserRegistrar
+internal sealed class IdentityUserRegistrar(
+    IIdentityUserService identityUsers) : IIdentityUserRegistrar
 {
-    private readonly SubAccountOptions _options = options.Value;
-
-    public async Task<Guid> CreateUserAsync( string email, CancellationToken ct)
+    public async Task<Guid> CreateUserAsync(
+        string email,
+        CancellationToken ct)
     {
-        return await identityUsers.CreateUserAsync(email, _options.DefaultPassword, isInternal: false, null, ct);
+        return await identityUsers.CreateUserAsync(
+            email,
+            isInternal: false,
+            phone: null,
+            ct);
     }
 
-    public string GetDefaultPassword() => _options.DefaultPassword; 
+    // TODO: Re-enable/remove this when the customer activation flow is completed.
+    public string GetDefaultPassword()
+        => throw new NotImplementedException(
+            "Default passwords are temporarily disabled. Use the activation flow.");
 }

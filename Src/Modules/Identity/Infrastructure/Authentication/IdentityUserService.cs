@@ -1,12 +1,13 @@
 ﻿using BuildingBlocks.Application;
 using BuildingBlocks.Application.Exceptions;
 using Identity.Application.Abstractions;
+using Identity.Contracts;
 using Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 
 namespace Identity.Infrastructure.Authentication;
 
-public sealed class IdentityUserService : IIdentityUserService
+public sealed class IdentityUserService : IIdentityUserService, IActivationService
 {
     private readonly UserManager<ApplicationUser> _userManager;
 
@@ -16,7 +17,7 @@ public sealed class IdentityUserService : IIdentityUserService
     }
 
     // Create a new Identity user.
-    public async Task<Guid> CreateUserAsync(string email, string defaultPassword, bool isInternal, string? phone, CancellationToken ct = default)
+    public async Task<Guid> CreateUserAsync(string email, bool isInternal, string? phone, CancellationToken ct = default)
     {
         var user = new ApplicationUser
         {
@@ -29,7 +30,7 @@ public sealed class IdentityUserService : IIdentityUserService
             PhoneNumber = phone
         };
 
-        var result = await _userManager.CreateAsync(user, defaultPassword);
+        var result = await _userManager.CreateAsync(user);
 
         if (!result.Succeeded)
         {
@@ -186,7 +187,63 @@ public sealed class IdentityUserService : IIdentityUserService
         return new IdentityUserOperationResult(true);
     }
 
+    public async Task<string> GenerateActivationTokenAsync(Guid userId, CancellationToken ct = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
 
+        if (user is null)
+            throw new InvalidOperationException(
+                "Identity user not found.");
 
+        return await _userManager.GeneratePasswordResetTokenAsync(user);
+    }
+    public async Task<IdentityUserOperationResult> ActivateUserAsync(
+    Guid userId,
+    string activationToken,
+    string newPassword,
+    CancellationToken ct = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        if (user is null)
+        {
+            return new IdentityUserOperationResult(
+                false,
+                "Identity user not found.");
+        }
+
+        var result = await _userManager.ResetPasswordAsync(
+            user,
+            activationToken,
+            newPassword);
+
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(
+                "; ",
+                result.Errors.Select(e => e.Description));
+
+            return new IdentityUserOperationResult(
+                false,
+                errors);
+        }
+
+        user.IsActive = true;
+
+        var updateResult = await _userManager.UpdateAsync(user);
+
+        if (!updateResult.Succeeded)
+        {
+            var errors = string.Join(
+                "; ",
+                updateResult.Errors.Select(e => e.Description));
+
+            return new IdentityUserOperationResult(
+                false,
+                errors);
+        }
+
+        return new IdentityUserOperationResult(true);
+    }
 }
 

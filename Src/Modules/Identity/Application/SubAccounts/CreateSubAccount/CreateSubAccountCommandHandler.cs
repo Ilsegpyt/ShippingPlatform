@@ -69,7 +69,6 @@ public sealed class CreateSubAccountCommandHandler
         {
             var userId = await _identityUsers.CreateUserAsync(
                 command.Email,
-                _options.DefaultPassword,
                 isInternal: false,
                 null,
                 ct);

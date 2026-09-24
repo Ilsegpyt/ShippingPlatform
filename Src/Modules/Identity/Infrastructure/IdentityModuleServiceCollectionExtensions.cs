@@ -105,6 +105,8 @@ public static class IdentityModuleServiceCollectionExtensions
         services.AddScoped<TokenClaimsBuilder>();
 
         services.AddScoped<IIdentityUserService, IdentityUserService>();
+        services.AddScoped<IActivationService, IdentityUserService>();
+
         services.AddScoped<ITokenService, TokenService>();
 
         services.AddScoped<Seeding.IdentitySeeder>();

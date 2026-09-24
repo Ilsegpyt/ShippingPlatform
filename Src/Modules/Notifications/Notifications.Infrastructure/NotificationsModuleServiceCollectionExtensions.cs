@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Notifications.Application.Abstractions;
+using Notifications.Application.Options;
 using Notifications.Application.Services;
 using Notifications.Infrastructure.Email;
 using Notifications.Infrastructure.Persistence;
@@ -14,8 +15,6 @@ public static class NotificationsModuleServiceCollectionExtensions
     public static IServiceCollection AddNotificationsInfrastructure(
         this IServiceCollection services,
         IConfiguration configuration)
-
-
     {
         services.AddDbContext<NotificationsDbContext>(options =>
             options.UseSqlServer(
@@ -35,14 +34,24 @@ public static class NotificationsModuleServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddOptions<NotificationOptions>()
+            .Configure(options =>
+            {
+                options.FrontendBaseUrl =
+                    configuration["Notifications:FrontendBaseUrl"] ?? "";
+            })
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.FrontendBaseUrl),
+                "Notifications:FrontendBaseUrl is required.")
+            .ValidateOnStart();
+
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IEmailOutboxRepository, EmailOutboxRepository>();
         services.AddScoped<NotificationQueries>();
 
         services.AddScoped<INotificationsUnitOfWork>(
-           sp => sp.GetRequiredService<NotificationsDbContext>());
-
+            sp => sp.GetRequiredService<NotificationsDbContext>());
 
         return services;
     }

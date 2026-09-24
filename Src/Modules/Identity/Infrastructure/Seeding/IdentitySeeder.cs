@@ -1,5 +1,6 @@
 ﻿using Identity.Application.Abstractions;
 using Identity.Domain.Entities;
+using Identity.Domain.Enums;
 using Identity.Domain.Repositories;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Persistence;
@@ -23,7 +24,6 @@ public sealed class IdentitySeeder
 
     private readonly IRoleRepository _roles;
     private readonly IInternalUserRepository _internalUsers;
-    private readonly IIdentityUserService _identityUsers;
     private readonly IIdentityUnitOfWork _unitOfWork;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SeedOptions _seedOptions;
@@ -32,7 +32,6 @@ public sealed class IdentitySeeder
     public IdentitySeeder(
         IRoleRepository roles,
         IInternalUserRepository internalUsers,
-        IIdentityUserService identityUsers,
         IIdentityUnitOfWork unitOfWork,
         UserManager<ApplicationUser> userManager,
         IOptions<SeedOptions> seedOptions,
@@ -40,7 +39,6 @@ public sealed class IdentitySeeder
     {
         _roles = roles;
         _internalUsers = internalUsers;
-        _identityUsers = identityUsers;
         _unitOfWork = unitOfWork;
         _userManager = userManager;
         _seedOptions = seedOptions.Value;
@@ -118,12 +116,31 @@ public sealed class IdentitySeeder
             _logger.LogInformation(
                 "Super Admin ApplicationUser not found — creating it.");
 
-            userId = await _identityUsers.CreateUserAsync(
-                _seedOptions.SuperAdminEmail,
-                _seedOptions.SuperAdminPassword,
-                isInternal: true,
-                null,
-                ct);
+            var user = new ApplicationUser
+            {
+                Id = Guid.NewGuid(),
+                UserName = _seedOptions.SuperAdminEmail,
+                Email = _seedOptions.SuperAdminEmail,
+                EmailConfirmed = true,
+                Kind = UserKind.Internal,
+                IsActive = true
+            };
+
+            var createResult = await _userManager.CreateAsync(
+                user,
+                _seedOptions.SuperAdminPassword);
+
+            if (!createResult.Succeeded)
+            {
+                var errors = string.Join(
+                    ", ",
+                    createResult.Errors.Select(x => x.Description));
+
+                throw new InvalidOperationException(
+                    $"Failed to create Super Admin ApplicationUser: {errors}");
+            }
+
+            userId = user.Id;
         }
         else
         {

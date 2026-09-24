@@ -1,11 +1,9 @@
 ﻿using BuildingBlocks.Application;
 using FluentValidation;
 using Identity.Application.Abstractions;
-using Identity.Application.Options;
 using Identity.Domain.Entities;
 using Identity.Domain.Repositories;
 using MediatR;
-using Microsoft.Extensions.Options;
 
 namespace Identity.Application.InternalUsers.CreateInternalUser;
 
@@ -43,20 +41,25 @@ public sealed class CreateInternalUserHandler
     private readonly IInternalUserRepository _internalUsers;
     private readonly IRoleRepository _roles;
     private readonly IIdentityUnitOfWork _identityUnitOfWork;
-    private readonly SubAccountOptions _options;
+
+    // TODO: Re-enable when we implement the internal-user activation flow.
+    // private readonly SubAccountOptions _options;
 
     public CreateInternalUserHandler(
         IIdentityUserService identityUsers,
         IInternalUserRepository internalUsers,
         IRoleRepository roles,
-        IIdentityUnitOfWork identityUnitOfWork,
-        IOptions<SubAccountOptions> options)
+        IIdentityUnitOfWork identityUnitOfWork
+    // IOptions<SubAccountOptions> options
+    )
     {
         _identityUsers = identityUsers;
         _internalUsers = internalUsers;
         _roles = roles;
         _identityUnitOfWork = identityUnitOfWork;
-        _options = options.Value;
+
+        // TODO: Re-enable when we implement the internal-user activation flow.
+        // _options = options.Value;
     }
 
     public async Task<Result<CreateInternalUserResponse>> Handle(
@@ -77,7 +80,6 @@ public sealed class CreateInternalUserHandler
         {
             var userId = await _identityUsers.CreateUserAsync(
                 command.Email,
-                _options.DefaultPassword,
                 isInternal: true,
                 command.Phone,
                 ct);
@@ -98,7 +100,6 @@ public sealed class CreateInternalUserHandler
             return Result.Success(
                 new CreateInternalUserResponse(
                     internalUser.Id));
-
         }
         catch
         {

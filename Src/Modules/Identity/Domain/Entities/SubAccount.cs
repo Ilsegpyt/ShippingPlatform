@@ -56,12 +56,13 @@ public sealed class SubAccount : AggregateRoot<Guid>
         var subAccount = new SubAccount(Guid.NewGuid(), organizationId, userId, name,  email, scopeType, initialStatus);
 
        subAccount.RaiseDomainEvent(
-    new SubAccountCreatedEvent( 
-        subAccount.Id,
-        organizationId,
-        name,
-        email,
-        DateTime.UtcNow));
+        new SubAccountCreatedEvent(
+            subAccount.Id,
+            organizationId,
+            userId,
+            name,
+            email,
+            DateTime.UtcNow));
 
         return subAccount;
     }

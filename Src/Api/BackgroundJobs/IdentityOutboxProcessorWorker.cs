@@ -98,6 +98,7 @@ public sealed class IdentityOutboxProcessorWorker : BackgroundService
                             var integrationEvent =
                                 new SubAccountCreatedIntegrationEvent(
                                     domainEvent.SubAccountId,
+                                    domainEvent.UserId,
                                     domainEvent.Name,
                                     domainEvent.Email);
 

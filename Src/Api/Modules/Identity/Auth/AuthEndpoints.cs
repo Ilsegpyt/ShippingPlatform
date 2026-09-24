@@ -1,4 +1,5 @@
-﻿using Identity.Application.Auth.Login;
+﻿using Identity.Application.Auth.ActivateAccount;
+using Identity.Application.Auth.Login;
 using Identity.Application.Auth.RefreshToken;
 using MediatR;
 
@@ -27,6 +28,20 @@ public static class AuthEndpoints
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.Unauthorized();
+        });
+
+        auth.MapPost(
+        "/activate",
+        async (
+            ActivateAccountCommand command,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var result = await sender.Send(command, ct);
+
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(result.Error);
         });
     }
 }
