@@ -3,7 +3,10 @@ using MediatR;
 
 namespace Shipments.Application.Shipments.GetShipmentExceptions;
 
-public sealed record GetShipmentExceptionsQuery
+public sealed record GetShipmentExceptionsQuery(
+    Guid UserId,
+    string? TokenType,
+    string? OrganizationId)
     : IRequest<Result<GetShipmentExceptionsResponse>>;
 
 public sealed record GetShipmentExceptionsResponse(
