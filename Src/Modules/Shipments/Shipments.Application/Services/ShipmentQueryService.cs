@@ -9,10 +9,7 @@ public sealed class ShipmentQueryService(
 {
     public async Task<IReadOnlyList<ShipmentSearchResult>> GetByCustomerIdAsync(Guid customerId, CancellationToken ct)
     {
-        var shipments = await shipmentRepository.GetByCustomerIdAsync(
-       customerId,
-       ct);
-
+        var shipments = await shipmentRepository.GetByCustomerIdAsync(customerId, ct);
         return shipments
             .Select(shipment => new ShipmentSearchResult(
                 shipment.Id,
@@ -38,4 +35,10 @@ public sealed class ShipmentQueryService(
             shipment.Status.ToString());
     }
 
+    public async Task<int> CountActiveByCustomerIdsAsync(IReadOnlyCollection<Guid> customerIds, CancellationToken ct)
+    {
+        return await shipmentRepository.CountActiveByCustomerIdsAsync(
+            customerIds,
+            ct);
+    }
 }

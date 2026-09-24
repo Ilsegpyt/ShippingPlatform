@@ -42,10 +42,6 @@ public static class PermissionCatalog
         PermissionKey.Of("customers.accountmanager.assign");
 
 
-    //public static readonly PermissionKey ImpersonateCustomer =
-    //PermissionKey.Of("identity.impersonation.customer");
-
-
     // Identity
     public static readonly PermissionKey UsersCreate =
         PermissionKey.Of("identity.users.create");
@@ -64,6 +60,9 @@ public static class PermissionCatalog
 
     public static readonly PermissionKey UsersView =
         PermissionKey.Of("identity.users.view");
+
+    public static readonly PermissionKey AccountManagerWorkloadView =
+        PermissionKey.Of("identity.accountmanager.workload.view");
 
 
     // SubAccounts
@@ -185,6 +184,7 @@ public static class PermissionCatalog
     ];
 
 
+    // Permissions available to Account Managers
     public static readonly IReadOnlyCollection<PermissionKey> AccountManagerPermissions =
     [
         ReportsView,
@@ -240,6 +240,7 @@ public static class PermissionCatalog
         UsersDelete,
         RolesManage,
         UsersView,
+        AccountManagerWorkloadView,
 
         // SubAccounts
         SubAccountsView,

@@ -16,4 +16,8 @@ public interface IShipmentRepository
     Task<int> CountByStatusAsync(
     ShipmentStatus status,
     CancellationToken ct = default);
+
+    Task<int> CountActiveByCustomerIdsAsync(
+    IReadOnlyCollection<Guid> customerIds,
+    CancellationToken ct = default);
 }
