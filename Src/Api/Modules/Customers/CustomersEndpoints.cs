@@ -9,6 +9,7 @@ using Customers.Application.Customers.UpdateCustomerProfile;
 using Customers.Application.CustomerVoices.CreateCustomerVoice;
 using Customers.Application.CustomerVoices.GetCustomerVoices;
 using Customers.Application.CustomerVoices.UpdateCustomerVoiceStatus;
+using Customers.Application.Queries.GetClientSearchActivity;
 using Customers.Application.Queries.GetCustomerById;
 using Customers.Application.Queries.GetSearchHistory;
 using Customers.Application.Queries.ListAllCustomers;
@@ -47,6 +48,7 @@ public static class CustomersEndpoints
         MapCreateCustomerVoice(group);
         MapGetCustomerVoices(group);
         MapUpdateCustomerVoiceStatus(group);
+        MapGetClientSearchActivity(group);
     }
 
     private static void MapGetAll(IEndpointRouteBuilder customers)
@@ -392,6 +394,23 @@ public static class CustomersEndpoints
                     : Results.NotFound(result.Error);
             })
         .RequirePermission(PermissionCatalog.CustomerVoiceStatusUpdate);
+    }
+    private static void MapGetClientSearchActivity(
+    IEndpointRouteBuilder group)
+    {
+        group.MapGet("/client-search-activity", async (
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var result = await sender.Send(
+                new GetClientSearchActivityQuery(),
+                ct);
+
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(result.Error);
+        })
+.RequirePermission(PermissionCatalog.CustomerSearchActivityView);
     }
 }
 

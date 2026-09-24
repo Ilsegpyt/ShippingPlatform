@@ -12,6 +12,14 @@ public interface ISearchHistoryRepository
 
     void RemoveRange(IReadOnlyCollection<SearchHistory> searchHistories);
     Task<IReadOnlyList<SearchHistory>> GetByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken ct);
+    Task<int> CountTodayAsync(
+    DateTime fromUtc,
+    DateTime toUtc,
+    CancellationToken ct);
 
+    Task<int> CountDistinctCustomersTodayAsync(
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken ct);
 
 }

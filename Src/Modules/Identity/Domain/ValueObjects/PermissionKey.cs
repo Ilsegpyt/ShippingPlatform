@@ -87,6 +87,9 @@ public static class PermissionCatalog
     public static readonly PermissionKey CustomersView =
         PermissionKey.Of("customers.view");
 
+    public static readonly PermissionKey CustomerSearchActivityView =
+        PermissionKey.Of("customers.search.activity.view");
+
     public static readonly PermissionKey CustomersCreate =
         PermissionKey.Of("customers.create");
 
@@ -247,6 +250,7 @@ public static class PermissionCatalog
 
         // Customers
         CustomersView,
+        CustomerSearchActivityView,
         CustomersCreate,
         CustomersEdit,
         CustomersSuspend,
@@ -255,7 +259,7 @@ public static class PermissionCatalog
 
         // Customer Voice
         CustomerVoiceView,
-       // CustomerVoiceCreate,
+        // CustomerVoiceCreate,
         CustomerVoiceStatusUpdate,
 
         // Shipments

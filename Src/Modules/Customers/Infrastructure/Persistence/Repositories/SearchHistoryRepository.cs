@@ -36,4 +36,29 @@ public sealed class SearchHistoryRepository(CustomersDbContext dbContext)
             .Where(x => ids.Contains(x.Id))
             .ToListAsync(ct);
     }
+    public async Task<int> CountTodayAsync(
+    DateTime fromUtc,
+    DateTime toUtc,
+    CancellationToken ct)
+    {
+        return await dbContext.SearchHistories
+            .CountAsync(
+                x => x.SearchedOnUtc >= fromUtc &&
+                     x.SearchedOnUtc < toUtc,
+                ct);
+    }
+
+    public async Task<int> CountDistinctCustomersTodayAsync(
+        DateTime fromUtc,
+        DateTime toUtc,
+        CancellationToken ct)
+    {
+        return await dbContext.SearchHistories
+            .Where(
+                x => x.SearchedOnUtc >= fromUtc &&
+                     x.SearchedOnUtc < toUtc)
+            .Select(x => x.CustomerId)
+            .Distinct()
+            .CountAsync(ct);
+    }
 }
