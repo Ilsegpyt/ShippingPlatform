@@ -16,8 +16,7 @@ public sealed record CreateInternalUserCommand(
     Guid RoleId) : IRequest<Result<CreateInternalUserResponse>>;
 
 public sealed record CreateInternalUserResponse(
-    Guid InternalUserId,
-    string DefaultPassword);
+    Guid InternalUserId);
 
 public sealed class CreateInternalUserValidator
     : AbstractValidator<CreateInternalUserCommand>
@@ -98,8 +97,8 @@ public sealed class CreateInternalUserHandler
 
             return Result.Success(
                 new CreateInternalUserResponse(
-                    internalUser.Id,
-                    _options.DefaultPassword));
+                    internalUser.Id));
+
         }
         catch
         {

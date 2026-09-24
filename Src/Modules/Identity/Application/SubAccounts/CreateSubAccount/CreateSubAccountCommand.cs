@@ -13,4 +13,4 @@ public sealed record CreateSubAccountCommand(
     bool GrantFullScope,
     IReadOnlyList<ScopeInput> Scopes) : IRequest<Result<CreateSubAccountResponse>>;
 
-public sealed record CreateSubAccountResponse(Guid SubAccountId, string DefaultPassword);
+public sealed record CreateSubAccountResponse(Guid SubAccountId);

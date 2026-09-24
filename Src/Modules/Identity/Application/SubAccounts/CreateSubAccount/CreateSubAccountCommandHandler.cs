@@ -106,8 +106,8 @@ public sealed class CreateSubAccountCommandHandler
 
             return Result.Success(
                 new CreateSubAccountResponse(
-                    subAccount.Id,
-                    _options.DefaultPassword));
+                    subAccount.Id));
+
         }
         catch
         {
