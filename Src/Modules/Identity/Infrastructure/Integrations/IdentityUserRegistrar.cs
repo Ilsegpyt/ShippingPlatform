@@ -16,9 +16,4 @@ internal sealed class IdentityUserRegistrar(
             phone: null,
             ct);
     }
-
-    // TODO: Re-enable/remove this when the customer activation flow is completed.
-    public string GetDefaultPassword()
-        => throw new NotImplementedException(
-            "Default passwords are temporarily disabled. Use the activation flow.");
 }

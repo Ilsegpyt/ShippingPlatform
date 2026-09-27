@@ -23,6 +23,9 @@ public sealed class CustomersOutboxProcessorWorker : BackgroundService
     protected override async Task ExecuteAsync(
         CancellationToken stoppingToken)
     {
+        _logger.LogInformation(
+            "Customers Outbox Processor Worker started.");
+
         while (!stoppingToken.IsCancellationRequested)
         {
             try
@@ -64,10 +67,22 @@ public sealed class CustomersOutboxProcessorWorker : BackgroundService
                     .Take(20)
                     .ToListAsync(stoppingToken);
 
+                if (messages.Count > 0)
+                {
+                    _logger.LogInformation(
+                        "Found {Count} customer outbox message(s) to process.",
+                        messages.Count);
+                }
+
                 foreach (var message in messages)
                 {
                     try
                     {
+                        _logger.LogInformation(
+                            "Processing customer outbox message {MessageId}. Type: {MessageType}",
+                            message.Id,
+                            message.Type);
+
                         if (message.Type ==
                             typeof(CustomerRegisteredEvent)
                                 .AssemblyQualifiedName)
@@ -90,6 +105,12 @@ public sealed class CustomersOutboxProcessorWorker : BackgroundService
                                     domainEvent.OwnerUserId,
                                     domainEvent.OwnerName,
                                     domainEvent.OwnerEmail);
+
+                            _logger.LogInformation(
+                                "Publishing CustomerRegisteredIntegrationEvent for CustomerId {CustomerId}, UserId {UserId}, Email {Email}",
+                                domainEvent.CustomerId,
+                                domainEvent.OwnerUserId,
+                                domainEvent.OwnerEmail);
 
                             await publisher.Publish(
                                 integrationEvent,
@@ -231,5 +252,8 @@ public sealed class CustomersOutboxProcessorWorker : BackgroundService
                 TimeSpan.FromSeconds(10),
                 stoppingToken);
         }
+
+        _logger.LogInformation(
+            "Customers Outbox Processor Worker stopped.");
     }
 }

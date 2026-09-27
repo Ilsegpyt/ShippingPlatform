@@ -26,6 +26,6 @@ public sealed class RegisterCustomerCommandHandler(ICustomerRepository customerR
 
         scope.Complete();
 
-        return Result.Success(new RegisterCustomerResponse(customer.Id, identityRegistrar.GetDefaultPassword()));
+        return Result.Success(new RegisterCustomerResponse(customer.Id));
     }
 }
