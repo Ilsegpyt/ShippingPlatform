@@ -1,49 +1,63 @@
 ﻿namespace Notifications.Application.Templates.Emails;
-using System.Net;
 
 public static class InternalUserCreatedEmailTemplate
 {
     public static string Build(
         string name,
-        string email)
+        string email,
+        string activationUrl)
     {
-        name = WebUtility.HtmlEncode(name);
-        email = WebUtility.HtmlEncode(email);
         return $"""
-            <!DOCTYPE html>
             <html>
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Welcome to ILS</title>
-            </head>
+            <body style="margin:0; padding:0; background-color:#f5f7fa; font-family:Arial, Helvetica, sans-serif; color:#333;">
+                <div style="max-width:600px; margin:40px auto; background:#ffffff; border-radius:12px; padding:40px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
 
-            <body style="margin:0; padding:0; background-color:#f4f6f8; font-family:Arial, sans-serif;">
-
-                <div style="max-width:600px; margin:40px auto; background:#ffffff; border-radius:8px; padding:40px;">
-
-                    <h2 style="margin-top:0;">
-                        Welcome to ILS
+                    <h2 style="margin-top:0; color:#1f2937;">
+                        Welcome to ILS, {name}!
                     </h2>
 
-                    <p>
-                        Hello {name},
+                    <p style="font-size:15px; line-height:1.6;">
+                        Your ILS internal user account has been created successfully.
                     </p>
 
-                    <p>
-                        Your account has been created successfully.
+                    <p style="font-size:15px; line-height:1.6;">
+                        Account email:
+                        <strong>{email}</strong>
                     </p>
 
-                    <p>
-                        <strong>Email:</strong> {email}
+                    <p style="font-size:15px; line-height:1.6;">
+                        To activate your account and set your password, click the button below:
                     </p>
 
-                    <p>
-                        Welcome to ILS.
+                    <div style="margin:30px 0; text-align:center;">
+                        <a
+                            href="{activationUrl}"
+                            style="display:inline-block; padding:12px 24px; background-color:#2563eb; color:#ffffff; text-decoration:none; border-radius:8px; font-weight:bold;"
+                        >
+                            Activate Account
+                        </a>
+                    </div>
+
+                    <p style="font-size:13px; line-height:1.6; color:#6b7280;">
+                        If the button does not work, copy and paste the following link into your browser:
+                    </p>
+
+                    <p style="font-size:13px; line-height:1.6; word-break:break-all;">
+                        <a href="{activationUrl}" style="color:#2563eb;">
+                            {activationUrl}
+                        </a>
+                    </p>
+
+                    <p style="font-size:13px; line-height:1.6; color:#6b7280;">
+                        This link is required to activate your account and set your password.
+                    </p>
+
+                    <p style="font-size:15px; line-height:1.6; margin-top:30px;">
+                        Best regards,<br/>
+                        <strong>ILS Egypt</strong>
                     </p>
 
                 </div>
-
             </body>
             </html>
             """;

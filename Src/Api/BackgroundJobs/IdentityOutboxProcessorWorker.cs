@@ -23,6 +23,9 @@ public sealed class IdentityOutboxProcessorWorker : BackgroundService
     protected override async Task ExecuteAsync(
         CancellationToken stoppingToken)
     {
+        _logger.LogInformation(
+            "Identity Outbox Processor Worker started.");
+
         while (!stoppingToken.IsCancellationRequested)
         {
             try
@@ -43,10 +46,22 @@ public sealed class IdentityOutboxProcessorWorker : BackgroundService
                     .Take(20)
                     .ToListAsync(stoppingToken);
 
+                if (messages.Count > 0)
+                {
+                    _logger.LogInformation(
+                        "Found {Count} identity outbox message(s) to process.",
+                        messages.Count);
+                }
+
                 foreach (var message in messages)
                 {
                     try
                     {
+                        _logger.LogInformation(
+                            "Processing identity outbox message {MessageId}. Type: {MessageType}",
+                            message.Id,
+                            message.Type);
+
                         if (message.Type ==
                             typeof(InternalUserCreatedDomainEvent)
                                 .AssemblyQualifiedName)
@@ -68,6 +83,11 @@ public sealed class IdentityOutboxProcessorWorker : BackgroundService
                                     domainEvent.UserId,
                                     domainEvent.Name,
                                     domainEvent.Email);
+
+                            _logger.LogInformation(
+                                "Publishing InternalUserCreatedIntegrationEvent for UserId {UserId}, Email {Email}",
+                                domainEvent.UserId,
+                                domainEvent.Email);
 
                             await publisher.Publish(
                                 integrationEvent,
@@ -102,6 +122,12 @@ public sealed class IdentityOutboxProcessorWorker : BackgroundService
                                     domainEvent.Name,
                                     domainEvent.Email);
 
+                            _logger.LogInformation(
+                                "Publishing SubAccountCreatedIntegrationEvent for SubAccountId {SubAccountId}, UserId {UserId}, Email {Email}",
+                                domainEvent.SubAccountId,
+                                domainEvent.UserId,
+                                domainEvent.Email);
+
                             await publisher.Publish(
                                 integrationEvent,
                                 stoppingToken);
@@ -114,6 +140,11 @@ public sealed class IdentityOutboxProcessorWorker : BackgroundService
                         }
                         else
                         {
+                            _logger.LogWarning(
+                                "Unsupported identity outbox message {MessageId}. Type: {MessageType}",
+                                message.Id,
+                                message.Type);
+
                             continue;
                         }
                     }
@@ -123,7 +154,7 @@ public sealed class IdentityOutboxProcessorWorker : BackgroundService
 
                         _logger.LogError(
                             ex,
-                            "Failed to process outbox message {MessageId}. Retry count: {RetryCount}",
+                            "Failed to process identity outbox message {MessageId}. Retry count: {RetryCount}",
                             message.Id,
                             message.RetryCount);
                     }
@@ -135,12 +166,15 @@ public sealed class IdentityOutboxProcessorWorker : BackgroundService
             {
                 _logger.LogError(
                     ex,
-                    "Error while processing outbox messages.");
+                    "Error while processing identity outbox messages.");
             }
 
             await Task.Delay(
                 TimeSpan.FromSeconds(10),
                 stoppingToken);
         }
+
+        _logger.LogInformation(
+            "Identity Outbox Processor Worker stopped.");
     }
 }
