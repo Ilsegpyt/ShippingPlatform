@@ -61,6 +61,23 @@ public sealed class Content
         FeaturedImage = featuredImage;
         LinkUrl = linkUrl;
     }
+    public void Update(
+    Guid? parentId,
+    string title,
+    ContentType type,
+    string? body,
+    string? featuredImage,
+    string? linkUrl)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(title);
+
+        ParentId = parentId;
+        Title = title;
+        Type = type;
+        Body = body;
+        FeaturedImage = featuredImage;
+        LinkUrl = linkUrl;
+    }
 }
 
 public enum ContentType

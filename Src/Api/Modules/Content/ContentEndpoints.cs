@@ -2,6 +2,7 @@
 using Api.Modules.Content.GetContentById;
 using Api.Modules.Content.GetContentChildren;
 using Api.Modules.Content.GetRootContent;
+using Api.Modules.Content.UpdateContent;
 
 namespace Api.Modules.Content;
 
@@ -14,6 +15,7 @@ public static class ContentEndpoints
         GetContentByIdEndpoint.Map(app);
         GetContentChildrenEndpoint.Map(app);
         GetRootContentEndpoint.Map(app);
+        UpdateContentEndpoint.Map(app);
 
     }
 }
