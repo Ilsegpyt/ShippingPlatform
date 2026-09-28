@@ -3,6 +3,8 @@ using Identity.Application.Abstractions;
 using Identity.Domain.Repositories;
 using MediatR;
 
+// To be revised
+
 namespace Identity.Application.SubAccounts.ResetSubAccountPassword;
 
 public sealed record ResetSubAccountPasswordCommand(Guid CustomerId, Guid SubAccountId, string NewPassword) : IRequest<Result>;

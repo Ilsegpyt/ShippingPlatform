@@ -35,6 +35,8 @@ public interface IIdentityUserService
     /// <summary>
     /// Resets the user's password.
     /// </summary>
+    /// // To be revised
+
     Task<IdentityUserOperationResult> ResetPasswordAsync(Guid userId, string newPassword, CancellationToken ct = default);
 
     /// <summary>
@@ -52,6 +54,15 @@ public interface IIdentityUserService
 
     Task<IdentityUserOperationResult> ActivateUserAsync(Guid userId, string activationToken, string newPassword, CancellationToken ct = default);
 
+    Task<(Guid UserId, string Email, string ResetToken)?> GeneratePasswordResetTokenAsync(
+    string email,
+    CancellationToken ct = default);
+
+    Task<IdentityUserOperationResult> ResetPasswordWithTokenAsync(
+    Guid userId,
+    string resetToken,
+    string newPassword,
+    CancellationToken ct = default);
 }
 
 public sealed record IdentityUserOperationResult(

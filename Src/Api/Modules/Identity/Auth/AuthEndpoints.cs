@@ -1,7 +1,9 @@
 ﻿using Identity.Application.Auth.ActivateAccount;
 using Identity.Application.Auth.ChangePassword;
+using Identity.Application.Auth.ForgotPassword;
 using Identity.Application.Auth.Login;
 using Identity.Application.Auth.RefreshToken;
+using Identity.Application.Auth.ResetPassword;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 
@@ -22,7 +24,19 @@ public static class AuthEndpoints
                 ? Results.Ok(result.Value)
                 : Results.Unauthorized();
         });
+        auth.MapPost(
+            "/forgot-password",
+            async (
+                ForgotPasswordCommand command,
+                ISender sender,
+                CancellationToken ct) =>
+            {
+                var result = await sender.Send(command, ct);
 
+                return result.IsSuccess
+                    ? Results.Ok()
+                    : Results.BadRequest(result.Error);
+            });
         auth.MapPost("/refresh", async (RefreshTokenCommand command, ISender sender, CancellationToken ct) =>
         {
             var result = await sender.Send(command, ct);
@@ -64,5 +78,23 @@ public static class AuthEndpoints
             : Results.BadRequest(result.Error);
     })
     .RequireAuthorization();
+
+        auth.MapPost(
+    "/reset-password",
+    async (
+        ResetPasswordCommand command,
+        ISender sender,
+        CancellationToken ct) =>
+    {
+        var result = await sender.Send(command, ct);
+
+        return result.IsSuccess
+            ? Results.Ok()
+            : Results.BadRequest(result.Error);
+    });
+
+
     }
+
+
 }

@@ -1,4 +1,5 @@
 using Api.BackgroundJobs;
+using Api.Infrastructure.Email;
 using Api.Infrastructure.ExceptionHandling;
 using Api.Modules.Customers;
 using Api.Modules.Identity;
@@ -11,6 +12,8 @@ using BuildingBlocks.Infrastructure;
 using Customers.Infrastructure;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Identity.Application;
+using Identity.Application.Abstractions;
+using Identity.Application.Auth.ForgotPassword;
 using Identity.Infrastructure;
 using Identity.Infrastructure.Seeding;
 using Notifications.Application;
@@ -65,6 +68,7 @@ builder.Services.AddHostedService<IdentityOutboxProcessorWorker>();
 builder.Services.AddHostedService<CustomersOutboxProcessorWorker>();
 builder.Services.AddHostedService<ShipmentsOutboxProcessorWorker>();
 builder.Services.AddHostedService<EmailOutboxProcessorWorker>();
+builder.Services.AddScoped<IPasswordResetEmailSender, PasswordResetEmailSender>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
@@ -73,7 +77,8 @@ builder.Services.AddSchedulesApplication();
 builder.Services.AddSchedulesInfrastructure(
     builder.Configuration);
 
-
+builder.Services.Configure<ForgotPasswordOptions>(
+    builder.Configuration.GetSection("Notifications"));
 
 // Edited
 builder.Services.ConfigureHttpJsonOptions(options =>

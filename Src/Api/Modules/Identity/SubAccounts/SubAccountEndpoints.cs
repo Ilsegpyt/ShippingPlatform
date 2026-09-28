@@ -198,6 +198,7 @@ public static class SubAccountEndpoints
         })
         .RequirePermission(PermissionCatalog.SubAccountsSuspend);
     }
+    // To be revised
 
     private static void MapPasswordReset(IEndpointRouteBuilder subAccounts)
     {

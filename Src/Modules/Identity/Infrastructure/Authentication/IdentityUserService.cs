@@ -111,6 +111,8 @@ public sealed class IdentityUserService : IIdentityUserService, IActivationServi
     }
 
     // Reset the user's password.
+    // To be revised
+
     public async Task<IdentityUserOperationResult> ResetPasswordAsync(Guid userId, string newPassword, CancellationToken ct = default)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
@@ -245,5 +247,57 @@ public sealed class IdentityUserService : IIdentityUserService, IActivationServi
 
         return new IdentityUserOperationResult(true);
     }
+    public async Task<(Guid UserId, string Email, string ResetToken)?> GeneratePasswordResetTokenAsync(
+    string email,
+    CancellationToken ct = default)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user is null || !user.IsActive)
+            return null;
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        return (
+            user.Id,
+            user.Email!,
+            token);
+
+    }
+    public async Task<IdentityUserOperationResult> ResetPasswordWithTokenAsync(
+    Guid userId,
+    string resetToken,
+    string newPassword,
+    CancellationToken ct = default)
+    {
+        var user = await _userManager.FindByIdAsync(
+            userId.ToString());
+
+        if (user is null)
+        {
+            return new IdentityUserOperationResult(
+                false,
+                "Identity user not found.");
+        }
+
+        var result = await _userManager.ResetPasswordAsync(
+            user,
+            resetToken,
+            newPassword);
+
+        if (!result.Succeeded)
+        {
+            var errors = string.Join(
+                "; ",
+                result.Errors.Select(e => e.Description));
+
+            return new IdentityUserOperationResult(
+                false,
+                errors);
+        }
+
+        return new IdentityUserOperationResult(true);
+    }
+
 }
 

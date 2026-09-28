@@ -44,7 +44,6 @@ public static class InternalUserEndpoints
         })
         .RequirePermission(PermissionCatalog.UsersCreate);
     }
-
     private static void MapUpdateProfile(IEndpointRouteBuilder users)
     {
         users.MapPut("/{id:guid}", async (
@@ -66,7 +65,6 @@ public static class InternalUserEndpoints
         })
         .RequirePermission(PermissionCatalog.UsersEdit);
     }
-
     private static void MapUpdateEmail(IEndpointRouteBuilder users)
     {
         users.MapPut("/{id:guid}/email", async (
@@ -87,7 +85,6 @@ public static class InternalUserEndpoints
         })
         .RequirePermission(PermissionCatalog.UsersEdit);
     }
-
     private static void MapDelete(IEndpointRouteBuilder group)
     {
         group.MapDelete("/", async (
@@ -103,7 +100,6 @@ public static class InternalUserEndpoints
         })
             .RequirePermission(PermissionCatalog.UsersDelete);
     }
-
     private static void MapGetAll(IEndpointRouteBuilder users)
     {
         users.MapGet("/", async (
