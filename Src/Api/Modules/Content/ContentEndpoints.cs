@@ -1,4 +1,5 @@
 ﻿using Api.Modules.Content.CreateContent;
+using Api.Modules.Content.GetContentById;
 
 namespace Api.Modules.Content;
 
@@ -8,5 +9,6 @@ public static class ContentEndpoints
         this IEndpointRouteBuilder app)
     {
         CreateContentEndpoint.Map(app);
+        GetContentByIdEndpoint.Map(app);
     }
 }
