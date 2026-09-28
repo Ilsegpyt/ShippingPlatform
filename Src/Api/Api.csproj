@@ -19,6 +19,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
+		<ProjectReference Include="..\Modules\Content\Content.Infrastructure\Content.Infrastructure.csproj" />
 		<ProjectReference Include="..\Modules\Customers\Customers.Application\Customers.Application.csproj" />
 		<ProjectReference Include="..\Modules\Customers\Infrastructure\Customers.Infrastructure.csproj" />
 		<ProjectReference Include="..\Modules\Identity\Application\Identity.Application.csproj" />

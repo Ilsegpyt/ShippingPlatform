@@ -9,6 +9,11 @@
     <Project Path="Src/BuildingBlocks/Domain/BuildingBlocks.Domain.csproj" />
   </Folder>
   <Folder Name="/Src/Modules/" />
+  <Folder Name="/Src/Modules/Content/">
+    <Project Path="Src/Modules/Content/Content.Application/Content.Application.csproj" Id="a312f7bc-8130-46b6-be6f-fa3c6186d306" />
+    <Project Path="Src/Modules/Content/Content.Domain/Content.Domain.csproj" Id="5a2d29c3-0b25-46cf-9b73-0fd624e2bbbf" />
+    <Project Path="Src/Modules/Content/Content.Infrastructure/Content.Infrastructure.csproj" Id="0e278809-9c45-4668-ace3-ddf452cc96e9" />
+  </Folder>
   <Folder Name="/Src/Modules/Customers/">
     <Project Path="Src/Modules/Customers/Customers.Application/Customers.Application.csproj" Id="7c4efb27-00fb-4a3e-9279-feeff3dff7ab" />
     <Project Path="Src/Modules/Customers/Customers.Contracts/Customers.Contracts.csproj" Id="1be3cbf9-d6cf-487f-bb87-81377c32647e" />

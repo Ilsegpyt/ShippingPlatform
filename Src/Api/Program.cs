@@ -1,6 +1,7 @@
 using Api.BackgroundJobs;
 using Api.Infrastructure.Email;
 using Api.Infrastructure.ExceptionHandling;
+using Api.Modules.Content;
 using Api.Modules.Customers;
 using Api.Modules.Identity;
 using Api.Modules.Notifications;
@@ -9,8 +10,8 @@ using Api.Modules.Schedules;
 using Api.Modules.Shipments;
 using Api.Modules.Tracking;
 using BuildingBlocks.Infrastructure;
+using Content.Infrastructure;
 using Customers.Infrastructure;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Identity.Application;
 using Identity.Application.Abstractions;
 using Identity.Application.Auth.ForgotPassword;
@@ -26,6 +27,7 @@ using Shipments.Application;
 using Shipments.Infrastructure;
 using System.Text.Json.Serialization;
 using Tracking.Application;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +50,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddIdentityApplication();
 builder.Services.AddCustomersModule(builder.Configuration);
+builder.Services.AddContentModule(builder.Configuration);
 builder.Services.AddReportsModule(builder.Configuration);
 builder.Services.AddSchedulesInfrastructure(builder.Configuration);
 builder.Services.AddShipmentsInfrastructure(builder.Configuration);
@@ -118,5 +121,7 @@ app.MapSchedulesEndpoints();
 app.MapShipmentsEndpoints();
 app.MapTrackingEndpoints();
 app.MapNotificationsEndpoints();
+app.MapContentEndpoints();
+
 
 app.Run();
