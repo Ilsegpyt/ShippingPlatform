@@ -43,4 +43,8 @@ public sealed class ContentRepository : IContentRepository
             .Where(x => x.ParentId == parentId)
             .ToListAsync(ct);
     }
+    public void Delete(ContentEntity content)
+    {
+        _dbContext.Contents.Remove(content);
+    }
 }

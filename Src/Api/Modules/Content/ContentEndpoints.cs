@@ -1,4 +1,5 @@
 ﻿using Api.Modules.Content.CreateContent;
+using Api.Modules.Content.DeleteContent;
 using Api.Modules.Content.GetContentById;
 using Api.Modules.Content.GetContentChildren;
 using Api.Modules.Content.GetRootContent;
@@ -16,6 +17,7 @@ public static class ContentEndpoints
         GetContentChildrenEndpoint.Map(app);
         GetRootContentEndpoint.Map(app);
         UpdateContentEndpoint.Map(app);
+        DeleteContentEndpoint.Map(app);
 
     }
 }

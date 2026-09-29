@@ -16,4 +16,6 @@ public interface IContentRepository
     Task<IReadOnlyList<ContentEntity>> GetChildrenAsync(
         Guid? parentId,
         CancellationToken ct);
+    void Delete(ContentEntity content);
+
 }
