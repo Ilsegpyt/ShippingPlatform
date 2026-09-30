@@ -97,9 +97,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 
 }
+
 app.UseExceptionHandler();
 
 app.UseCors("Frontend");
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();

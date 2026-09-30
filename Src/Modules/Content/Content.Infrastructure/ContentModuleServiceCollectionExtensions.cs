@@ -2,6 +2,7 @@
 using Content.Application.Abstractions;
 using Content.Infrastructure.Persistence;
 using Content.Infrastructure.Persistence.Repositories;
+using Content.Infrastructure.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,11 @@ public static class ContentModuleServiceCollectionExtensions
             sp => sp.GetRequiredService<ContentDbContext>());
 
         services.AddScoped<IContentRepository, ContentRepository>();
+
+
+        services.AddScoped<
+            IContentFileStorage,
+            LocalContentFileStorage>();
 
         services.AddContentApplication();
 

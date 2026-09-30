@@ -4,6 +4,7 @@ using Api.Modules.Content.GetContentById;
 using Api.Modules.Content.GetContentChildren;
 using Api.Modules.Content.GetRootContent;
 using Api.Modules.Content.UpdateContent;
+using Api.Modules.Content.UploadContentImage;
 
 namespace Api.Modules.Content;
 
@@ -18,6 +19,7 @@ public static class ContentEndpoints
         GetRootContentEndpoint.Map(app);
         UpdateContentEndpoint.Map(app);
         DeleteContentEndpoint.Map(app);
+        UploadContentImageEndpoint.Map(app);
 
     }
 }
