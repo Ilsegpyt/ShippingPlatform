@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Application;
 using Content.Application.Abstractions;
+using Content.Domain.Entities;
 using ContentEntity = Content.Domain.Entities.Content;
 using MediatR;
 
@@ -14,6 +15,26 @@ public sealed class CreateContentCommandHandler(
         CreateContentCommand command,
         CancellationToken ct)
     {
+        if (command.ParentId.HasValue)
+        {
+            var parent = await contentRepository.GetByIdAsync(
+                command.ParentId.Value,
+                ct);
+
+            if (parent is null)
+            {
+                return Result.Failure<Guid>(
+                    "Parent content was not found.");
+            }
+
+            if (parent.Type is not ContentType.Category
+                and not ContentType.Page)
+            {
+                return Result.Failure<Guid>(
+                    "Parent content must be a Category or Page.");
+            }
+        }
+
         var content = ContentEntity.Create(
             command.ParentId,
             command.Title,
