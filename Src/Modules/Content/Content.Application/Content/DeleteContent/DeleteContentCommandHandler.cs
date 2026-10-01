@@ -1,7 +1,8 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
 using Content.Application.Abstractions;
+using Content.Application.Content;
 using MediatR;
-using System.Text.RegularExpressions;
 
 namespace Content.Application.Content.DeleteContent;
 
@@ -15,7 +16,7 @@ public sealed class DeleteContentCommandHandler(
         DeleteContentCommand command,
         CancellationToken ct)
     {
-        // Step 1: Find the content item that should be deleted.
+        // Step 1: Find the content item to delete.
         var content = await contentRepository.GetByIdAsync(
             command.Id,
             ct);
@@ -36,27 +37,12 @@ public sealed class DeleteContentCommandHandler(
                 "Cannot delete content that has children.");
         }
 
-        // Step 3: Collect image URLs referenced by this content item.
-        var imageUrls = new HashSet<string>(
-            StringComparer.OrdinalIgnoreCase);
+        // Step 3: Extract local image URLs from the featured image and HTML body.
+        var imageUrls = ContentImageHelper.ExtractLocalImageUrls(
+            content.FeaturedImage,
+            content.Body);
 
-        AddLocalImageUrl(imageUrls, content.FeaturedImage);
-
-        // Extract image sources from the HTML body.
-        if (!string.IsNullOrWhiteSpace(content.Body))
-        {
-            var matches = Regex.Matches(
-                content.Body,
-                """src\s*=\s*["']([^"']+)["']""",
-                RegexOptions.IgnoreCase);
-
-            foreach (Match match in matches)
-            {
-                AddLocalImageUrl(imageUrls, match.Groups[1].Value);
-            }
-        }
-
-        // Step 4: Keep only images that are not referenced by other content items.
+        // Step 4: Identify images that are not used by other content items.
         var imagesToDelete = new List<string>();
 
         foreach (var imageUrl in imageUrls)
@@ -73,8 +59,7 @@ public sealed class DeleteContentCommandHandler(
             }
         }
 
-        // Step 5: Delete the content record and save the database changes first.
-        // This avoids deleting image files if the database operation fails.
+        // Step 5: Delete the content record and save database changes first.
         contentRepository.Delete(content);
 
         await unitOfWork.SaveChangesAsync(ct);
@@ -86,58 +71,5 @@ public sealed class DeleteContentCommandHandler(
         }
 
         return Result.Success();
-    }
-
-    // Adds only images stored in our content uploads directory.
-    // External URLs and unrelated local paths are ignored.
-    private static void AddLocalImageUrl(
-        HashSet<string> imageUrls,
-        string? imageUrl)
-    {
-        if (string.IsNullOrWhiteSpace(imageUrl))
-        {
-            return;
-        }
-
-        var value = imageUrl.Trim();
-
-        // Convert absolute URLs into paths so they match stored relative URLs.
-        if (Uri.TryCreate(value, UriKind.Absolute, out var uri))
-        {
-            value = uri.AbsolutePath;
-        }
-
-        // Remove query strings and normalize URL separators.
-        var queryIndex = value.IndexOf('?');
-
-        if (queryIndex >= 0)
-        {
-            value = value[..queryIndex];
-        }
-
-        value = Uri.UnescapeDataString(value)
-            .Replace('\\', '/');
-
-        const string allowedPrefix = "/uploads/content/";
-
-        // Only process files inside the content uploads directory.
-        if (!value.StartsWith(
-                allowedPrefix,
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-        // Reject nested paths and invalid file names.
-        var fileName = value[allowedPrefix.Length..];
-
-        if (string.IsNullOrWhiteSpace(fileName)
-            || fileName.Contains('/')
-            || fileName is "." or "..")
-        {
-            return;
-        }
-
-        imageUrls.Add(allowedPrefix + fileName);
     }
 }

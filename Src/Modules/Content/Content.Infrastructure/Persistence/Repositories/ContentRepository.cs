@@ -1,4 +1,5 @@
-﻿using ContentEntity = Content.Domain.Entities.Content;
+﻿
+using ContentEntity = Content.Domain.Entities.Content;
 using Content.Application.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
@@ -45,22 +46,22 @@ public sealed class ContentRepository : IContentRepository
             .ToListAsync(ct);
     }
 
-    // Checks whether another content item still uses the specified image.
+    // Checks whether another content item uses the specified image.
     public async Task<bool> IsImageUsedByOtherContentAsync(
         string imageUrl,
         Guid excludedContentId,
         CancellationToken ct)
     {
-        // Normalize the URL so relative and absolute URLs can be compared.
+        // Normalize the image URL before comparing it with other references.
         var targetImage = NormalizeContentImageUrl(imageUrl);
 
-        // External images and URLs outside our uploads folder must not be treated as local files.
+        // Treat unrecognized paths as unsafe to delete.
         if (targetImage is null)
         {
             return true;
         }
 
-        // Load image references from all content items except the one being deleted.
+        // Load image references from all other content items.
         var otherContents = await _dbContext.Contents
             .AsNoTracking()
             .Where(x => x.Id != excludedContentId)
@@ -73,9 +74,12 @@ public sealed class ContentRepository : IContentRepository
 
         foreach (var content in otherContents)
         {
-            // Check whether another content item uses this image as its featured image.
-            if (NormalizeContentImageUrl(content.FeaturedImage) is string featuredImage
-                && string.Equals(
+            // Check whether another item uses this as its featured image.
+            var featuredImage =
+                NormalizeContentImageUrl(content.FeaturedImage);
+
+            if (featuredImage is not null &&
+                string.Equals(
                     featuredImage,
                     targetImage,
                     StringComparison.OrdinalIgnoreCase))
@@ -83,27 +87,30 @@ public sealed class ContentRepository : IContentRepository
                 return true;
             }
 
-            // Extract image sources from the HTML body and check for references.
-            if (!string.IsNullOrWhiteSpace(content.Body))
+            // Extract image URLs from the HTML body.
+            if (string.IsNullOrWhiteSpace(content.Body))
             {
-                var imageSources = Regex.Matches(
-                    content.Body,
-                    """src\s*=\s*["']([^"']+)["']""",
-                    RegexOptions.IgnoreCase);
+                continue;
+            }
 
-                foreach (Match match in imageSources)
+            var imageSources = Regex.Matches(
+                content.Body,
+                """src\s*=\s*["']([^"']+)["']""",
+                RegexOptions.IgnoreCase);
+
+            foreach (Match match in imageSources)
+            {
+                var imageSource = NormalizeContentImageUrl(
+                    match.Groups[1].Value);
+
+                // Stop if another content item references the same image.
+                if (imageSource is not null &&
+                    string.Equals(
+                        imageSource,
+                        targetImage,
+                        StringComparison.OrdinalIgnoreCase))
                 {
-                    var imageSource = NormalizeContentImageUrl(
-                        match.Groups[1].Value);
-
-                    if (imageSource is not null
-                        && string.Equals(
-                            imageSource,
-                            targetImage,
-                            StringComparison.OrdinalIgnoreCase))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
         }
@@ -112,7 +119,7 @@ public sealed class ContentRepository : IContentRepository
         return false;
     }
 
-    // Removes the host and query string, then accepts only our content-upload paths.
+    // Converts absolute URLs to paths and accepts only content-upload files.
     private static string? NormalizeContentImageUrl(string? imageUrl)
     {
         if (string.IsNullOrWhiteSpace(imageUrl))
@@ -122,14 +129,13 @@ public sealed class ContentRepository : IContentRepository
 
         var value = imageUrl.Trim();
 
-        // Convert absolute URLs, such as http://localhost:5250/uploads/content/a.png,
-        // into their path so they match relative URLs stored in the database.
+        // Extract the path from absolute URLs, such as localhost image URLs.
         if (Uri.TryCreate(value, UriKind.Absolute, out var uri))
         {
             value = uri.AbsolutePath;
         }
 
-        // Ignore query strings and normalize URL separators.
+        // Remove query strings.
         var queryIndex = value.IndexOf('?');
 
         if (queryIndex >= 0)
@@ -140,9 +146,9 @@ public sealed class ContentRepository : IContentRepository
         value = Uri.UnescapeDataString(value)
             .Replace('\\', '/');
 
-        // Only allow images inside the content uploads directory.
         const string allowedPrefix = "/uploads/content/";
 
+        // Ignore external images and files outside the content uploads folder.
         if (!value.StartsWith(
                 allowedPrefix,
                 StringComparison.OrdinalIgnoreCase))
@@ -150,12 +156,12 @@ public sealed class ContentRepository : IContentRepository
             return null;
         }
 
-        // Reject nested paths; uploaded files should be directly inside this folder.
+        // Accept only a file directly inside the uploads folder.
         var fileName = value[allowedPrefix.Length..];
 
-        if (string.IsNullOrWhiteSpace(fileName)
-            || fileName.Contains('/')
-            || fileName is "." or "..")
+        if (string.IsNullOrWhiteSpace(fileName) ||
+            fileName.Contains('/') ||
+            fileName is "." or "..")
         {
             return null;
         }
