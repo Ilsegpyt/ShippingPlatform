@@ -1,5 +1,7 @@
 ﻿using Content.Application.Content.CreateContent;
 using Content.Domain.Entities;
+using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
 using MediatR;
 
 namespace Api.Modules.Content.CreateContent;
@@ -26,7 +28,8 @@ public static class CreateContentEndpoint
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(result.Error);
-        });
+        })
+            .RequirePermission(PermissionCatalog.ContentCreate);
     }
 }
 

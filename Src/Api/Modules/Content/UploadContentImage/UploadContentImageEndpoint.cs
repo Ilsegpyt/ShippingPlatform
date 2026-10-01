@@ -1,4 +1,6 @@
 ﻿using Content.Application.Abstractions;
+using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
 
 namespace Api.Modules.Content.UploadContentImage;
 
@@ -29,6 +31,7 @@ public static class UploadContentImageEndpoint
                     url
                 });
             })
-             .DisableAntiforgery();
+             .DisableAntiforgery()
+             .RequirePermission(PermissionCatalog.ContentEdit);
     }
 }

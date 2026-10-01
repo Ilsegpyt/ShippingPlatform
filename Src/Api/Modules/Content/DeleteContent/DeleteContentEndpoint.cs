@@ -1,4 +1,6 @@
 ﻿using Content.Application.Content.DeleteContent;
+using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
 using MediatR;
 
 namespace Api.Modules.Content.DeleteContent;
@@ -21,6 +23,7 @@ public static class DeleteContentEndpoint
                 return result.IsSuccess
                     ? Results.NoContent()
                     : Results.BadRequest(result.Error);
-            });
+            })
+            .RequirePermission(PermissionCatalog.ContentDelete);
     }
 }

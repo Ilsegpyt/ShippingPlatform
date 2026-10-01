@@ -37,6 +37,22 @@ public sealed class PermissionKey : ValueObject
 /// </summary>
 public static class PermissionCatalog
 {
+    // Content
+    public static readonly PermissionKey ContentView =
+        PermissionKey.Of("content.view");
+
+    public static readonly PermissionKey ContentCreate =
+        PermissionKey.Of("content.create");
+
+    public static readonly PermissionKey ContentEdit =
+        PermissionKey.Of("content.edit");
+
+    public static readonly PermissionKey ContentDelete =
+        PermissionKey.Of("content.delete");
+
+    public static readonly PermissionKey ContentImagesUpload =
+        PermissionKey.Of("content.images.upload");
+
     // Account Manager Assignment
     public static readonly PermissionKey CustomersAssignAccountManager =
         PermissionKey.Of("customers.accountmanager.assign");
@@ -231,6 +247,15 @@ public static class PermissionCatalog
     // All known permissions
     public static IReadOnlyCollection<PermissionKey> All { get; } = new[]
     {
+        // Content
+        ContentView,
+        ContentCreate,
+        ContentEdit,
+        ContentDelete,
+        ContentImagesUpload,
+
+
+
         CustomersAssignAccountManager,
 
         // Identity

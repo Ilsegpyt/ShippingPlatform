@@ -1,5 +1,7 @@
 ﻿using Content.Application.Content.UpdateContent;
 using Content.Domain.Entities;
+using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
 using MediatR;
 
 namespace Api.Modules.Content.UpdateContent;
@@ -28,7 +30,8 @@ public static class UpdateContentEndpoint
             return result.IsSuccess
                 ? Results.NoContent()
                 : Results.BadRequest(result.Error);
-        });
+        })
+            .RequirePermission(PermissionCatalog.ContentEdit);
     }
 }
 

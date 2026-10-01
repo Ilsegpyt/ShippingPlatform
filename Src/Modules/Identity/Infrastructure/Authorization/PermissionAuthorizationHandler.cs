@@ -34,6 +34,8 @@ public sealed class PermissionAuthorizationHandler
 
         var tokenType = context.User.FindFirstValue("token_type");
 
+
+
         if (userIdClaim is null ||
             !Guid.TryParse(userIdClaim, out var userId))
         {
