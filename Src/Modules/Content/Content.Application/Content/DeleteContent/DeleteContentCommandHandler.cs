@@ -18,7 +18,20 @@ public sealed class DeleteContentCommandHandler(
             ct);
 
         if (content is null)
-            return Result.Failure("Content not found.");
+        {
+            return Result.Failure(
+                "Content not found.");
+        }
+
+        var children = await contentRepository.GetChildrenAsync(
+            command.Id,
+            ct);
+
+        if (children.Count > 0)
+        {
+            return Result.Failure(
+                "Cannot delete content that has children.");
+        }
 
         contentRepository.Delete(content);
 
