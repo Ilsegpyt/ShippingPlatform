@@ -16,6 +16,13 @@ public interface IContentRepository
     Task<IReadOnlyList<ContentEntity>> GetChildrenAsync(
         Guid? parentId,
         CancellationToken ct);
+
     void Delete(ContentEntity content);
 
+    // Checks whether an image URL is referenced by another content item.
+    // Used to prevent deleting an image that is still in use.
+    Task<bool> IsImageUsedByOtherContentAsync(
+        string imageUrl,
+        Guid excludedContentId,
+        CancellationToken ct);
 }

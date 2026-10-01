@@ -35,4 +35,8 @@
 		<ProjectReference Include="..\Modules\Tracking\Tracking.Infrastructure\Tracking.Infrastructure.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="wwwroot\uploads\content\" />
+	</ItemGroup>
+
 </Project>
