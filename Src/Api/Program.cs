@@ -2,13 +2,11 @@ using Api.BackgroundJobs;
 using Api.Infrastructure.Email;
 using Api.Infrastructure.ExceptionHandling;
 using Api.Modules.Content;
-using Api.Modules.Customers;
+//using Api.Modules.Customers;
 using Api.Modules.Identity;
 using Api.Modules.Notifications;
 using Api.Modules.Reports;
-using Api.Modules.Schedules;
-using Api.Modules.Shipments;
-using Api.Modules.Tracking;
+
 using BuildingBlocks.Infrastructure;
 using Content.Infrastructure;
 using Customers.Infrastructure;
@@ -21,12 +19,7 @@ using Notifications.Application;
 using Notifications.Infrastructure;
 using Reports.Application;
 using Reports.Infrastructure;
-using Schedules.Application;
-using Schedules.Infrastructure;
-using Shipments.Application;
-using Shipments.Infrastructure;
 using System.Text.Json.Serialization;
-using Tracking.Application;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,10 +45,7 @@ builder.Services.AddIdentityApplication();
 builder.Services.AddCustomersModule(builder.Configuration);
 builder.Services.AddContentModule(builder.Configuration);
 builder.Services.AddReportsModule(builder.Configuration);
-builder.Services.AddSchedulesInfrastructure(builder.Configuration);
-builder.Services.AddShipmentsInfrastructure(builder.Configuration);
-builder.Services.AddShipmentsApplication();
-builder.Services.AddTrackingApplication();
+
 
 builder.Services.AddBuildingBlocksInfrastructure();
 builder.Services.AddReportsApplication();
@@ -69,16 +59,13 @@ builder.Services.AddProblemDetails(); // obligatory
 
 builder.Services.AddHostedService<IdentityOutboxProcessorWorker>();
 builder.Services.AddHostedService<CustomersOutboxProcessorWorker>();
-builder.Services.AddHostedService<ShipmentsOutboxProcessorWorker>();
 builder.Services.AddHostedService<EmailOutboxProcessorWorker>();
 builder.Services.AddScoped<IPasswordResetEmailSender, PasswordResetEmailSender>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
-builder.Services.AddSchedulesApplication();
-builder.Services.AddSchedulesInfrastructure(
-    builder.Configuration);
+
 
 builder.Services.Configure<ForgotPasswordOptions>(
     builder.Configuration.GetSection("Notifications"));
@@ -117,11 +104,9 @@ using (var scope = app.Services.CreateScope())
 
 // Each module maps its own endpoint group. Adding a new module = one new line here.
 app.MapIdentityEndpoints();
-app.MapCustomersEndpoints();
+//app.MapCustomersEndpoints();
 app.MapReportsEndpoints();
-app.MapSchedulesEndpoints();
-app.MapShipmentsEndpoints();
-app.MapTrackingEndpoints();
+
 app.MapNotificationsEndpoints();
 app.MapContentEndpoints();
 
