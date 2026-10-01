@@ -29,6 +29,12 @@ public sealed class UpdateContentCommandHandler(
         // Step 2: Validate the requested parent.
         if (command.ParentId.HasValue)
         {
+            if (command.ParentId.Value == content.Id)
+            {
+                return Result.Failure(
+                    "Content cannot be its own parent.");
+            }
+
             var parent = await contentRepository.GetByIdAsync(
                 command.ParentId.Value,
                 ct);
@@ -46,41 +52,64 @@ public sealed class UpdateContentCommandHandler(
                     "Parent content must be a Category or Page.");
             }
 
-            // Prevent the content from becoming its own parent.
-            if (parent.Id == content.Id)
-            {
-                return Result.Failure(
-                    "Content cannot be its own parent.");
-            }
+            // Prevent circular hierarchy and detect existing cycles.
+            var visitedIds = new HashSet<Guid>();
+            var ancestor = parent;
 
-            // Prevent circular hierarchy by walking up the parent chain.
-            var ancestorId = parent.ParentId;
-
-            while (ancestorId.HasValue)
+            while (true)
             {
-                if (ancestorId.Value == content.Id)
+                if (ancestor.Id == content.Id)
                 {
                     return Result.Failure(
                         "Circular content hierarchy is not allowed.");
                 }
 
-                var ancestor = await contentRepository.GetByIdAsync(
-                    ancestorId.Value,
-                    ct);
+                if (!visitedIds.Add(ancestor.Id))
+                {
+                    return Result.Failure(
+                        "Invalid parent hierarchy detected.");
+                }
 
-                if (ancestor is null)
+                if (!ancestor.ParentId.HasValue)
                     break;
 
-                ancestorId = ancestor.ParentId;
+                var ancestorId = ancestor.ParentId.Value;
+
+                var nextAncestor = await contentRepository.GetByIdAsync(
+                    ancestorId,
+                    ct);
+
+                if (nextAncestor is null)
+                {
+                    return Result.Failure(
+                        "Parent hierarchy is invalid.");
+                }
+
+                ancestor = nextAncestor;
             }
         }
 
-        // Step 3: Save the old image URLs before updating the content.
+        // Step 3: Prevent changing a parent with children to Post or Link.
+        if (command.Type is not ContentType.Category
+            and not ContentType.Page)
+        {
+            var children = await contentRepository.GetChildrenAsync(
+                content.Id,
+                ct);
+
+            if (children.Count > 0)
+            {
+                return Result.Failure(
+                    "Content with children must remain a Category or Page.");
+            }
+        }
+
+        // Step 4: Save the old image URLs before updating the content.
         var oldImageUrls = ContentImageHelper.ExtractLocalImageUrls(
             content.FeaturedImage,
             content.Body);
 
-        // Step 4: Apply the requested changes.
+        // Step 5: Apply the requested changes.
         content.Update(
             command.ParentId,
             command.Title,
@@ -89,15 +118,15 @@ public sealed class UpdateContentCommandHandler(
             command.FeaturedImage,
             command.LinkUrl);
 
-        // Step 5: Save database changes before cleaning up old files.
+        // Step 6: Save database changes before cleaning up old files.
         await unitOfWork.SaveChangesAsync(ct);
 
-        // Step 6: Collect image URLs referenced after the update.
+        // Step 7: Collect image URLs referenced after the update.
         var newImageUrls = ContentImageHelper.ExtractLocalImageUrls(
             content.FeaturedImage,
             content.Body);
 
-        // Step 7: Find old images that are no longer used by this content.
+        // Step 8: Find old images that are no longer used by this content.
         var imagesToCheck = oldImageUrls.Except(
             newImageUrls,
             StringComparer.OrdinalIgnoreCase);
@@ -106,7 +135,6 @@ public sealed class UpdateContentCommandHandler(
         {
             try
             {
-                // Delete an image only when no other content item uses it.
                 var isUsedElsewhere =
                     await contentRepository.IsImageUsedByOtherContentAsync(
                         imageUrl,
@@ -124,7 +152,6 @@ public sealed class UpdateContentCommandHandler(
             }
             catch (Exception ex)
             {
-                // Log cleanup failures without undoing the saved content update.
                 logger.LogError(
                     ex,
                     "Failed to clean up old content image {ImageUrl} " +
