@@ -31,6 +31,12 @@
     <Project Path="Src/Modules/Notifications/Notifications.Domain/Notifications.Domain.csproj" Id="4a770d3d-e058-45f0-986b-30857ffbe105" />
     <Project Path="Src/Modules/Notifications/Notifications.Infrastructure/Notifications.Infrastructure.csproj" Id="de9814de-6f6f-4485-b1ec-e14808327445" />
   </Folder>
+  <Folder Name="/Src/Modules/Operations/">
+    <Project Path="Src/Modules/Operations/Operations.Application/Operations.Application.csproj" Id="8b346653-b9d8-43b0-9e21-f42f9b2af94b" />
+    <Project Path="Src/Modules/Operations/Operations.Contracts/Operations.Contracts.csproj" Id="0dc37c8d-4cfa-45c5-b5b6-48e1f75352b6" />
+    <Project Path="Src/Modules/Operations/Operations.Domain/Operations.Domain.csproj" Id="52408578-8372-40d7-a190-4bcd1eba53d1" />
+    <Project Path="Src/Modules/Operations/Operations.Infrastructure/Operations.Infrastructure.csproj" Id="c0228323-355b-43b1-9a74-ee3402595a89" />
+  </Folder>
   <Folder Name="/Src/Modules/Reports/">
     <Project Path="Src/Modules/Reports/Reports.Application/Reports.Application.csproj" Id="d412b9fc-9578-4901-b878-087693ce7726" />
     <Project Path="Src/Modules/Reports/Reports.Domain/Reports.Domain.csproj" Id="8bf2d81f-cef1-4d53-aa2d-1dcf3c9b0dfd" />
