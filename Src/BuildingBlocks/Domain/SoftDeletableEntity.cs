@@ -1,5 +1,4 @@
-﻿
-namespace BuildingBlocks.Domain;
+﻿namespace BuildingBlocks.Domain;
 
 public abstract class SoftDeletableEntity<TId>
     : AuditableEntity<TId>, ISoftDeletable
@@ -11,6 +10,8 @@ public abstract class SoftDeletableEntity<TId>
 
     public Guid? DeletedByUserId { get; private set; }
 
+    public string? DeletedByName { get; private set; }
+
     protected SoftDeletableEntity()
     {
     }
@@ -19,13 +20,17 @@ public abstract class SoftDeletableEntity<TId>
     {
     }
 
-    public void MarkAsDeleted(Guid deletedByUserId)
+    public void MarkAsDeleted(
+        Guid deletedByUserId,
+        string deletedByName,
+        DateTime utcNow)
     {
         if (IsDeleted)
             return;
 
         IsDeleted = true;
-        DeletedAtUtc = DateTime.UtcNow;
+        DeletedAtUtc = utcNow;
         DeletedByUserId = deletedByUserId;
+        DeletedByName = deletedByName;
     }
 }

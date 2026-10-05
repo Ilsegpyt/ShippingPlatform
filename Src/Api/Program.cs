@@ -7,7 +7,7 @@ using Api.Modules.Content;
 using Api.Modules.Identity;
 using Api.Modules.Notifications;
 using Api.Modules.Reports;
-
+using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure;
 using Content.Infrastructure;
 using Customers.Infrastructure;

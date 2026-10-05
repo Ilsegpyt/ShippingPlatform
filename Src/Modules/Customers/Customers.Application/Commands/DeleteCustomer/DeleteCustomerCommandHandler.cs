@@ -1,16 +1,24 @@
 ﻿using BuildingBlocks.Application;
+using BuildingBlocks.Application.Abstractions;
 using Customers.Application.Abstractions;
 using MediatR;
 
 namespace Customers.Application.Commands.DeleteCustomer;
 
-public sealed class DeleteCustomerCommandHandler(ICustomerRepository customerRepository, ICustomersUnitOfWork  icustomersUnitOfWorkunitOfWork)
+public sealed class DeleteCustomerCommandHandler(
+    ICustomerRepository customerRepository,
+    ICustomersUnitOfWork unitOfWork,
+    ICurrentUser currentUser)
     : IRequestHandler<DeleteCustomersCommand, Result>
 {
     public async Task<Result> Handle(
-     DeleteCustomersCommand request,
-     CancellationToken ct)
+        DeleteCustomersCommand request,
+        CancellationToken ct)
     {
+        var userId = currentUser.UserId;
+        var userName = await currentUser.GetUserNameAsync(ct);
+        var now = DateTime.UtcNow;
+
         foreach (var customerId in request.CustomerIds)
         {
             var customer = await customerRepository.GetByIdAsync(
@@ -18,13 +26,17 @@ public sealed class DeleteCustomerCommandHandler(ICustomerRepository customerRep
                 ct);
 
             if (customer is null)
-                return Result.Failure($"Customer '{customerId}' not found.");
+                return Result.Failure(
+                    $"Customer '{customerId}' not found.");
 
-            customer.MarkAsDeleted(request.DeletedByUserId);
+            customer.MarkAsDeleted(
+                userId,
+                userName,
+                now);
         }
 
-        await icustomersUnitOfWorkunitOfWork.SaveChangesAsync(ct);
+        await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success();
     }
- }
+}

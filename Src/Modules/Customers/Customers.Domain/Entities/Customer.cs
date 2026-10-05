@@ -20,20 +20,38 @@ public sealed class Customer : AggregateRoot<Guid>, ISoftDeletable
 
     public Guid? DeletedByUserId { get; private set; }
 
-    public void MarkAsDeleted(Guid deletedByUserId)
-    {
-        IsDeleted = true;
-        DeletedAtUtc = DateTime.UtcNow;
-        DeletedByUserId = deletedByUserId;
+    public string? DeletedByName { get; private set; }
 
-        RaiseDomainEvent(new CustomerDeletedEvent(Id ,DateTime.UtcNow));
+    public void MarkAsDeleted(
+        Guid deletedByUserId,
+        string deletedByName,
+        DateTime utcNow)
+    {
+        if (IsDeleted)
+            return;
+
+        IsDeleted = true;
+        DeletedAtUtc = utcNow;
+        DeletedByUserId = deletedByUserId;
+        DeletedByName = deletedByName;
+
+        RaiseDomainEvent(
+            new CustomerDeletedEvent(Id, utcNow));
     }
 
+    private Customer()
+    {
+    }
 
-    private Customer() { } // EF Core
-
-    private Customer(Guid id, string ownerName, string companyName, string ownerPhone,
-        string ownerEmail, string? industry, Guid ownerUserId) : base(id)
+    private Customer(
+        Guid id,
+        string ownerName,
+        string companyName,
+        string ownerPhone,
+        string ownerEmail,
+        string? industry,
+        Guid ownerUserId)
+        : base(id)
     {
         OwnerName = ownerName;
         CompanyName = companyName;
@@ -44,17 +62,39 @@ public sealed class Customer : AggregateRoot<Guid>, ISoftDeletable
         Status = CustomerStatus.Active;
     }
 
-    public static Customer Register(string ownerName, string companyName, string ownerPhone,
-        string ownerEmail, string? industry, Guid ownerUserId)
+    public static Customer Register(
+        string ownerName,
+        string companyName,
+        string ownerPhone,
+        string ownerEmail,
+        string? industry,
+        Guid ownerUserId)
     {
-        var customer = new Customer(Guid.NewGuid(), ownerName, companyName, ownerPhone, ownerEmail, industry, ownerUserId);
+        var customer = new Customer(
+            Guid.NewGuid(),
+            ownerName,
+            companyName,
+            ownerPhone,
+            ownerEmail,
+            industry,
+            ownerUserId);
 
         customer.RaiseDomainEvent(
-        new CustomerRegisteredEvent(customer.Id, ownerUserId, ownerName, ownerEmail ,DateTime.UtcNow));
+            new CustomerRegisteredEvent(
+                customer.Id,
+                ownerUserId,
+                ownerName,
+                ownerEmail,
+                DateTime.UtcNow));
+
         return customer;
     }
 
-    public void UpdateProfile(string ownerName, string companyName, string ownerPhone, string? industry)
+    public void UpdateProfile(
+        string ownerName,
+        string companyName,
+        string ownerPhone,
+        string? industry)
     {
         OwnerName = ownerName;
         CompanyName = companyName;
@@ -64,39 +104,67 @@ public sealed class Customer : AggregateRoot<Guid>, ISoftDeletable
 
     public void Suspend()
     {
-        if (Status == CustomerStatus.Suspended) return;
+        if (Status == CustomerStatus.Suspended)
+            return;
+
         Status = CustomerStatus.Suspended;
-        RaiseDomainEvent(new CustomerStatusChangedEvent(Id, Status, DateTime.UtcNow));
+
+        RaiseDomainEvent(
+            new CustomerStatusChangedEvent(
+                Id,
+                Status,
+                DateTime.UtcNow));
     }
 
     public void Activate()
     {
-        if (Status == CustomerStatus.Active) return;
+        if (Status == CustomerStatus.Active)
+            return;
+
         Status = CustomerStatus.Active;
-        RaiseDomainEvent(new CustomerStatusChangedEvent(Id, Status, DateTime.UtcNow));
+
+        RaiseDomainEvent(
+            new CustomerStatusChangedEvent(
+                Id,
+                Status,
+                DateTime.UtcNow));
     }
 
-    public void TransferOwnership(Guid newOwnerUserId, string newOwnerName, string newOwnerEmail)
+    public void TransferOwnership(
+        Guid newOwnerUserId,
+        string newOwnerName,
+        string newOwnerEmail)
     {
-        if (newOwnerUserId == OwnerUserId) return;
+        if (newOwnerUserId == OwnerUserId)
+            return;
+
         var previousOwner = OwnerUserId;
+
         OwnerUserId = newOwnerUserId;
         OwnerName = newOwnerName;
         OwnerEmail = newOwnerEmail;
-        RaiseDomainEvent(new CustomerOwnershipTransferredEvent(Id, previousOwner, newOwnerUserId, DateTime.UtcNow));
+
+        RaiseDomainEvent(
+            new CustomerOwnershipTransferredEvent(
+                Id,
+                previousOwner,
+                newOwnerUserId,
+                DateTime.UtcNow));
     }
-
-
 
     public void UpdateEmail(string email)
     {
         OwnerEmail = email.Trim();
 
         RaiseDomainEvent(
-            new CustomerEmailChangedEvent(Id, OwnerUserId, OwnerEmail, DateTime.UtcNow));
-
+            new CustomerEmailChangedEvent(
+                Id,
+                OwnerUserId,
+                OwnerEmail,
+                DateTime.UtcNow));
     }
 }
+
 public enum CustomerStatus
 {
     Active = 0,

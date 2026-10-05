@@ -1,4 +1,4 @@
-﻿
+﻿using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Domain;
 using Microsoft.EntityFrameworkCore;
 using Operations.Application.Abstractions;
@@ -31,42 +31,73 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.ApplyConfigurationsFromAssembly(typeof(OperationsDbContext).Assembly);
+        builder.ApplyConfigurationsFromAssembly(
+            typeof(OperationsDbContext).Assembly);
+
+        builder.Entity<Operation>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
+        builder.Entity<OperationContainer>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
+        builder.Entity<ImportDetails>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
+        builder.Entity<ExportDetails>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
         base.OnModelCreating(builder);
     }
 
     public override async Task<int> SaveChangesAsync(
-      CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default)
     {
-        var entries = ChangeTracker
+        var userId = _currentUser.UserId;
+        var userName = await _currentUser.GetUserNameAsync(cancellationToken);
+        var now = DateTime.UtcNow;
+
+        var deletedEntries = ChangeTracker
+            .Entries()
+            .Where(entry =>
+                entry.State == EntityState.Deleted &&
+                entry.Entity is ISoftDeletable)
+            .ToList();
+
+        foreach (var entry in deletedEntries)
+        {
+            var softDeletable = (ISoftDeletable)entry.Entity;
+
+            softDeletable.MarkAsDeleted(
+                userId,
+                userName,
+                now);
+
+            entry.State = EntityState.Modified;
+        }
+
+        var auditEntries = ChangeTracker
             .Entries<AuditableEntity<Guid>>()
             .Where(entry =>
                 entry.State == EntityState.Added ||
-                entry.State == EntityState.Modified)
+                (entry.State == EntityState.Modified &&
+                 !deletedEntries.Contains(entry)))
             .ToList();
 
-        if (entries.Count > 0)
+        foreach (var entry in auditEntries)
         {
-            var userId = _currentUser.UserId.ToString();
-            var userName = await _currentUser.GetUserNameAsync(cancellationToken);
-            var now = DateTime.UtcNow;
-
-            foreach (var entry in entries)
+            if (entry.State == EntityState.Added)
             {
-                if (entry.State == EntityState.Added)
-                {
-                    entry.Entity.SetCreatedAudit(
-                        userId,
-                        userName,
-                        now);
-                }
-                else
-                {
-                    entry.Entity.SetUpdatedAudit(
-                        userId,
-                        userName,
-                        now);
-                }
+                entry.Entity.SetCreatedAudit(
+                    userId.ToString(),
+                    userName,
+                    now);
+            }
+            else
+            {
+                entry.Entity.SetUpdatedAudit(
+                    userId.ToString(),
+                    userName,
+                    now);
             }
         }
 

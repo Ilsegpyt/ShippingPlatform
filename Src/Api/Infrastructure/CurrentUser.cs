@@ -1,5 +1,5 @@
-﻿using Identity.Contracts;
-using Operations.Application.Abstractions;
+﻿using BuildingBlocks.Application.Abstractions;
+using Identity.Contracts;
 using System.Security.Claims;
 
 namespace Api.Infrastructure;
