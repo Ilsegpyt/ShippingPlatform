@@ -34,6 +34,10 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
         builder.ApplyConfigurationsFromAssembly(
             typeof(OperationsDbContext).Assembly);
 
+        // -------------------------
+        // Soft Delete Query Filters
+        // -------------------------
+
         builder.Entity<Operation>()
             .HasQueryFilter(x => !x.IsDeleted);
 
@@ -46,6 +50,21 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
         builder.Entity<ExportDetails>()
             .HasQueryFilter(x => !x.IsDeleted);
 
+        builder.Entity<ShippingLine>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
+        builder.Entity<Port>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
+        builder.Entity<Transporter>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
+        builder.Entity<Driver>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
+        builder.Entity<Vehicle>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
         base.OnModelCreating(builder);
     }
 
@@ -55,6 +74,10 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
         var userId = _currentUser.UserId;
         var userName = await _currentUser.GetUserNameAsync(cancellationToken);
         var now = DateTime.UtcNow;
+
+        // -------------------------
+        // Soft Delete
+        // -------------------------
 
         var deletedEntries = ChangeTracker
             .Entries()
@@ -74,6 +97,10 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
 
             entry.State = EntityState.Modified;
         }
+
+        // -------------------------
+        // Audit
+        // -------------------------
 
         var auditEntries = ChangeTracker
             .Entries<AuditableEntity<Guid>>()
@@ -99,6 +126,23 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
                     userName,
                     now);
             }
+        }
+
+        // -------------------------
+        // Container Update Audit
+        // -------------------------
+
+        var containerUpdateEntries = ChangeTracker
+            .Entries<ContainerUpdate>()
+            .Where(entry => entry.State == EntityState.Added)
+            .ToList();
+
+        foreach (var entry in containerUpdateEntries)
+        {
+            entry.Entity.SetCreatedAudit(
+                userId.ToString(),
+                userName,
+                now);
         }
 
         return await base.SaveChangesAsync(cancellationToken);

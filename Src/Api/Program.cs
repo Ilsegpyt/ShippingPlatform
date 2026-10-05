@@ -18,7 +18,7 @@ using Identity.Infrastructure;
 using Identity.Infrastructure.Seeding;
 using Notifications.Application;
 using Notifications.Infrastructure;
-using Operations.Application.Abstractions;
+using Operations.Infrastructure;
 using Reports.Application;
 using Reports.Infrastructure;
 using System.Text.Json.Serialization;
@@ -45,6 +45,8 @@ builder.Services.AddCustomersModule(builder.Configuration);
 builder.Services.AddContentModule(builder.Configuration);
 builder.Services.AddReportsModule(builder.Configuration);
 
+
+builder.Services.AddOperationsInfrastructure(builder.Configuration);
 builder.Services.AddBuildingBlocksInfrastructure();
 builder.Services.AddReportsApplication();
 builder.Services.AddNotificationsInfrastructure(builder.Configuration);

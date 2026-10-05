@@ -7,6 +7,8 @@ public class OperationContainer : SoftDeletableEntity<Guid>
 {
     public Guid OperationId { get; private set; }
 
+    public short Ordinal { get; private set; }
+
     public string? ContainerNumber { get; private set; }
 
     public ContainerType ContainerType { get; private set; }
