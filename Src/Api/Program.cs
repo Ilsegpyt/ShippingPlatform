@@ -6,6 +6,7 @@ using Api.Modules.Content;
 //using Api.Modules.Customers;
 using Api.Modules.Identity;
 using Api.Modules.Notifications;
+using Api.Modules.Operations;
 using Api.Modules.Reports;
 using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure;
@@ -18,10 +19,12 @@ using Identity.Infrastructure;
 using Identity.Infrastructure.Seeding;
 using Notifications.Application;
 using Notifications.Infrastructure;
+using Operations.Application;
 using Operations.Infrastructure;
 using Reports.Application;
 using Reports.Infrastructure;
 using System.Text.Json.Serialization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +52,8 @@ builder.Services.AddReportsModule(builder.Configuration);
 builder.Services.AddOperationsInfrastructure(builder.Configuration);
 builder.Services.AddBuildingBlocksInfrastructure();
 builder.Services.AddReportsApplication();
+builder.Services.AddOperationsApplication();
+
 builder.Services.AddNotificationsInfrastructure(builder.Configuration);
 builder.Services.AddNotificationsApplication();
 
@@ -103,5 +108,6 @@ app.MapIdentityEndpoints();
 app.MapReportsEndpoints();
 app.MapNotificationsEndpoints();
 app.MapContentEndpoints();
+app.MapOperationsEndpoints();
 
 app.Run();

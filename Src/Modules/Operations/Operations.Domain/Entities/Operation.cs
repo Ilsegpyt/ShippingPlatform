@@ -3,8 +3,14 @@ using Operations.Domain.Enums;
 
 namespace Operations.Domain.Entities;
 
-public class Operation : SoftDeletableEntity<Guid>
+public class Operation
+    : SoftDeletableEntity<Guid>, IAggregateRoot
 {
+    private readonly List<IDomainEvent> _domainEvents = new();
+
+    public IReadOnlyCollection<IDomainEvent> DomainEvents =>
+        _domainEvents.AsReadOnly();
+
     public Guid ClientId { get; private set; }
 
     public Guid ShippingLineId { get; private set; }
@@ -42,8 +48,24 @@ public class Operation : SoftDeletableEntity<Guid>
     {
     }
 
-    public Operation(OperationType operationType)
+    public Operation(
+        Guid clientId,
+        Guid shippingLineId,
+        OperationType operationType,
+        string? shipmentNumber,
+        string? certificateNumber,
+        DateTime? invoicesReceivedDate)
     {
+        ClientId = clientId;
+        ShippingLineId = shippingLineId;
         OperationType = operationType;
+        ShipmentNumber = shipmentNumber;
+        CertificateNumber = certificateNumber;
+        InvoicesReceivedDate = invoicesReceivedDate;
+    }
+
+    public void ClearDomainEvents()
+    {
+        _domainEvents.Clear();
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Operations.Application.Abstractions;
 using Operations.Infrastructure.Persistence;
+using Operations.Infrastructure.Persistence.Repositories;
 
 namespace Operations.Infrastructure;
 
@@ -18,6 +19,8 @@ public static class OperationsModuleServiceCollectionExtensions
 
         services.AddScoped<IOperationsUnitOfWork>(
             sp => sp.GetRequiredService<OperationsDbContext>());
+
+        services.AddScoped<IOperationRepository, OperationRepository>();
 
         return services;
     }
