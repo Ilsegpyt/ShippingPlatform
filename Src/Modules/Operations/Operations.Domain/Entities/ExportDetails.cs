@@ -28,4 +28,18 @@ public class ExportDetails : SoftDeletableEntity<Guid>
     private ExportDetails()
     {
     }
+
+    public ExportDetails(
+        ClearanceType clearanceType,
+        string bookingNumber,
+        Guid polId,
+        Guid? powId,
+        DateOnly? cutOffDate)
+    {
+        ClearanceType = clearanceType;
+        BookingNumber = bookingNumber;
+        POLId = polId;
+        POWId = powId;
+        CutOffDate = cutOffDate;
+    }
 }

@@ -2,6 +2,7 @@
 using MediatR;
 using Operations.Application.Abstractions;
 using Operations.Domain.Entities;
+using Operations.Domain.Enums;
 
 namespace Operations.Application.Operations.CreateOperation;
 
@@ -18,9 +19,33 @@ public sealed class CreateOperationCommandHandler(
             command.ClientId,
             command.ShippingLineId,
             command.OperationType,
-            command.ShipmentNumber,
-            command.CertificateNumber,
-            command.InvoicesReceivedDate);
+            null,
+            null,
+            null);
+
+        if (command.OperationType == OperationType.Import)
+        {
+            var importDetails = new ImportDetails(
+                 command.MBLNumber!,
+                 command.Destination!,
+                 command.PODId!.Value,
+                 command.FreeTimeTill!.Value,
+                 command.RequiredOffloadingDate!.Value,
+                 command.RequiredOffloadingTime!.Value);
+
+            operation.SetImportDetails(importDetails);
+        }
+        else if (command.OperationType == OperationType.Export)
+        {
+            var exportDetails = new ExportDetails(
+                command.ClearanceType!.Value,
+                command.BookingNumber!,
+                command.POLId!.Value,
+                command.POWId,
+                command.CutOffDate);
+
+            operation.SetExportDetails(exportDetails);
+        }
 
         await operationRepository.AddAsync(operation, ct);
 

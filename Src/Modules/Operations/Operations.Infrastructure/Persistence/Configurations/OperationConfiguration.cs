@@ -21,10 +21,14 @@ public sealed class OperationConfiguration : IEntityTypeConfiguration<Operation>
             .IsRequired();
 
         builder.Property(x => x.OperationType)
-            .IsRequired();
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(20);
 
         builder.Property(x => x.Status)
-            .IsRequired();
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(20);
 
         builder.Property(x => x.ShipmentNumber)
             .HasMaxLength(120);

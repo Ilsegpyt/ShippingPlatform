@@ -25,4 +25,20 @@ public class ImportDetails : SoftDeletableEntity<Guid>
     private ImportDetails()
     {
     }
+
+    public ImportDetails(
+        string mblNumber,
+        string destination,
+        Guid podId,
+        DateOnly freeTimeTill,
+        DateOnly requiredOffloadingDate,
+        TimeOnly requiredOffloadingTime)
+    {
+        MBLNumber = mblNumber;
+        Destination = destination;
+        PODId = podId;
+        FreeTimeTill = freeTimeTill;
+        RequiredOffloadingDate = requiredOffloadingDate;
+        RequiredOffloadingTime = requiredOffloadingTime;
+    }
 }

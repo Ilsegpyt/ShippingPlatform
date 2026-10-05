@@ -17,9 +17,21 @@ public static class CreateOperationEndpoint
                 request.ClientId,
                 request.ShippingLineId,
                 request.OperationType,
-                request.ShipmentNumber,
-                request.CertificateNumber,
-                request.InvoicesReceivedDate);
+
+                // Import
+                request.MBLNumber,
+                request.Destination,
+                request.PODId,
+                request.FreeTimeTill,
+                request.RequiredOffloadingDate,
+                request.RequiredOffloadingTime,
+
+                // Export
+                request.ClearanceType,
+                request.BookingNumber,
+                request.POLId,
+                request.POWId,
+                request.CutOffDate);
 
             var result = await sender.Send(command, ct);
 
@@ -34,6 +46,18 @@ public sealed record CreateOperationRequest(
     Guid ClientId,
     Guid ShippingLineId,
     OperationType OperationType,
-    string? ShipmentNumber,
-    string? CertificateNumber,
-    DateTime? InvoicesReceivedDate);
+
+    // Import
+    string? MBLNumber,
+    string? Destination,
+    Guid? PODId,
+    DateOnly? FreeTimeTill,
+    DateOnly? RequiredOffloadingDate,
+    TimeOnly? RequiredOffloadingTime,
+
+    // Export
+    ClearanceType? ClearanceType,
+    string? BookingNumber,
+    Guid? POLId,
+    Guid? POWId,
+    DateOnly? CutOffDate);

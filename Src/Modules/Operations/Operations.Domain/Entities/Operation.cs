@@ -64,6 +64,16 @@ public class Operation
         InvoicesReceivedDate = invoicesReceivedDate;
     }
 
+    public void SetImportDetails(ImportDetails details)
+    {
+        ImportDetails = details;
+    }
+
+    public void SetExportDetails(ExportDetails details)
+    {
+        ExportDetails = details;
+    }
+
     public void ClearDomainEvents()
     {
         _domainEvents.Clear();

@@ -19,7 +19,9 @@ public sealed class ExportDetailsConfiguration
             .IsRequired();
 
         builder.Property(x => x.ClearanceType)
-            .IsRequired();
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(20);
 
         builder.Property(x => x.BookingNumber)
             .IsRequired()
@@ -66,7 +68,7 @@ public sealed class ExportDetailsConfiguration
         {
             table.HasCheckConstraint(
                 "CK_ExportDetails_ClearanceType",
-                "[ClearanceType] IN (1, 2)");
+                "[ClearanceType] IN ('Bosla', 'Cert')");
         });
 
         // -------------------------
