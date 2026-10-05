@@ -50,21 +50,6 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
         builder.Entity<ExportDetails>()
             .HasQueryFilter(x => !x.IsDeleted);
 
-        builder.Entity<ShippingLine>()
-            .HasQueryFilter(x => !x.IsDeleted);
-
-        builder.Entity<Port>()
-            .HasQueryFilter(x => !x.IsDeleted);
-
-        builder.Entity<Transporter>()
-            .HasQueryFilter(x => !x.IsDeleted);
-
-        builder.Entity<Driver>()
-            .HasQueryFilter(x => !x.IsDeleted);
-
-        builder.Entity<Vehicle>()
-            .HasQueryFilter(x => !x.IsDeleted);
-
         base.OnModelCreating(builder);
     }
 

@@ -2,10 +2,8 @@
 
 namespace Operations.Domain.Entities;
 
-public class Driver : SoftDeletableEntity<Guid>
-{ 
-    public Guid Id { get; private set; } = Guid.NewGuid();
-
+public class Driver : Entity<Guid>
+{
     public string DriverNumber { get; private set; } = null!;
 
     public string Name { get; private set; } = null!;

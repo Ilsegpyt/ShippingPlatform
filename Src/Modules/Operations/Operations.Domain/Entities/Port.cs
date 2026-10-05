@@ -2,10 +2,8 @@
 
 namespace Operations.Domain.Entities;
 
-public class Port : SoftDeletableEntity<Guid>
+public class Port : Entity<Guid>
 {
-    public Guid Id { get; private set; } = Guid.NewGuid();
-
     public string Name { get; private set; } = null!;
 
     public string? Code { get; private set; }
