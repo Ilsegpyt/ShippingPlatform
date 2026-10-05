@@ -36,9 +36,10 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
     }
 
     public override async Task<int> SaveChangesAsync(
-        CancellationToken cancellationToken = default)
+      CancellationToken cancellationToken = default)
     {
-        var entries = ChangeTracker.Entries<AuditableEntity<Guid>>()
+        var entries = ChangeTracker
+            .Entries<AuditableEntity<Guid>>()
             .Where(entry =>
                 entry.State == EntityState.Added ||
                 entry.State == EntityState.Modified)
@@ -54,11 +55,17 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
             {
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.SetCreatedAudit(userId, userName, now);
+                    entry.Entity.SetCreatedAudit(
+                        userId,
+                        userName,
+                        now);
                 }
-                else if (entry.State == EntityState.Modified)
+                else
                 {
-                    entry.Entity.SetUpdatedAudit(userId, userName, now);
+                    entry.Entity.SetUpdatedAudit(
+                        userId,
+                        userName,
+                        now);
                 }
             }
         }

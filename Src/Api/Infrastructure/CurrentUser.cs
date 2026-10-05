@@ -9,10 +9,11 @@ public sealed class CurrentUser(
     IInternalUserQueries internalUserQueries)
     : ICurrentUser
 {
+    private string? _userName;
+
     private ClaimsPrincipal User =>
         httpContextAccessor.HttpContext?.User
-        ?? throw new UnauthorizedAccessException(
-            "No authenticated user.");
+        ?? throw new UnauthorizedAccessException("No authenticated user.");
 
     public Guid UserId
     {
@@ -28,20 +29,17 @@ public sealed class CurrentUser(
         }
     }
 
-    public Task<string> GetUserNameAsync(
+    public async Task<string> GetUserNameAsync(
         CancellationToken ct = default)
     {
-        return GetUserNameCoreAsync(ct);
-    }
+        if (_userName is not null)
+            return _userName;
 
-    private async Task<string> GetUserNameCoreAsync(
-        CancellationToken ct)
-    {
-        var name = await internalUserQueries.GetNameByUserIdAsync(
-            UserId, ct);
-
-        return name
+        _userName = await internalUserQueries
+            .GetNameByUserIdAsync(UserId, ct)
             ?? throw new UnauthorizedAccessException(
                 "Internal user name was not found.");
+
+        return _userName;
     }
 }
