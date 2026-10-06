@@ -36,7 +36,7 @@ public class Operation
     public string? ReopenedByUserId { get; private set; }
 
     public string? ReopenReason { get; private set; }
-
+    public int NumberOfContainers { get; private set; }
     public ICollection<OperationContainer> Containers { get; private set; }
         = new List<OperationContainer>();
 
@@ -62,6 +62,25 @@ public class Operation
         ShipmentNumber = shipmentNumber;
         CertificateNumber = certificateNumber;
         InvoicesReceivedDate = invoicesReceivedDate;
+    }
+
+    public void UpdateImportData(
+        string? shipmentNumber,
+        string? certificateNumber,
+        DateTime? invoicesReceivedDate,
+        OperationStatus? status)
+    {
+        if (shipmentNumber is not null)
+            ShipmentNumber = shipmentNumber;
+
+        if (certificateNumber is not null)
+            CertificateNumber = certificateNumber;
+
+        if (invoicesReceivedDate.HasValue)
+            InvoicesReceivedDate = invoicesReceivedDate.Value;
+
+        if (status.HasValue)
+            Status = status.Value;
     }
 
     public void SetImportDetails(ImportDetails details)

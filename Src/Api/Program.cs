@@ -3,6 +3,8 @@ using Api.Infrastructure;
 using Api.Infrastructure.Email;
 using Api.Infrastructure.ExceptionHandling;
 using Api.Modules.Content;
+using Api.Modules.Customers;
+
 //using Api.Modules.Customers;
 using Api.Modules.Identity;
 using Api.Modules.Notifications;
@@ -104,7 +106,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.MapIdentityEndpoints();
-//app.MapCustomersEndpoints();
+app.MapCustomersEndpoints();
 app.MapReportsEndpoints();
 app.MapNotificationsEndpoints();
 app.MapContentEndpoints();

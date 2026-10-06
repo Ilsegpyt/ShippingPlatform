@@ -17,6 +17,7 @@ public static class CreateOperationEndpoint
                 request.ClientId,
                 request.ShippingLineId,
                 request.OperationType,
+                request.NumberOfContainers,
 
                 // Import
                 request.MBLNumber,
@@ -46,6 +47,7 @@ public sealed record CreateOperationRequest(
     Guid ClientId,
     Guid ShippingLineId,
     OperationType OperationType,
+    int NumberOfContainers,
 
     // Import
     string? MBLNumber,

@@ -23,15 +23,23 @@ public sealed class CreateOperationCommandHandler(
             null,
             null);
 
+        for (short ordinal = 1; ordinal <= command.NumberOfContainers; ordinal++)
+        {
+            operation.Containers.Add(
+                new OperationContainer(
+                    operation.Id,
+                    ordinal));
+        }
+
         if (command.OperationType == OperationType.Import)
         {
             var importDetails = new ImportDetails(
-                 command.MBLNumber!,
-                 command.Destination!,
-                 command.PODId!.Value,
-                 command.FreeTimeTill!.Value,
-                 command.RequiredOffloadingDate!.Value,
-                 command.RequiredOffloadingTime!.Value);
+                command.MBLNumber!,
+                command.Destination!,
+                command.PODId!.Value,
+                command.FreeTimeTill!.Value,
+                command.RequiredOffloadingDate!.Value,
+                command.RequiredOffloadingTime!.Value);
 
             operation.SetImportDetails(importDetails);
         }

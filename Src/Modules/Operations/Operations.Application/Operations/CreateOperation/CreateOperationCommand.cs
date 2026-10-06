@@ -9,6 +9,7 @@ public sealed record CreateOperationCommand(
     Guid ClientId,
     Guid ShippingLineId,
     OperationType OperationType,
+    int NumberOfContainers,
 
     // Import
     string? MBLNumber,

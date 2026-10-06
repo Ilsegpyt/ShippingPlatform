@@ -21,6 +21,10 @@ public sealed class CreateOperationValidator
             .IsInEnum()
             .WithMessage("Invalid operation type.");
 
+        RuleFor(x => x.NumberOfContainers)
+            .GreaterThan(0)
+            .WithMessage("Number of containers must be greater than zero.");
+
         // =========================
         // Import
         // =========================

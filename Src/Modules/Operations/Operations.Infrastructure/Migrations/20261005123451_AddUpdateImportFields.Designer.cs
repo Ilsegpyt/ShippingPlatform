@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Operations.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Operations.Infrastructure.Persistence;
 namespace Operations.Infrastructure.Migrations
 {
     [DbContext(typeof(OperationsDbContext))]
-    partial class OperationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261005123451_AddUpdateImportFields")]
+    partial class AddUpdateImportFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -297,9 +300,6 @@ namespace Operations.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<int>("NumberOfContainers")
-                        .HasColumnType("int");
-
                     b.Property<string>("OperationType")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -365,7 +365,7 @@ namespace Operations.Infrastructure.Migrations
                         .HasMaxLength(11)
                         .HasColumnType("nvarchar(11)");
 
-                    b.Property<int?>("ContainerType")
+                    b.Property<int>("ContainerType")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAtUtc")

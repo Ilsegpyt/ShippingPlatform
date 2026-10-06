@@ -7,4 +7,8 @@ public interface IOperationRepository
     Task AddAsync(
         Operation operation,
         CancellationToken cancellationToken = default);
+
+    Task<Operation?> GetByIdForUpdateAsync(
+      Guid operationId,
+      CancellationToken cancellationToken = default);
 }
