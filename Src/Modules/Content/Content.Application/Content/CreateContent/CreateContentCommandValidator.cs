@@ -23,6 +23,10 @@ public sealed class CreateContentCommandValidator
         RuleFor(x => x.LinkUrl)
             .MaximumLength(2000);
 
+        RuleFor(x => x.Category)
+            .MaximumLength(100);
+
+        // Category
         When(x => x.Type == Domain.Entities.ContentType.Category, () =>
         {
             RuleFor(x => x.Body)
@@ -36,8 +40,17 @@ public sealed class CreateContentCommandValidator
             RuleFor(x => x.LinkUrl)
                 .Empty()
                 .WithMessage("Category content cannot have a link URL.");
+
+            RuleFor(x => x.Category)
+                .Empty()
+                .WithMessage("Category content cannot have a category.");
+
+            RuleFor(x => x.PublishedAt)
+                .Null()
+                .WithMessage("Category content cannot have a published date.");
         });
 
+        // Page
         When(x => x.Type == Domain.Entities.ContentType.Page, () =>
         {
             RuleFor(x => x.Body)
@@ -51,8 +64,17 @@ public sealed class CreateContentCommandValidator
             RuleFor(x => x.LinkUrl)
                 .Empty()
                 .WithMessage("Page content cannot have a link URL.");
+
+            RuleFor(x => x.Category)
+                .Empty()
+                .WithMessage("Page content cannot have a category.");
+
+            RuleFor(x => x.PublishedAt)
+                .Null()
+                .WithMessage("Page content cannot have a published date.");
         });
 
+        // Post
         When(x => x.Type == Domain.Entities.ContentType.Post, () =>
         {
             RuleFor(x => x.Body)
@@ -66,8 +88,17 @@ public sealed class CreateContentCommandValidator
             RuleFor(x => x.LinkUrl)
                 .Empty()
                 .WithMessage("Post content cannot have a link URL.");
+
+            RuleFor(x => x.Category)
+                .NotEmpty()
+                .WithMessage("Category is required for Post content.");
+
+            RuleFor(x => x.PublishedAt)
+                .NotNull()
+                .WithMessage("Published date is required for Post content.");
         });
 
+        // Link
         When(x => x.Type == Domain.Entities.ContentType.Link, () =>
         {
             RuleFor(x => x.Body)
@@ -81,6 +112,14 @@ public sealed class CreateContentCommandValidator
             RuleFor(x => x.LinkUrl)
                 .NotEmpty()
                 .WithMessage("Link URL is required for Link content.");
+
+            RuleFor(x => x.Category)
+                .Empty()
+                .WithMessage("Link content cannot have a category.");
+
+            RuleFor(x => x.PublishedAt)
+                .Null()
+                .WithMessage("Link content cannot have a published date.");
         });
     }
 }

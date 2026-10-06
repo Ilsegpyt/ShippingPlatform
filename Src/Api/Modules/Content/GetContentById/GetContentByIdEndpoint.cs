@@ -21,7 +21,7 @@ public static class GetContentByIdEndpoint
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.NotFound(result.Error);
-        })
-            .RequirePermission(PermissionCatalog.ContentView);
+        });
+            //.RequirePermission(PermissionCatalog.ContentView);
     }
 }

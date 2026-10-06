@@ -16,6 +16,11 @@ public sealed class Content
 
     public string? LinkUrl { get; private set; }
 
+    // Post-specific fields
+    public string? Category { get; private set; }
+
+    public DateTime? PublishedAt { get; private set; }
+
     public Content? Parent { get; private set; }
 
     public ICollection<Content> Children { get; private set; } = new List<Content>();
@@ -26,7 +31,9 @@ public sealed class Content
         ContentType type,
         string? body,
         string? featuredImage,
-        string? linkUrl)
+        string? linkUrl,
+        string? category,
+        DateTime? publishedAt)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
 
@@ -37,7 +44,9 @@ public sealed class Content
             type,
             body,
             featuredImage,
-            linkUrl);
+            linkUrl,
+            category,
+            publishedAt);
     }
 
     private Content()
@@ -51,7 +60,9 @@ public sealed class Content
         ContentType type,
         string? body,
         string? featuredImage,
-        string? linkUrl)
+        string? linkUrl,
+        string? category,
+        DateTime? publishedAt)
     {
         Id = id;
         ParentId = parentId;
@@ -60,14 +71,19 @@ public sealed class Content
         Body = body;
         FeaturedImage = featuredImage;
         LinkUrl = linkUrl;
+        Category = category;
+        PublishedAt = publishedAt;
     }
+
     public void Update(
-    Guid? parentId,
-    string title,
-    ContentType type,
-    string? body,
-    string? featuredImage,
-    string? linkUrl)
+        Guid? parentId,
+        string title,
+        ContentType type,
+        string? body,
+        string? featuredImage,
+        string? linkUrl,
+        string? category,
+        DateTime? publishedAt)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
 
@@ -77,6 +93,8 @@ public sealed class Content
         Body = body;
         FeaturedImage = featuredImage;
         LinkUrl = linkUrl;
+        Category = category;
+        PublishedAt = publishedAt;
     }
 }
 

@@ -116,7 +116,9 @@ public sealed class UpdateContentCommandHandler(
             command.Type,
             command.Body,
             command.FeaturedImage,
-            command.LinkUrl);
+            command.LinkUrl,
+            command.Category,
+            command.PublishedAt);
 
         // Step 6: Save database changes before cleaning up old files.
         await unitOfWork.SaveChangesAsync(ct);

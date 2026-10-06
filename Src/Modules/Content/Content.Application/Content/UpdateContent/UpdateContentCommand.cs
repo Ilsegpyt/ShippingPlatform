@@ -11,5 +11,7 @@ public sealed record UpdateContentCommand(
     ContentType Type,
     string? Body,
     string? FeaturedImage,
-    string? LinkUrl
+    string? LinkUrl,
+    string? Category,
+    DateTime? PublishedAt
 ) : IRequest<Result>;

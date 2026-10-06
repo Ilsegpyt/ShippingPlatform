@@ -27,7 +27,9 @@ public sealed class GetContentByIdQueryHandler(
             content.Type,
             content.Body,
             content.FeaturedImage,
-            content.LinkUrl);
+            content.LinkUrl,
+            content.Category,
+            content.PublishedAt);
 
         return Result.Success(dto);
     }

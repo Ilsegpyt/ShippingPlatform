@@ -23,7 +23,7 @@ public static class GetContentChildrenEndpoint
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.BadRequest(result.Error);
-            })
-            .RequirePermission(PermissionCatalog.ContentView);
+            });
+            //.RequirePermission(PermissionCatalog.ContentView);
     }
 }

@@ -21,7 +21,9 @@ public static class CreateContentEndpoint
                 request.Type,
                 request.Body,
                 request.FeaturedImage,
-                request.LinkUrl);
+                request.LinkUrl,
+                request.Category,
+                request.PublishedAt);
 
             var result = await sender.Send(command, ct);
 
@@ -39,4 +41,6 @@ public sealed record CreateContentRequest(
     ContentType Type,
     string? Body,
     string? FeaturedImage,
-    string? LinkUrl);
+    string? LinkUrl,
+    string? Category,
+    DateTime? PublishedAt);

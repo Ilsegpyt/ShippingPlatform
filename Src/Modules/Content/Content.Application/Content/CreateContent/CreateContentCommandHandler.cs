@@ -41,7 +41,9 @@ public sealed class CreateContentCommandHandler(
             command.Type,
             command.Body,
             command.FeaturedImage,
-            command.LinkUrl);
+            command.LinkUrl,
+            command.Category,
+            command.PublishedAt);
 
         contentRepository.Add(content);
 

@@ -27,7 +27,9 @@ public sealed class GetContentChildrenQueryHandler(
                 content.Type,
                 content.Body,
                 content.FeaturedImage,
-                content.LinkUrl))
+                content.LinkUrl,
+                content.Category,
+                content.PublishedAt))
             .ToList();
 
         return Result.Success<IReadOnlyList<ContentDto>>(result);

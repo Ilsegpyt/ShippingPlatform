@@ -22,7 +22,7 @@ public static class GetRootContentEndpoint
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.BadRequest(result.Error);
-            })
-            .RequirePermission(PermissionCatalog.ContentView);
+            });
+            //.RequirePermission(PermissionCatalog.ContentView);
     }
 }

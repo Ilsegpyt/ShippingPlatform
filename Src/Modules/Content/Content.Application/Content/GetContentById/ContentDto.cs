@@ -9,5 +9,7 @@ public sealed record ContentDto(
     ContentType Type,
     string? Body,
     string? FeaturedImage,
-    string? LinkUrl
+    string? LinkUrl,
+    string? Category,
+    DateTime? PublishedAt
 );
