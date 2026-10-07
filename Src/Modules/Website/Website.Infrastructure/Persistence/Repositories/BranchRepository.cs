@@ -13,14 +13,14 @@ public sealed class BranchRepository(WebsiteDbContext dbContext)
     }
 
     public async Task<IReadOnlyList<Branch>> GetAllAsync(
-        CancellationToken ct)
+      CancellationToken ct)
     {
         return await dbContext.Branches
             .AsNoTracking()
-            .Where(x => x.IsActive)
             .OrderBy(x => x.Name)
             .ToListAsync(ct);
     }
+
 
     public async Task<Branch?> GetByIdAsync(
         int id,

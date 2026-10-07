@@ -43,8 +43,10 @@ public sealed class CreateQuoteRequestCommandValidator
         RuleFor(x => x.InterestType)
             .IsInEnum();
 
-        RuleFor(x => x.TransportMode)
-            .IsInEnum();
+        RuleFor(x => x.TransportModes)
+            .NotEmpty()
+            .Must(modes => modes.All(mode => Enum.IsDefined(mode)))
+            .WithMessage("At least one valid transport mode is required.");
 
         RuleFor(x => x.AnnualShipments)
             .IsInEnum();

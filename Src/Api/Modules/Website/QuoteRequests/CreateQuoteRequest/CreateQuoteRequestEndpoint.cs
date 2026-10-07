@@ -25,7 +25,7 @@ public static class CreateQuoteRequestEndpoint
                     request.Email,
                     request.Message,
                     request.InterestType,
-                    request.TransportMode,
+                    request.TransportModes,
                     request.AnnualShipments);
 
                 var result = await sender.Send(command, ct);
@@ -47,5 +47,5 @@ public sealed record CreateQuoteRequestRequest(
     string Email,
     string Message,
     InterestType InterestType,
-    TransportMode TransportMode,
+    IReadOnlyList<TransportMode> TransportModes,
     AnnualShipments AnnualShipments);

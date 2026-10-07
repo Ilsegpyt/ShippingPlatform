@@ -50,9 +50,14 @@ public class QuoteRequestConfiguration
             .HasMaxLength(20)
             .IsRequired();
 
-        builder.Property(x => x.TransportMode)
-            .HasConversion<string>()
-            .HasMaxLength(20)
+        builder.Property(x => x.TransportModes)
+            .HasConversion(
+                modes => string.Join(",", modes),
+                value => value
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(Enum.Parse<Website.Domain.Enums.TransportMode>)
+                    .ToList())
+            .HasMaxLength(100)
             .IsRequired();
 
         builder.Property(x => x.AnnualShipments)

@@ -19,7 +19,9 @@ public class QuoteRequest
     public string Message { get; set; } = null!;
 
     public InterestType InterestType { get; set; }
-    public TransportMode TransportMode { get; set; }
+
+    public List<TransportMode> TransportModes { get; set; } = [];
+
     public AnnualShipments AnnualShipments { get; set; }
 
     public DateTime CreatedAtUtc { get; set; }

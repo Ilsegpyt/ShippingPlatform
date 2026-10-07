@@ -14,6 +14,6 @@ public sealed record CreateQuoteRequestCommand(
     string Email,
     string Message,
     InterestType InterestType,
-    TransportMode TransportMode,
+    IReadOnlyList<TransportMode> TransportModes,
     AnnualShipments AnnualShipments)
     : IRequest<Result>;

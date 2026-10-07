@@ -14,6 +14,7 @@ using Api.Modules.Website.QuoteRequests.CreateQuoteRequest;
 using Api.Modules.Website.QuoteRequests.GetQuoteRequestById;
 using Api.Modules.Website.QuoteRequests.GetQuoteRequests;
 using Api.Modules.Website.RecruitmentApplications.CreateRecruitmentApplication;
+using Api.Modules.Website.RecruitmentApplications.DownloadRecruitmentApplicationCv;
 using Api.Modules.Website.RecruitmentApplications.GetRecruitmentApplicationById;
 using Api.Modules.Website.RecruitmentApplications.GetRecruitmentApplications;
 
@@ -50,5 +51,6 @@ public static class WebsiteEndpoints
         UpdateBranchEndpoint.Map(app);
         DeleteBranchEndpoint.Map(app);
         RestoreBranchEndpoint.Map(app);
+        DownloadRecruitmentApplicationCvEndpoint.Map(app);
     }
 }

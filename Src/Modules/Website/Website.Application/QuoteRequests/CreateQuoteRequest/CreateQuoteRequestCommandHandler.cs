@@ -26,7 +26,9 @@ public sealed class CreateQuoteRequestCommandHandler(
             Email = cmd.Email,
             Message = cmd.Message,
             InterestType = cmd.InterestType,
-            TransportMode = cmd.TransportMode,
+
+            TransportModes = cmd.TransportModes.ToList(),
+
             AnnualShipments = cmd.AnnualShipments,
             CreatedAtUtc = DateTime.UtcNow
         };
