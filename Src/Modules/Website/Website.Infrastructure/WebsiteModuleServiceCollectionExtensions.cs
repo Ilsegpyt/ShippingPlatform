@@ -38,6 +38,11 @@ public static class WebsiteModuleServiceCollectionExtensions
     IQuoteRequestRepository,
     QuoteRequestRepository>();
 
+
+        services.AddScoped<
+    IBranchRepository,
+    BranchRepository>();
+
         return services;
     }
 }

@@ -1,6 +1,12 @@
 ﻿using Api.Modules.Website.AgentApplications.CreateAgentApplication;
 using Api.Modules.Website.AgentApplications.GetAgentApplication;
 using Api.Modules.Website.AgentApplications.GetAgentById;
+using Api.Modules.Website.Branches.CreateBranch;
+using Api.Modules.Website.Branches.DeleteBranch;
+using Api.Modules.Website.Branches.GetBranchById;
+using Api.Modules.Website.Branches.GetBranches;
+using Api.Modules.Website.Branches.RestoreBranch;
+using Api.Modules.Website.Branches.UpdateBranch;
 using Api.Modules.Website.ContactInquiries.CreateContactInquiry;
 using Api.Modules.Website.ContactInquiries.GetContactInquiries;
 using Api.Modules.Website.ContactInquiries.GetContactInquiryById;
@@ -36,5 +42,13 @@ public static class WebsiteEndpoints
         CreateQuoteRequestEndpoint.Map(app);
         GetQuoteRequestsEndpoint.Map(app);
         GetQuoteRequestByIdEndpoint.Map(app);
+
+
+        GetBranchesEndpoint.Map(app);
+        GetBranchByIdEndpoint.Map(app);
+        CreateBranchEndpoint.Map(app);
+        UpdateBranchEndpoint.Map(app);
+        DeleteBranchEndpoint.Map(app);
+        RestoreBranchEndpoint.Map(app);
     }
 }

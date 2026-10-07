@@ -10,11 +10,14 @@ public class Branch
     public decimal Latitude { get; set; }
     public decimal Longitude { get; set; }
 
-    public string CeoName { get; set; } = null!;
-    public string CeoEmail { get; set; } = null!;
+    public string? CeoName { get; set; }
+    public string? CeoEmail { get; set; }
 
-    public string GmName { get; set; } = null!;
-    public string GmEmail { get; set; } = null!;
+    public string? GmName { get; set; }
+    public string? GmEmail { get; set; }
+
+    public string? BranchManagerName { get; set; }
+    public string? BranchManagerEmail { get; set; }
 
     public bool IsActive { get; set; } = true;
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Website.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using Website.Infrastructure.Persistence;
 namespace Website.Infrastructure.Migrations
 {
     [DbContext(typeof(WebsiteDbContext))]
-    partial class WebsiteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261007084148_AddBranchManagerFields")]
+    partial class AddBranchManagerFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,18 +105,22 @@ namespace Website.Infrastructure.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("BranchManagerEmail")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("BranchManagerName")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("CeoEmail")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("CeoName")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
@@ -121,10 +128,12 @@ namespace Website.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("GmEmail")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("GmName")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 

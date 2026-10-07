@@ -30,20 +30,22 @@ public class BranchConfiguration
             .IsRequired();
 
         builder.Property(x => x.CeoName)
-            .HasMaxLength(200)
-            .IsRequired();
+            .HasMaxLength(200);
 
         builder.Property(x => x.CeoEmail)
-            .HasMaxLength(200)
-            .IsRequired();
+            .HasMaxLength(200);
 
         builder.Property(x => x.GmName)
-            .HasMaxLength(200)
-            .IsRequired();
+            .HasMaxLength(200);
 
         builder.Property(x => x.GmEmail)
-            .HasMaxLength(200)
-            .IsRequired();
+            .HasMaxLength(200);
+
+        builder.Property(x => x.BranchManagerName)
+            .HasMaxLength(200);
+
+        builder.Property(x => x.BranchManagerEmail)
+            .HasMaxLength(200);
 
         builder.Property(x => x.IsActive)
             .IsRequired();
