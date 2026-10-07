@@ -21,7 +21,9 @@ public static class WebsiteModuleServiceCollectionExtensions
         services.AddScoped<IWebsiteUnitOfWork>(
        sp => sp.GetRequiredService<WebsiteDbContext>());
 
-
+        services.AddScoped<
+    IRecruitmentApplicationRepository,
+    RecruitmentApplicationRepository>();
 
         services.AddScoped<
     IAgentApplicationRepository,
