@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Website.Application.QuoteRequests.GetQuoteRequestById;
 
 namespace Api.Modules.Website.QuoteRequests.GetQuoteRequestById;
@@ -21,6 +23,6 @@ public static class GetQuoteRequestByIdEndpoint
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.NotFound(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.QuoteRequestsView);
     }
 }

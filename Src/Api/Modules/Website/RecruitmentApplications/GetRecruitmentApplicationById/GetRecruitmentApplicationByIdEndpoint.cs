@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Website.Application.RecruitmentApplications.GetRecruitmentApplicationById;
 
 namespace Api.Modules.Website.RecruitmentApplications.GetRecruitmentApplicationById;
@@ -21,6 +23,6 @@ public static class GetRecruitmentApplicationByIdEndpoint
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.NotFound(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.RecruitmentApplicationsView);
     }
 }

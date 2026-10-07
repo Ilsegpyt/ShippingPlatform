@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Website.Application.Branches.CreateBranch;
 
 namespace Api.Modules.Website.Branches.CreateBranch;
@@ -32,7 +34,7 @@ public static class CreateBranchEndpoint
                 return result.IsSuccess
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.BranchesCreate);
     }
 }
 

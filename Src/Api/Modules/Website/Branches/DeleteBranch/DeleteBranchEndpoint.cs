@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Website.Application.Branches.DeleteBranch;
 
 namespace Api.Modules.Website.Branches.DeleteBranch;
@@ -21,6 +23,6 @@ public static class DeleteBranchEndpoint
                 return result.IsSuccess
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.BranchesDelete);
     }
 }

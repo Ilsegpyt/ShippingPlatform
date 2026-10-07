@@ -53,6 +53,59 @@ public static class PermissionCatalog
     public static readonly PermissionKey ContentImagesUpload =
         PermissionKey.Of("content.images.upload");
 
+
+    // Website - Agent Applications
+    public static readonly PermissionKey AgentApplicationsCreate =
+        PermissionKey.Of("website.agentapplications.create");
+
+    public static readonly PermissionKey AgentApplicationsView =
+        PermissionKey.Of("website.agentapplications.view");
+
+
+    // Website - Branches
+    public static readonly PermissionKey BranchesCreate =
+        PermissionKey.Of("website.branches.create");
+
+    public static readonly PermissionKey BranchesDelete =
+        PermissionKey.Of("website.branches.delete");
+
+    public static readonly PermissionKey BranchesView =
+        PermissionKey.Of("website.branches.view");
+
+    public static readonly PermissionKey BranchesRestore =
+        PermissionKey.Of("website.branches.restore");
+
+    public static readonly PermissionKey BranchesEdit =
+        PermissionKey.Of("website.branches.edit");
+
+
+    // Website - Contact Inquiries
+    public static readonly PermissionKey ContactInquiriesCreate =
+        PermissionKey.Of("website.contactinquiries.create");
+
+    public static readonly PermissionKey ContactInquiriesView =
+        PermissionKey.Of("website.contactinquiries.view");
+
+
+    // Website - Quote Requests
+    public static readonly PermissionKey QuoteRequestsCreate =
+        PermissionKey.Of("website.quoterequests.create");
+
+    public static readonly PermissionKey QuoteRequestsView =
+        PermissionKey.Of("website.quoterequests.view");
+
+
+    // Website - Recruitment Applications
+    public static readonly PermissionKey RecruitmentApplicationsCreate =
+        PermissionKey.Of("website.recruitmentapplications.create");
+
+    public static readonly PermissionKey RecruitmentApplicationsView =
+        PermissionKey.Of("website.recruitmentapplications.view");
+
+    public static readonly PermissionKey RecruitmentApplicationsCvDownload =
+        PermissionKey.Of("website.recruitmentapplications.cv.download");
+
+
     // Account Manager Assignment
     public static readonly PermissionKey CustomersAssignAccountManager =
         PermissionKey.Of("customers.accountmanager.assign");
@@ -255,8 +308,33 @@ public static class PermissionCatalog
         ContentImagesUpload,
 
 
+        // Website - Agent Applications
+        AgentApplicationsCreate,
+        AgentApplicationsView,
+
+        // Website - Branches
+        BranchesCreate,
+        BranchesDelete,
+        BranchesView,
+        BranchesRestore,
+        BranchesEdit,
+
+        // Website - Contact Inquiries
+        ContactInquiriesCreate,
+        ContactInquiriesView,
+
+        // Website - Quote Requests
+        QuoteRequestsCreate,
+        QuoteRequestsView,
+
+        // Website - Recruitment Applications
+        RecruitmentApplicationsCreate,
+        RecruitmentApplicationsView,
+        RecruitmentApplicationsCvDownload,
+
 
         CustomersAssignAccountManager,
+
 
         // Identity
         UsersCreate,
@@ -267,12 +345,14 @@ public static class PermissionCatalog
         UsersView,
         AccountManagerWorkloadView,
 
+
         // SubAccounts
         SubAccountsView,
         SubAccountsCreate,
         SubAccountsEdit,
         SubAccountsDelete,
         SubAccountsSuspend,
+
 
         // Customers
         CustomersView,
@@ -283,10 +363,12 @@ public static class PermissionCatalog
         CustomersDelete,
         CustomersImpersonate,
 
+
         // Customer Voice
         CustomerVoiceView,
         // CustomerVoiceCreate,
         CustomerVoiceStatusUpdate,
+
 
         // Shipments
         ShipmentsView,
@@ -295,10 +377,12 @@ public static class PermissionCatalog
         ShipmentsBook,
         ShipmentsTrack,
 
+
         // Reports
         ReportsView,
         ReportsUpload,
         ReportsDownload,
+
 
         // Schedules
         SchedulesView,
@@ -309,8 +393,10 @@ public static class PermissionCatalog
         SchedulesUpdate,
         SchedulesSearch,
 
+
         // Notifications
         NotificationsView,
+
 
         ImpersonatedCustomerView
     };

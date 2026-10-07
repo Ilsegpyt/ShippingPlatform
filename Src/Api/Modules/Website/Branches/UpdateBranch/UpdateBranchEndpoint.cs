@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Website.Application.Branches.UpdateBranch;
 
 namespace Api.Modules.Website.Branches.UpdateBranch;
@@ -34,7 +36,7 @@ public static class UpdateBranchEndpoint
                 return result.IsSuccess
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.BranchesEdit);
     }
 }
 

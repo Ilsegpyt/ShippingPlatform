@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Website.Application.Branches.GetBranchById;
 
 namespace Api.Modules.Website.Branches.GetBranchById;
@@ -21,6 +23,6 @@ public static class GetBranchByIdEndpoint
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.NotFound(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.BranchesView);
     }
 }

@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Website.Application.Branches.RestoreBranch;
 
 namespace Api.Modules.Website.Branches.RestoreBranch;
@@ -21,6 +23,6 @@ public static class RestoreBranchEndpoint
                 return result.IsSuccess
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.BranchesRestore);
     }
 }

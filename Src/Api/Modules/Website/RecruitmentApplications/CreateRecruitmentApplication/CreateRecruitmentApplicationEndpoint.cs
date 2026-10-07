@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Website.Application.RecruitmentApplications.CreateRecruitmentApplication;
 
@@ -76,6 +78,6 @@ public static class CreateRecruitmentApplicationEndpoint
                 return result.IsSuccess
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.RecruitmentApplicationsCreate);
     }
 }

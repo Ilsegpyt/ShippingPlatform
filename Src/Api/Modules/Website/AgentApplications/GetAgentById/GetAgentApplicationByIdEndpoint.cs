@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Website.Application.AgentApplications.GetAgentApplicationById;
 
 namespace Api.Modules.Website.AgentApplications.GetAgentById;
@@ -21,6 +23,6 @@ public static class GetAgentApplicationByIdEndpoint
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.NotFound(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.AgentApplicationsView);
     }
 }

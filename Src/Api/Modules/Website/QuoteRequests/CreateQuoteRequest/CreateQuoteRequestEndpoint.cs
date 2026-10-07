@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Website.Application.QuoteRequests.CreateQuoteRequest;
 using Website.Domain.Enums;
 
@@ -33,7 +35,7 @@ public static class CreateQuoteRequestEndpoint
                 return result.IsSuccess
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.QuoteRequestsCreate);
     }
 }
 

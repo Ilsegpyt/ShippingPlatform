@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Website.Application.AgentApplications.CreateAgentApplication;
 
 namespace Api.Modules.Website.AgentApplications.CreateAgentApplication;
@@ -31,7 +33,7 @@ public static class CreateAgentApplicationEndpoint
                 return result.IsSuccess
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.AgentApplicationsCreate);
     }
 }
 

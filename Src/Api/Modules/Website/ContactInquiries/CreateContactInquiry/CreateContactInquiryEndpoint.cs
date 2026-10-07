@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Website.Application.ContactInquiries.CreateContactInquiry;
 
 namespace Api.Modules.Website.ContactInquiries.CreateContactInquiry;
@@ -27,7 +29,7 @@ public static class CreateContactInquiryEndpoint
                 return result.IsSuccess
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.ContactInquiriesCreate);
     }
 }
 

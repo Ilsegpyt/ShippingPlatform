@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Website.Application.ContactInquiries.GetContactInquiryById;
 
 namespace Api.Modules.Website.ContactInquiries.GetContactInquiryById;
@@ -21,6 +23,6 @@ public static class GetContactInquiryByIdEndpoint
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.NotFound(result.Error);
-            });
+            }).RequirePermission(PermissionCatalog.ContactInquiriesView);
     }
 }

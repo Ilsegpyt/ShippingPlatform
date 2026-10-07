@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Microsoft.AspNetCore.StaticFiles;
 using Website.Application.RecruitmentApplications.DownloadRecruitmentApplicationCv;
 
@@ -96,7 +98,7 @@ public static class DownloadRecruitmentApplicationCvEndpoint
                     fileBytes,
                     contentType,
                     application.CvFileName);
-            });
+            }).RequirePermission(PermissionCatalog.RecruitmentApplicationsCvDownload);
     }
 
     private static string? ResolveFilePath(
