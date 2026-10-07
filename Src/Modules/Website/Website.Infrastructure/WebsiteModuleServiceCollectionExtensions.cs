@@ -30,6 +30,10 @@ public static class WebsiteModuleServiceCollectionExtensions
     AgentApplicationRepository>();
 
 
+        services.AddScoped<
+    IContactInquiryRepository,
+    ContactInquiryRepository>();
+
         return services;
     }
 }

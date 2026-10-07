@@ -1,6 +1,9 @@
 ﻿using Api.Modules.Website.AgentApplications.CreateAgentApplication;
 using Api.Modules.Website.AgentApplications.GetAgentApplication;
 using Api.Modules.Website.AgentApplications.GetAgentById;
+using Api.Modules.Website.ContactInquiries.CreateContactInquiry;
+using Api.Modules.Website.ContactInquiries.GetContactInquiries;
+using Api.Modules.Website.ContactInquiries.GetContactInquiryById;
 using Api.Modules.Website.RecruitmentApplications.CreateRecruitmentApplication;
 using Api.Modules.Website.RecruitmentApplications.GetRecruitmentApplicationById;
 using Api.Modules.Website.RecruitmentApplications.GetRecruitmentApplications;
@@ -19,5 +22,10 @@ public static class WebsiteEndpoints
         CreateRecruitmentApplicationEndpoint.Map(app);
         GetRecruitmentApplicationsEndpoint.Map(app);
         GetRecruitmentApplicationByIdEndpoint.Map(app);
+
+
+        CreateContactInquiryEndpoint.Map(app);
+        GetContactInquiriesEndpoint.Map(app);
+        GetContactInquiryByIdEndpoint.Map(app);
     }
 }
