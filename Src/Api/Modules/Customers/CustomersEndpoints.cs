@@ -31,20 +31,20 @@ public static class CustomersEndpoints
         MapGetAll(group);
         MapGetAllIncludingDeleted(group);
         MapGetById(group);
-     //   MapUpdate(group);
+         MapUpdate(group);
         MapSuspend(group);
         MapActivate(group);
-       // MapRegister(group);
-       // MapUpdateEmail(group);
-   //     MapSearchSchedules(group);
+        MapRegister(group);
+        MapUpdateEmail(group);
+   //  MapSearchSchedules(group);
    //     MapMultiSearchSchedules(group);
-   //     MapDelete(group);
+        MapDelete(group);
         MapGetSearchHistory(group);
         DeleteSearchHistoriesEndpoint.Map(app);
         MapGetOwner(group);
-//MapCreateCustomerVoice(group);
+      //MapCreateCustomerVoice(group);
         MapGetCustomerVoices(group);
-    //    MapUpdateCustomerVoiceStatus(group);
+     //MapUpdateCustomerVoiceStatus(group);
         MapGetClientSearchActivity(group);
     }
 
@@ -104,45 +104,45 @@ public static class CustomersEndpoints
         .RequirePermission(PermissionCatalog.CustomersView);
     }
 
-    //private static void MapUpdate(IEndpointRouteBuilder group)
-    //{
-    //    group.MapPut("/{id:guid}", async (
-    //        Guid id,
-    //        UpdateCustomerProfileRequest body,
-    //        ISender sender) =>
-    //    {
-    //        var result = await sender.Send(
-    //            new UpdateCustomerProfileCommand(
-    //                id,
-    //                body.OwnerName,
-    //                body.CompanyName,
-    //                body.OwnerPhone,
-    //                body.Industry));
+    private static void MapUpdate(IEndpointRouteBuilder group)
+    {
+        group.MapPut("/{id:guid}", async (
+            Guid id,
+            UpdateCustomerProfileRequest body,
+            ISender sender) =>
+        {
+            var result = await sender.Send(
+                new UpdateCustomerProfileCommand(
+                    id,
+                    body.OwnerName,
+                    body.CompanyName,
+                    body.OwnerPhone,
+                    body.Industry));
 
-    //        return result.IsSuccess
-    //            ? Results.NoContent()
-    //            : Results.BadRequest(result.Error);
-    //    })
-    //    .RequirePermission(PermissionCatalog.CustomersEdit);
-    //}
-    //private static void MapUpdateEmail(IEndpointRouteBuilder group)
-    //{
-    //    group.MapPut("/{id:guid}/email", async (
-    //        Guid id,
-    //        UpdateCustomerEmailRequest body,
-    //        ISender sender) =>
-    //    {
-    //        var result = await sender.Send(
-    //            new UpdateCustomerEmail(
-    //                id,
-    //                body.Email));
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.CustomersEdit);
+    }
+    private static void MapUpdateEmail(IEndpointRouteBuilder group)
+    {
+        group.MapPut("/{id:guid}/email", async (
+            Guid id,
+            UpdateCustomerEmailRequest body,
+            ISender sender) =>
+        {
+            var result = await sender.Send(
+                new UpdateCustomerEmail(
+                    id,
+                    body.Email));
 
-    //        return result.IsSuccess
-    //            ? Results.NoContent()
-    //            : Results.BadRequest(result.Error);
-    //    })
-    //    .RequirePermission(PermissionCatalog.CustomersEdit);
-    //}
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.CustomersEdit);
+    }
     private static void MapSuspend(IEndpointRouteBuilder group)
     {
         group.MapPost("/{id:guid}/suspend", async (
@@ -175,28 +175,28 @@ public static class CustomersEndpoints
         .RequirePermission(PermissionCatalog.CustomersSuspend);
     }
 
-    //private static void MapRegister(IEndpointRouteBuilder group)
-    //{
-    //    group.MapPost("/", async (
-    //        RegisterCustomerRequest body,
-    //        ISender sender) =>
-    //    {
-    //        var result = await sender.Send(
-    //            new RegisterCustomerCommand(
-    //                body.OwnerName,
-    //                body.CompanyName,
-    //                body.OwnerPhone,
-    //                body.OwnerEmail,
-    //                body.Industry));
+    private static void MapRegister(IEndpointRouteBuilder group)
+    {
+        group.MapPost("/", async (
+            RegisterCustomerRequest body,
+            ISender sender) =>
+        {
+            var result = await sender.Send(
+                new RegisterCustomerCommand(
+                    body.OwnerName,
+                    body.CompanyName,
+                    body.OwnerPhone,
+                    body.OwnerEmail,
+                    body.Industry));
 
-    //        return result.IsSuccess
-    //            ? Results.Created(
-    //                $"/api/customers/{result.Value.CustomerId}",
-    //                result.Value)
-    //            : Results.BadRequest(result.Error);
-    //    })
-    //    .RequirePermission(PermissionCatalog.CustomersCreate);
-    //}
+            return result.IsSuccess
+                ? Results.Created(
+                    $"/api/customers/{result.Value.CustomerId}",
+                    result.Value)
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.CustomersCreate);
+    }
     //private static void MapMultiSearchSchedules(IEndpointRouteBuilder group)
     //{
     //    group.MapPost("/schedules/multi-search", async (
@@ -243,28 +243,28 @@ public static class CustomersEndpoints
     //            : Results.BadRequest(result.Error);
     //    }).RequirePermission(PermissionCatalog.SchedulesSearch);
     //}
-    //private static void MapDelete(IEndpointRouteBuilder group)
-    //{
-    //    group.MapDelete("/", async (
-    //        [FromBody] DeleteCustomersRequest request,
-    //        ClaimsPrincipal user,
-    //        ISender sender,
-    //        CancellationToken ct) =>
-    //    {
-    //        var deletedByUserId = user.GetUserId();
+    private static void MapDelete(IEndpointRouteBuilder group)
+    {
+        group.MapDelete("/", async (
+            [FromBody] DeleteCustomersRequest request,
+            ClaimsPrincipal user,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var deletedByUserId = user.GetUserId();
 
-    //        var result = await sender.Send(
-    //            new DeleteCustomersCommand(
-    //                request.CustomerIds,
-    //                deletedByUserId),
-    //            ct);
+            var result = await sender.Send(
+                new DeleteCustomersCommand(
+                    request.CustomerIds
+                    ),
+                ct);
 
-    //        return result.IsSuccess
-    //            ? Results.NoContent()
-    //            : Results.BadRequest(result.Error);
-    //    })
-    //    .RequirePermission(PermissionCatalog.CustomersDelete);
-    //}
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.CustomersDelete);
+    }
     public static class DeleteSearchHistoriesEndpoint
     {
         public static void Map(IEndpointRouteBuilder app)
