@@ -42,4 +42,9 @@
     <Project Path="Src/Modules/Reports/Reports.Domain/Reports.Domain.csproj" Id="8bf2d81f-cef1-4d53-aa2d-1dcf3c9b0dfd" />
     <Project Path="Src/Modules/Reports/Reports.Infrastructure/Reports.Infrastructure.csproj" Id="211fe746-3c91-4070-a9d0-ee7f1c8da1db" />
   </Folder>
+  <Folder Name="/Src/Modules/Website/">
+    <Project Path="Src/Modules/Website/Website.Application/Website.Application.csproj" Id="e9923115-abd3-4ad0-a71b-7d4af71ca9ce" />
+    <Project Path="Src/Modules/Website/Website.Domain/Website.Domain.csproj" Id="9c5befe0-1ffb-429f-a9f9-ffe7b63b3b74" />
+    <Project Path="Src/Modules/Website/Website.Infrastructure/Website.Infrastructure.csproj" Id="c0f7e1fe-abba-459b-a47b-11d0eee4ef7f" />
+  </Folder>
 </Solution>

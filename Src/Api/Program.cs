@@ -4,12 +4,12 @@ using Api.Infrastructure.Email;
 using Api.Infrastructure.ExceptionHandling;
 using Api.Modules.Content;
 using Api.Modules.Customers;
-
 //using Api.Modules.Customers;
 using Api.Modules.Identity;
 using Api.Modules.Notifications;
 using Api.Modules.Operations;
 using Api.Modules.Reports;
+using Api.Modules.Website;
 using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure;
 using Content.Infrastructure;
@@ -26,6 +26,8 @@ using Operations.Infrastructure;
 using Reports.Application;
 using Reports.Infrastructure;
 using System.Text.Json.Serialization;
+using Website.Application;
+using Website.Infrastructure;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -58,6 +60,11 @@ builder.Services.AddOperationsApplication();
 
 builder.Services.AddNotificationsInfrastructure(builder.Configuration);
 builder.Services.AddNotificationsApplication();
+
+
+builder.Services.AddWebsiteApplication();
+builder.Services.AddWebsiteModule(builder.Configuration);
+
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
@@ -111,5 +118,7 @@ app.MapReportsEndpoints();
 app.MapNotificationsEndpoints();
 app.MapContentEndpoints();
 app.MapOperationsEndpoints();
+WebsiteEndpoints.Map(app);
+
 
 app.Run();
