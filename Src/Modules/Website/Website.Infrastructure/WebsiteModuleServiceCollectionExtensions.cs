@@ -34,6 +34,10 @@ public static class WebsiteModuleServiceCollectionExtensions
     IContactInquiryRepository,
     ContactInquiryRepository>();
 
+        services.AddScoped<
+    IQuoteRequestRepository,
+    QuoteRequestRepository>();
+
         return services;
     }
 }
