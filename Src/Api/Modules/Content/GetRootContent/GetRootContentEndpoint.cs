@@ -23,6 +23,6 @@ public static class GetRootContentEndpoint
                     ? Results.Ok(result.Value)
                     : Results.BadRequest(result.Error);
             });
-            //.RequirePermission(PermissionCatalog.ContentView);
+            
     }
 }

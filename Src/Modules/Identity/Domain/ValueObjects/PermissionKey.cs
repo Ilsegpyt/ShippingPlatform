@@ -217,8 +217,6 @@ public static class PermissionCatalog
         ReportsView,
         ReportsDownload,
 
-        UsersView,
-
         NotificationsView,
 
        
@@ -274,11 +272,11 @@ public static class PermissionCatalog
 
 
         // SubAccounts
-        SubAccountsView,
-        SubAccountsCreate,
-        SubAccountsEdit,
-        SubAccountsDelete,
-        SubAccountsSuspend,
+        //SubAccountsView,
+        //SubAccountsCreate,
+        //SubAccountsEdit,
+        //SubAccountsDelete,
+        //SubAccountsSuspend,
 
 
         // Customers

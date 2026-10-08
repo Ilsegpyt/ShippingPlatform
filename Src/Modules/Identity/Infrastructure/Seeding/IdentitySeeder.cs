@@ -52,6 +52,9 @@ public sealed class IdentitySeeder
         Role? superAdminRole = existingRoles
             .FirstOrDefault(x => x.Name == "Super Admin");
 
+        Role? accountManagerRole = existingRoles
+            .FirstOrDefault(x => x.Name == "Account Manager");
+
         // Create baseline roles if they do not exist.
         if (existingRoles.Count == 0)
         {
@@ -73,6 +76,8 @@ public sealed class IdentitySeeder
                 {
                     foreach (var permission in PermissionCatalog.AccountManagerPermissions)
                         role.GrantPermission(permission);
+
+                    accountManagerRole = role;
                 }
 
                 _roles.Add(role);
@@ -83,8 +88,17 @@ public sealed class IdentitySeeder
         else
         {
             _logger.LogInformation(
-                "Roles already exist — checking Super Admin.");
+                "Roles already exist — checking baseline role permissions.");
         }
+
+        // Re-load roles after possible creation.
+        existingRoles = await _roles.GetAllAsync(ct);
+
+        superAdminRole = existingRoles
+            .FirstOrDefault(x => x.Name == "Super Admin");
+
+        accountManagerRole = existingRoles
+            .FirstOrDefault(x => x.Name == "Account Manager");
 
         if (superAdminRole is null)
         {
@@ -94,6 +108,9 @@ public sealed class IdentitySeeder
             return;
         }
 
+        // ---------------------------------------------------------
+        // Super Admin
+        // ---------------------------------------------------------
         // Make sure Super Admin always has all current permissions.
         foreach (var permission in PermissionCatalog.All)
         {
@@ -103,9 +120,31 @@ public sealed class IdentitySeeder
 
         _roles.Update(superAdminRole);
 
+        // ---------------------------------------------------------
+        // Account Manager
+        // ---------------------------------------------------------
+        // Make sure Account Manager always has its baseline permissions.
+        if (accountManagerRole is null)
+        {
+            _logger.LogWarning(
+                "Account Manager role was not found.");
+        }
+        else
+        {
+            foreach (var permission in PermissionCatalog.AccountManagerPermissions)
+            {
+                if (!accountManagerRole.HasPermission(permission))
+                    accountManagerRole.GrantPermission(permission);
+            }
+
+            _roles.Update(accountManagerRole);
+        }
+
         await _unitOfWork.SaveChangesAsync(ct);
 
-        // Find existing ApplicationUser.
+        // ---------------------------------------------------------
+        // Super Admin ApplicationUser
+        // ---------------------------------------------------------
         var applicationUser = await _userManager.FindByEmailAsync(
             _seedOptions.SuperAdminEmail);
 
@@ -150,7 +189,9 @@ public sealed class IdentitySeeder
                 "Super Admin ApplicationUser already exists.");
         }
 
-        // Make sure the InternalUser exists.
+        // ---------------------------------------------------------
+        // Super Admin InternalUser
+        // ---------------------------------------------------------
         var internalUser = await _internalUsers.GetByUserIdAsync(
             userId,
             ct);

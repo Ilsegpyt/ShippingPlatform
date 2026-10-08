@@ -210,9 +210,7 @@ public static class CustomersEndpoints
         .RequirePermission(PermissionCatalog.CustomersDelete);
     }
     
-    
-    public sealed record DeleteSearchHistoriesRequest(
-        IReadOnlyCollection<Guid> SearchHistoryIds);
+   
 
     private static void MapGetOwner(IEndpointRouteBuilder group)
     {

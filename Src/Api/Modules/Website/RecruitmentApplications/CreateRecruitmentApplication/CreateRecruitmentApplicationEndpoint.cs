@@ -78,6 +78,6 @@ public static class CreateRecruitmentApplicationEndpoint
                 return result.IsSuccess
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
-            }).RequirePermission(PermissionCatalog.RecruitmentApplicationsCreate);
+            });
     }
 }

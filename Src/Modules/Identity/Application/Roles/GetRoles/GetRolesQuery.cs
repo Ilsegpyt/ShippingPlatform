@@ -10,7 +10,8 @@ public sealed record GetRolesQuery
 
 public sealed record RoleResponse(
     Guid Id,
-    string Name);
+    string Name,
+    RoleStatus Status);
 
 public sealed class GetRolesQueryHandler(
     IRoleRepository roleRepository)
@@ -25,11 +26,11 @@ public sealed class GetRolesQueryHandler(
         var roles = await roleRepository.GetAllAsync(ct);
 
         var result = roles
-            .Where(x => x.Status == RoleStatus.Active)
             .OrderBy(x => x.Name)
             .Select(x => new RoleResponse(
                 x.Id,
-                x.Name))
+                x.Name,
+                x.Status))
             .ToList();
 
         return Result.Success<IReadOnlyList<RoleResponse>>(result);

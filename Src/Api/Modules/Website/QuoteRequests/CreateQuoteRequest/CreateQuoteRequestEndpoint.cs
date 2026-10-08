@@ -35,7 +35,7 @@ public static class CreateQuoteRequestEndpoint
                 return result.IsSuccess
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
-            }).RequirePermission(PermissionCatalog.QuoteRequestsCreate);
+            });
     }
 }
 

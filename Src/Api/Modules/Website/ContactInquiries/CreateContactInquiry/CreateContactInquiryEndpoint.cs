@@ -29,7 +29,7 @@ public static class CreateContactInquiryEndpoint
                 return result.IsSuccess
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
-            }).RequirePermission(PermissionCatalog.ContactInquiriesCreate);
+            });
     }
 }
 

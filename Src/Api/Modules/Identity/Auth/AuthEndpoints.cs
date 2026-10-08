@@ -59,6 +59,7 @@ public static class AuthEndpoints
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(result.Error);
         });
+
         auth.MapPost(
     "/change-password",
     async (

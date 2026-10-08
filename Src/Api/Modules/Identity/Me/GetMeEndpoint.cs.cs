@@ -23,6 +23,6 @@ public static class GetMeEndpoint
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(result.Error);
-        });
+        }).RequireAuthorization();
     }
 }

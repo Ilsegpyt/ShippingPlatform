@@ -33,7 +33,7 @@ public static class CreateAgentApplicationEndpoint
                 return result.IsSuccess
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
-            }).RequirePermission(PermissionCatalog.AgentApplicationsCreate);
+            });
     }
 }
 
