@@ -130,28 +130,7 @@ public sealed class Customer : AggregateRoot<Guid>, ISoftDeletable
                 DateTime.UtcNow));
     }
 
-    public void TransferOwnership(
-        Guid newOwnerUserId,
-        string newOwnerName,
-        string newOwnerEmail)
-    {
-        if (newOwnerUserId == OwnerUserId)
-            return;
-
-        var previousOwner = OwnerUserId;
-
-        OwnerUserId = newOwnerUserId;
-        OwnerName = newOwnerName;
-        OwnerEmail = newOwnerEmail;
-
-        RaiseDomainEvent(
-            new CustomerOwnershipTransferredEvent(
-                Id,
-                previousOwner,
-                newOwnerUserId,
-                DateTime.UtcNow));
-    }
-
+   
     public void UpdateEmail(string email)
     {
         OwnerEmail = email.Trim();

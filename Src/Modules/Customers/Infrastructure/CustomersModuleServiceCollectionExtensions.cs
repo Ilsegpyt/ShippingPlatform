@@ -18,21 +18,10 @@ public static class CustomersModuleServiceCollectionExtensions
         services.AddScoped<ICustomersUnitOfWork>(
         sp => sp.GetRequiredService<CustomersDbContext>());
 
-
-        //services.AddScoped<IUnitOfWork>(sp =>
-        //sp.GetRequiredService<CustomersDbContext>());
-
         services.AddScoped<ICustomerRepository, CustomerRepository>();
 
         services.AddCustomersApplication();
 
-        services.AddScoped<
-        ISearchHistoryRepository,
-       SearchHistoryRepository>();
-
-        services.AddScoped<
-    ICustomerVoiceRepository,
-    CustomerVoiceRepository>();
 
         return services;
     }

@@ -1,5 +1,4 @@
 ﻿using Api.Modules.Identity.AccountManagerAssignments;
-using Api.Modules.Identity.AccountManagerWorkload;
 using Api.Modules.Identity.Auth;
 using Api.Modules.Identity.Impersonation;
 using Api.Modules.Identity.InternalUsers;
@@ -21,7 +20,6 @@ public static class IdentityEndpoints
         AccountManagerAssignmentEndpoints.Map(app);
         ImpersonationEndpoints.Map(app);
         GetMeEndpoint.Map(app);
-        GetAccountManagerWorkloadEndpoint.Map(app);
 
         return app;
     }

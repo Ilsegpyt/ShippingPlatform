@@ -1,16 +1,16 @@
-﻿using BuildingBlocks.Application.Events;
-using BuildingBlocks.Infrastructure.Events;
-using Microsoft.Extensions.DependencyInjection;
+﻿//using BuildingBlocks.Application.Events;
+//using BuildingBlocks.Infrastructure.Events;
+//using Microsoft.Extensions.DependencyInjection;
 
-namespace BuildingBlocks.Infrastructure;
+//namespace BuildingBlocks.Infrastructure;
 
-public static class BuildingBlocksInfrastructureServiceCollectionExtensions
-{
-    public static IServiceCollection AddBuildingBlocksInfrastructure(
-        this IServiceCollection services)
-    {
-        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+//public static class BuildingBlocksInfrastructureServiceCollectionExtensions
+//{
+//    public static IServiceCollection AddBuildingBlocksInfrastructure(
+//        this IServiceCollection services)
+//    {
+//        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
-        return services;
-    }
-}
+//        return services;
+//    }
+//}

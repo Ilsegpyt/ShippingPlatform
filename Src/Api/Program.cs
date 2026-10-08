@@ -54,7 +54,7 @@ builder.Services.AddReportsModule(builder.Configuration);
 
 
 builder.Services.AddOperationsInfrastructure(builder.Configuration);
-builder.Services.AddBuildingBlocksInfrastructure();
+//builder.Services.AddBuildingBlocksInfrastructure();
 builder.Services.AddReportsApplication();
 builder.Services.AddOperationsApplication();
 

@@ -2,11 +2,6 @@
 
 namespace Identity.Domain.ValueObjects;
 
-/// <summary>
-/// A single granular permission, e.g. "shipments.view", "documents.upload".
-/// Kept as a typed Value Object (not a raw string) so callers can't pass an arbitrary
-/// unvalidated string where a permission key is expected.
-/// </summary>
 public sealed class PermissionKey : ValueObject
 {
     public string Value { get; }
@@ -32,9 +27,7 @@ public sealed class PermissionKey : ValueObject
     public override string ToString() => Value;
 }
 
-/// <summary>
-/// Central catalog of known permission keys.
-/// </summary>
+
 public static class PermissionCatalog
 {
     // Content
@@ -130,8 +123,7 @@ public static class PermissionCatalog
     public static readonly PermissionKey UsersView =
         PermissionKey.Of("identity.users.view");
 
-    public static readonly PermissionKey AccountManagerWorkloadView =
-        PermissionKey.Of("identity.accountmanager.workload.view");
+
 
 
     // SubAccounts
@@ -155,8 +147,6 @@ public static class PermissionCatalog
     public static readonly PermissionKey CustomersView =
         PermissionKey.Of("customers.view");
 
-    public static readonly PermissionKey CustomerSearchActivityView =
-        PermissionKey.Of("customers.search.activity.view");
 
     public static readonly PermissionKey CustomersCreate =
         PermissionKey.Of("customers.create");
@@ -173,34 +163,8 @@ public static class PermissionCatalog
     public static readonly PermissionKey CustomersImpersonate =
         PermissionKey.Of("customers.impersonate");
 
-
-    // Customer Voice
-    public static readonly PermissionKey CustomerVoiceView =
-        PermissionKey.Of("customers.voice.view");
-
-    public static readonly PermissionKey CustomerVoiceCreate =
-        PermissionKey.Of("customers.voice.create");
-
-    public static readonly PermissionKey CustomerVoiceStatusUpdate =
-        PermissionKey.Of("customers.voice.status.update");
-
-
-    // Shipments
-    public static readonly PermissionKey ShipmentsView =
-        PermissionKey.Of("shipments.view");
-
-    public static readonly PermissionKey ShipmentsEdit =
-        PermissionKey.Of("shipments.edit");
-
-    public static readonly PermissionKey ShipmentsDelete =
-        PermissionKey.Of("shipments.delete");
-
-    public static readonly PermissionKey ShipmentsBook =
-        PermissionKey.Of("shipments.book");
-
-    public static readonly PermissionKey ShipmentsTrack =
-        PermissionKey.Of("shipments.track");
-
+    public static readonly PermissionKey ImpersonatedCustomerView =
+      PermissionKey.Of("customers.impersonation.view");
 
     // Reports
     public static readonly PermissionKey ReportsView =
@@ -213,36 +177,12 @@ public static class PermissionCatalog
         PermissionKey.Of("reports.download");
 
 
-    // Schedules
-    public static readonly PermissionKey SchedulesView =
-        PermissionKey.Of("schedules.view");
-
-    public static readonly PermissionKey SchedulesCreate =
-        PermissionKey.Of("schedules.create");
-
-    public static readonly PermissionKey SchedulesDelete =
-        PermissionKey.Of("schedules.delete");
-
-    public static readonly PermissionKey SchedulesImport =
-        PermissionKey.Of("schedules.import");
-
-    public static readonly PermissionKey SchedulesExport =
-        PermissionKey.Of("schedules.export");
-
-    public static readonly PermissionKey SchedulesUpdate =
-        PermissionKey.Of("schedules.update");
-
-    public static readonly PermissionKey SchedulesSearch =
-        PermissionKey.Of("schedules.search");
-
-
     // Notifications
     public static readonly PermissionKey NotificationsView =
         PermissionKey.Of("notifications.view");
 
 
-    public static readonly PermissionKey ImpersonatedCustomerView =
-        PermissionKey.Of("customers.impersonation.view");
+  
 
 
     // Permissions available to SubAccounts
@@ -258,7 +198,6 @@ public static class PermissionCatalog
     [
         ReportsView,
         ReportsUpload,
-        ShipmentsEdit,
         CustomersView,
     ];
 
@@ -274,26 +213,15 @@ public static class PermissionCatalog
         SubAccountsDelete,
         SubAccountsSuspend,
 
-        ShipmentsView,
-        ShipmentsBook,
-        ShipmentsTrack,
-
+     
         ReportsView,
         ReportsDownload,
 
         UsersView,
 
-        SchedulesView,
-        SchedulesCreate,
-        SchedulesDelete,
-        SchedulesImport,
-        SchedulesExport,
-        SchedulesSearch,
-
         NotificationsView,
 
-        CustomerVoiceView,
-        CustomerVoiceCreate
+       
     ];
 
 
@@ -343,7 +271,6 @@ public static class PermissionCatalog
         UsersDelete,
         RolesManage,
         UsersView,
-        AccountManagerWorkloadView,
 
 
         // SubAccounts
@@ -356,7 +283,6 @@ public static class PermissionCatalog
 
         // Customers
         CustomersView,
-        CustomerSearchActivityView,
         CustomersCreate,
         CustomersEdit,
         CustomersSuspend,
@@ -364,19 +290,7 @@ public static class PermissionCatalog
         CustomersImpersonate,
 
 
-        // Customer Voice
-        CustomerVoiceView,
-        // CustomerVoiceCreate,
-        CustomerVoiceStatusUpdate,
-
-
-        // Shipments
-        ShipmentsView,
-        ShipmentsEdit,
-        ShipmentsDelete,
-        ShipmentsBook,
-        ShipmentsTrack,
-
+    
 
         // Reports
         ReportsView,
@@ -384,14 +298,6 @@ public static class PermissionCatalog
         ReportsDownload,
 
 
-        // Schedules
-        SchedulesView,
-        SchedulesCreate,
-        SchedulesDelete,
-        SchedulesImport,
-        SchedulesExport,
-        SchedulesUpdate,
-        SchedulesSearch,
 
 
         // Notifications

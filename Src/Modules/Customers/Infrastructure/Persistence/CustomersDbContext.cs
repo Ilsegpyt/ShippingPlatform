@@ -2,7 +2,6 @@
 using BuildingBlocks.Domain.Outbox;
 using Customers.Application.Abstractions;
 using Customers.Domain.Entities;
-using Customers.Domain.SearchHistory;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
@@ -18,10 +17,8 @@ public sealed class CustomersDbContext : DbContext, ICustomersUnitOfWork
 
     public DbSet<Customer> Customers => Set<Customer>();
 
-    public DbSet<SearchHistory> SearchHistories => Set<SearchHistory>();
 
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
-    public DbSet<CustomerVoice> CustomerVoices => Set<CustomerVoice>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(

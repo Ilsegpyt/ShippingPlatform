@@ -1,11 +1,11 @@
-﻿using BuildingBlocks.Domain;
+﻿//using BuildingBlocks.Domain;
 
-namespace BuildingBlocks.Application.Events;
+//namespace BuildingBlocks.Application.Events;
 
-// unUsed now
+//// unUsed now
 
-public interface IDomainEventDispatcher
-{
-    Task DispatchAsync(IEnumerable<IDomainEvent> events, CancellationToken ct = default);
+//public interface IDomainEventDispatcher
+//{
+//    Task DispatchAsync(IEnumerable<IDomainEvent> events, CancellationToken ct = default);
 
-}
+//}
