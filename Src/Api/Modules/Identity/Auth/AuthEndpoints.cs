@@ -1,4 +1,5 @@
-﻿using Identity.Application.Auth.ActivateAccount;
+﻿
+using Identity.Application.Auth.ActivateAccount;
 using Identity.Application.Auth.ChangePassword;
 using Identity.Application.Auth.ForgotPassword;
 using Identity.Application.Auth.Login;
@@ -16,14 +17,23 @@ public static class AuthEndpoints
         var auth = app.MapGroup("/api/auth")
             .WithTags("Auth");
 
-        auth.MapPost("/login", async (LoginCommand command, ISender sender, CancellationToken ct) =>
-        {
-            var result = await sender.Send(command, ct);
+        // Login
+        auth.MapPost(
+            "/login",
+            async (
+                LoginCommand command,
+                ISender sender,
+                CancellationToken ct) =>
+            {
+                var result = await sender.Send(command, ct);
 
-            return result.IsSuccess
-                ? Results.Ok(result.Value)
-                : Results.Unauthorized();
-        });
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.Unauthorized();
+            })
+            .RequireRateLimiting("LoginPolicy");
+
+        // Forgot Password
         auth.MapPost(
             "/forgot-password",
             async (
@@ -37,65 +47,73 @@ public static class AuthEndpoints
                     ? Results.Ok()
                     : Results.BadRequest(result.Error);
             });
-        auth.MapPost("/refresh", async (RefreshTokenCommand command, ISender sender, CancellationToken ct) =>
-        {
-            var result = await sender.Send(command, ct);
 
-            return result.IsSuccess
-                ? Results.Ok(result.Value)
-                : Results.Unauthorized();
-        });
-
+        // Refresh Token
         auth.MapPost(
-        "/activate",
-        async (
-            ActivateAccountCommand command,
-            ISender sender,
-            CancellationToken ct) =>
-        {
-            var result = await sender.Send(command, ct);
+            "/refresh",
+            async (
+                RefreshTokenCommand command,
+                ISender sender,
+                CancellationToken ct) =>
+            {
+                var result = await sender.Send(command, ct);
 
-            return result.IsSuccess
-                ? Results.Ok(result.Value)
-                : Results.BadRequest(result.Error);
-        });
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.Unauthorized();
+            });
 
+        // Activate Account
         auth.MapPost(
-    "/change-password",
-    async (
-        ChangePasswordCommand command,
-        HttpContext httpContext,
-        ISender sender,
-        CancellationToken ct) =>
-    {
-        var userId = ClaimsPrincipalExtensions.GetUserId(httpContext.User);
+            "/activate",
+            async (
+                ActivateAccountCommand command,
+                ISender sender,
+                CancellationToken ct) =>
+            {
+                var result = await sender.Send(command, ct);
 
-        var result = await sender.Send(
-            command with { UserId = userId },
-            ct);
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.BadRequest(result.Error);
+            });
 
-        return result.IsSuccess
-            ? Results.Ok(result.Value)
-            : Results.BadRequest(result.Error);
-    })
-    .RequireAuthorization();
-
+        // Change Password
         auth.MapPost(
-    "/reset-password",
-    async (
-        ResetPasswordCommand command,
-        ISender sender,
-        CancellationToken ct) =>
-    {
-        var result = await sender.Send(command, ct);
+            "/change-password",
+            async (
+                ChangePasswordCommand command,
+                HttpContext httpContext,
+                ISender sender,
+                CancellationToken ct) =>
+            {
+                var userId =
+                    ClaimsPrincipalExtensions.GetUserId(
+                        httpContext.User);
 
-        return result.IsSuccess
-            ? Results.Ok()
-            : Results.BadRequest(result.Error);
-    });
+                var result = await sender.Send(
+                    command with { UserId = userId },
+                    ct);
 
+                return result.IsSuccess
+                    ? Results.Ok(result.Value)
+                    : Results.BadRequest(result.Error);
+            })
+            .RequireAuthorization();
 
+        // Reset Password
+        auth.MapPost(
+            "/reset-password",
+            async (
+                ResetPasswordCommand command,
+                ISender sender,
+                CancellationToken ct) =>
+            {
+                var result = await sender.Send(command, ct);
+
+                return result.IsSuccess
+                    ? Results.Ok()
+                    : Results.BadRequest(result.Error);
+            });
     }
-
-
 }

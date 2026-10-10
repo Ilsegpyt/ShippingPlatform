@@ -1,6 +1,5 @@
-﻿using Content.Application.Content.GetRootContent;
-using Identity.Domain.ValueObjects;
-using Identity.Infrastructure.Authorization;
+﻿
+using Content.Application.Content.GetRootContent;
 using MediatR;
 
 namespace Api.Modules.Content.GetRootContent;
@@ -23,6 +22,6 @@ public static class GetRootContentEndpoint
                     ? Results.Ok(result.Value)
                     : Results.BadRequest(result.Error);
             });
-            
+
     }
 }
