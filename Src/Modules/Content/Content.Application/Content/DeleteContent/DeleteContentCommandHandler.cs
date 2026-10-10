@@ -1,7 +1,5 @@
-﻿
-using BuildingBlocks.Application;
+﻿using BuildingBlocks.Application;
 using Content.Application.Abstractions;
-using Content.Application.Content;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -18,7 +16,6 @@ public sealed class DeleteContentCommandHandler(
         DeleteContentCommand command,
         CancellationToken ct)
     {
-        // Step 1: Find the content item to delete.
         var content = await contentRepository.GetByIdAsync(
             command.Id,
             ct);
@@ -26,7 +23,6 @@ public sealed class DeleteContentCommandHandler(
         if (content is null)
             return Result.Failure("Content not found.");
 
-        // Step 2: Prevent deleting content that still has children.
         var children = await contentRepository.GetChildrenAsync(
             command.Id,
             ct);
@@ -37,21 +33,17 @@ public sealed class DeleteContentCommandHandler(
                 "Cannot delete content that has children.");
         }
 
-        // Step 3: Extract local image URLs from the featured image and HTML body.
         var imageUrls = ContentImageHelper.ExtractLocalImageUrls(
             content.FeaturedImage,
             content.Body);
 
-        // Step 4: Delete the content record and save database changes first.
         contentRepository.Delete(content);
         await unitOfWork.SaveChangesAsync(ct);
 
-        // Step 5: Check and delete unreferenced images after the database save.
         foreach (var imageUrl in imageUrls)
         {
             try
             {
-                // Check whether another content item still uses this image.
                 var isUsedElsewhere =
                     await contentRepository.IsImageUsedByOtherContentAsync(
                         imageUrl,
@@ -61,7 +53,6 @@ public sealed class DeleteContentCommandHandler(
                 if (isUsedElsewhere)
                     continue;
 
-                // Delete the file only when no other content item uses it.
                 await fileStorage.DeleteAsync(imageUrl, ct);
             }
             catch (OperationCanceledException)
@@ -70,11 +61,9 @@ public sealed class DeleteContentCommandHandler(
             }
             catch (Exception ex)
             {
-                // Log cleanup failures without undoing the deleted content record.
                 logger.LogError(
                     ex,
-                    "Failed to clean up content image {ImageUrl} " +
-                    "after deleting content {ContentId}.",
+                    "Failed to clean up content image {ImageUrl} after deleting content {ContentId}.",
                     imageUrl,
                     content.Id);
             }

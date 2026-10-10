@@ -6,7 +6,7 @@ using Identity.Domain.Repositories;
 using Identity.Domain.ValueObjects;
 using MediatR;
 
-namespace Identity.Application.SubAccounts.UpdateSubAccountScope;
+namespace Identity.Application.SubAccounts.AddRemoveSubAccountScope;
 
 public sealed record AddScopeCommand(
     Guid CustomerId,

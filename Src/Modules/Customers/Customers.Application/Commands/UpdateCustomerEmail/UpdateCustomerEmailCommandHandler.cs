@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Customers.Application.Customers.UpdateCustomerEmail;
 
-public sealed class UpdateCustomerEmailHandler(
+public sealed class UpdateCustomerEmailCommandHandler(
     ICustomerRepository repository,
     ICustomersUnitOfWork unitOfWork)
     : IRequestHandler<UpdateCustomerEmail, Result>

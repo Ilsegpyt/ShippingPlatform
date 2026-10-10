@@ -1,12 +1,10 @@
 ﻿using BuildingBlocks.Application;
 using Customers.Application.Abstractions;
+using Customers.Application.Commands.UpdateCustomerProfile;
 using MediatR;
 
 namespace Customers.Application.Customers.UpdateCustomerProfile;
 
-public sealed record UpdateCustomerProfileCommand(
-    Guid CustomerId, string OwnerName, string CompanyName, string OwnerPhone, string? Industry)
-    : IRequest<Result>;
 
 public sealed class UpdateCustomerProfileCommandHandler(ICustomerRepository repository, ICustomersUnitOfWork iCustomersUnitOfWork)
     : IRequestHandler<UpdateCustomerProfileCommand, Result>

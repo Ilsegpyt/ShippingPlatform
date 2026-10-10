@@ -5,7 +5,6 @@ using MediatR;
 
 namespace Identity.Application.InternalUsers.UpdateInternalUserEmail;
 
-// need transaction
 public sealed class UpdateInternalUserEmailCommandHandler(
     IInternalUserRepository internalUsers,
     IIdentityUserService identityUserService,

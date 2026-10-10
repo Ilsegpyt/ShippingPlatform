@@ -1,6 +1,8 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
 using Identity.Application.Abstractions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Identity.Application.Impersonation.EndImpersonation;
 
@@ -9,13 +11,16 @@ public sealed class EndImpersonationCommandHandler
 {
     private readonly IImpersonationAuditLogRepository _auditLogs;
     private readonly IIdentityUnitOfWork _identityUnitOfWork;
+    private readonly ILogger<EndImpersonationCommandHandler> _logger;
 
     public EndImpersonationCommandHandler(
         IImpersonationAuditLogRepository auditLogs,
-        IIdentityUnitOfWork unitOfWork)
+        IIdentityUnitOfWork unitOfWork,
+        ILogger<EndImpersonationCommandHandler> logger)
     {
         _auditLogs = auditLogs;
         _identityUnitOfWork = unitOfWork;
+        _logger = logger;
     }
 
     public async Task<Result> Handle(
@@ -34,6 +39,11 @@ public sealed class EndImpersonationCommandHandler
 
         if (auditLog.ImpersonatorUserId != request.ImpersonatorUserId)
         {
+            _logger.LogWarning(
+                "User {ImpersonatorUserId} attempted to end an impersonation session owned by another user. AuditLogId: {AuditLogId}",
+                request.ImpersonatorUserId,
+                request.AuditLogId);
+
             return Result.Failure(
                 "You are not allowed to end this impersonation session.");
         }
@@ -47,6 +57,11 @@ public sealed class EndImpersonationCommandHandler
         auditLog.End();
 
         await _identityUnitOfWork.SaveChangesAsync(ct);
+
+        _logger.LogInformation(
+            "User {ImpersonatorUserId} ended impersonation successfully. AuditLogId: {AuditLogId}",
+            request.ImpersonatorUserId,
+            request.AuditLogId);
 
         return Result.Success();
     }

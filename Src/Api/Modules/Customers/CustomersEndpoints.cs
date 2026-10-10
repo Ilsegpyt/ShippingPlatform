@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Application;
 using Customers.Application.Commands.DeleteCustomer;
+using Customers.Application.Commands.UpdateCustomerProfile;
 using Customers.Application.Customers.ActivateCustomer;
 using Customers.Application.Customers.RegisterCustomer;
 using Customers.Application.Customers.SuspendCustomer;

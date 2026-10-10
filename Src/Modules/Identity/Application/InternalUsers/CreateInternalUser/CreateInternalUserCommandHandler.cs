@@ -7,34 +7,9 @@ using MediatR;
 
 namespace Identity.Application.InternalUsers.CreateInternalUser;
 
-public sealed record CreateInternalUserCommand(
-    string Name,
-    string Email,
-    string Phone,
-    Guid RoleId) : IRequest<Result<CreateInternalUserResponse>>;
 
-public sealed record CreateInternalUserResponse(
-    Guid InternalUserId);
 
-public sealed class CreateInternalUserValidator
-    : AbstractValidator<CreateInternalUserCommand>
-{
-    public CreateInternalUserValidator()
-    {
-        RuleFor(x => x.Name)
-            .NotEmpty()
-            .MaximumLength(100);
-
-        RuleFor(x => x.Email)
-            .NotEmpty()
-            .EmailAddress();
-
-        RuleFor(x => x.RoleId)
-            .NotEmpty();
-    }
-}
-
-public sealed class CreateInternalUserHandler
+public sealed class CreateInternalUserCommandHandler
     : IRequestHandler<CreateInternalUserCommand, Result<CreateInternalUserResponse>>
 {
     private readonly IIdentityUserService _identityUsers;
@@ -42,15 +17,13 @@ public sealed class CreateInternalUserHandler
     private readonly IRoleRepository _roles;
     private readonly IIdentityUnitOfWork _identityUnitOfWork;
 
-    // TODO: Re-enable when we implement the internal-user activation flow.
-    // private readonly SubAccountOptions _options;
+   
 
-    public CreateInternalUserHandler(
+    public CreateInternalUserCommandHandler(
         IIdentityUserService identityUsers,
         IInternalUserRepository internalUsers,
         IRoleRepository roles,
         IIdentityUnitOfWork identityUnitOfWork
-    // IOptions<SubAccountOptions> options
     )
     {
         _identityUsers = identityUsers;
@@ -58,8 +31,6 @@ public sealed class CreateInternalUserHandler
         _roles = roles;
         _identityUnitOfWork = identityUnitOfWork;
 
-        // TODO: Re-enable when we implement the internal-user activation flow.
-        // _options = options.Value;
     }
 
     public async Task<Result<CreateInternalUserResponse>> Handle(

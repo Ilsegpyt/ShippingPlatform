@@ -114,7 +114,7 @@ builder.Services.AddRateLimiter(options =>
                     ipAddress,
                     _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 30,
+                        PermitLimit = 100,
                         Window = TimeSpan.FromMinutes(1),
                         QueueLimit = 0,
                         AutoReplenishment = true

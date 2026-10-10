@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Identity.Application.SubAccounts.UpdateSubAccountEmail;
 
-public sealed class UpdateSubAccountEmailHandler(
+public sealed class UpdateSubAccountEmailCommandHandler(
     ISubAccountRepository repository,
     IIdentityUserService identityUserService,
     IIdentityUnitOfWork unitOfWork)

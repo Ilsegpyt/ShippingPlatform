@@ -43,7 +43,6 @@ public sealed class ForgotPasswordCommandHandler
             $"?userId={result.Value.UserId}" +
             $"&token={Uri.EscapeDataString(result.Value.ResetToken)}";
 
-        Console.WriteLine($"PASSWORD RESET LINK: {resetLink}");
 
         await _passwordResetEmailSender.SendAsync(
             result.Value.Email,

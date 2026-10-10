@@ -1,4 +1,5 @@
 ﻿using Identity.Application.SubAccounts.ActivateSubAccount;
+using Identity.Application.SubAccounts.AddRemoveSubAccountScope;
 using Identity.Application.SubAccounts.CreateSubAccount;
 using Identity.Application.SubAccounts.DeleteSubAccount;
 using Identity.Application.SubAccounts.GetSubAccounts;
