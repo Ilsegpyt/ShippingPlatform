@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
-
 using Api.BackgroundJobs;
 using Api.Infrastructure;
 using Api.Infrastructure.Email;
@@ -12,30 +11,22 @@ using Api.Modules.Notifications;
 using Api.Modules.Operations;
 using Api.Modules.Reports;
 using Api.Modules.Website;
-
 using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Infrastructure;
-
 using Content.Infrastructure;
 using Customers.Infrastructure;
-
 using Identity.Application;
 using Identity.Application.Abstractions;
 using Identity.Application.Auth.ForgotPassword;
 using Identity.Infrastructure;
 using Identity.Infrastructure.Seeding;
-
 using Microsoft.AspNetCore.RateLimiting;
-
 using Notifications.Application;
 using Notifications.Infrastructure;
-
 using Operations.Application;
 using Operations.Infrastructure;
-
 using Reports.Application;
 using Reports.Infrastructure;
-
 using Website.Application;
 using Website.Infrastructure;
 
@@ -44,14 +35,12 @@ var builder = WebApplication.CreateBuilder(args);
 // ==================================================
 // Logging
 // ==================================================
-
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
 // ==================================================
 // CORS
 // ==================================================
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
@@ -69,7 +58,6 @@ builder.Services.AddCors(options =>
 // ==================================================
 // Rate Limiting
 // ==================================================
-
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode =
@@ -101,7 +89,7 @@ builder.Services.AddRateLimiter(options =>
         await Task.CompletedTask;
     };
 
-    // Global limit: 100 requests per minute per IP
+    // Global limit: زيادة الليميت لـ 250 وإلغاء الـ Queue لمنع البطء وتجنب الـ 429
     options.GlobalLimiter =
         PartitionedRateLimiter.Create<HttpContext, string>(
             httpContext =>
@@ -114,7 +102,7 @@ builder.Services.AddRateLimiter(options =>
                     ipAddress,
                     _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 100,
+                        PermitLimit = 250,
                         Window = TimeSpan.FromMinutes(1),
                         QueueLimit = 0,
                         AutoReplenishment = true
@@ -143,7 +131,6 @@ builder.Services.AddRateLimiter(options =>
 // ==================================================
 // Identity & Customers
 // ==================================================
-
 builder.Services.AddIdentityModule(builder.Configuration);
 builder.Services.AddIdentityApplication();
 builder.Services.AddCustomersModule(builder.Configuration);
@@ -151,7 +138,6 @@ builder.Services.AddCustomersModule(builder.Configuration);
 // ==================================================
 // Content & Reports
 // ==================================================
-
 builder.Services.AddContentModule(builder.Configuration);
 builder.Services.AddReportsModule(builder.Configuration);
 builder.Services.AddReportsApplication();
@@ -159,66 +145,53 @@ builder.Services.AddReportsApplication();
 // ==================================================
 // Operations
 // ==================================================
-
 builder.Services.AddOperationsInfrastructure(builder.Configuration);
-// builder.Services.AddBuildingBlocksInfrastructure();
-
 builder.Services.AddOperationsApplication();
 
 // ==================================================
 // Notifications
 // ==================================================
-
 builder.Services.AddNotificationsInfrastructure(builder.Configuration);
 builder.Services.AddNotificationsApplication();
 
 // ==================================================
 // Website
 // ==================================================
-
 builder.Services.AddWebsiteApplication();
 builder.Services.AddWebsiteModule(builder.Configuration);
 
 // ==================================================
 // HTTP Context & Current User
 // ==================================================
-
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 
 // ==================================================
 // Exception Handling
 // ==================================================
-
 builder.Services.AddExceptionHandler<FluentValidationExceptionHandler>();
 builder.Services.AddExceptionHandler<ConflictExceptionHandler>();
-
 builder.Services.AddProblemDetails();
 
 // ==================================================
 // Background Jobs & Email
 // ==================================================
-
 builder.Services.AddHostedService<IdentityOutboxProcessorWorker>();
 builder.Services.AddHostedService<CustomersOutboxProcessorWorker>();
 builder.Services.AddHostedService<EmailOutboxProcessorWorker>();
-
 builder.Services.AddScoped<IPasswordResetEmailSender, PasswordResetEmailSender>();
 
 // ==================================================
 // OpenAPI
 // ==================================================
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
 // ==================================================
 // Application Options
 // ==================================================
-
 builder.Services.Configure<ForgotPasswordOptions>(
     builder.Configuration.GetSection("Notifications"));
-
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(
@@ -228,13 +201,11 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // ==================================================
 // Build Application
 // ==================================================
-
 var app = builder.Build();
 
 // ==================================================
 // OpenAPI
 // ==================================================
-
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -243,13 +214,9 @@ if (app.Environment.IsDevelopment())
 // ==================================================
 // Middleware Pipeline
 // ==================================================
-
 app.UseExceptionHandler();
-
 app.UseRouting();
-
 app.UseCors("Frontend");
-
 app.UseStaticFiles();
 
 // Log incoming requests and their response status codes
@@ -261,7 +228,6 @@ app.Use(async (context, next) =>
 
     var path = context.Request.Path.Value ?? string.Empty;
 
-    // Focus on API requests to avoid unrelated static-file noise
     if (path.StartsWith("/api", StringComparison.OrdinalIgnoreCase))
     {
         logger.LogInformation(
@@ -284,14 +250,12 @@ app.Use(async (context, next) =>
 });
 
 app.UseRateLimiter();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 // ==================================================
 // Database Seeding
 // ==================================================
-
 using (var scope = app.Services.CreateScope())
 {
     var seeder =
@@ -303,18 +267,15 @@ using (var scope = app.Services.CreateScope())
 // ==================================================
 // Endpoint Mapping
 // ==================================================
-
 app.MapIdentityEndpoints();
 app.MapCustomersEndpoints();
 app.MapReportsEndpoints();
 app.MapNotificationsEndpoints();
 app.MapContentEndpoints();
 app.MapOperationsEndpoints();
-
 WebsiteEndpoints.Map(app);
 
 // ==================================================
 // Run Application
 // ==================================================
-
 app.Run();
