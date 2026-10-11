@@ -10,7 +10,6 @@ using Identity.Application.SubAccounts.SetCustomScope;
 using Identity.Application.SubAccounts.SetFullScope;
 using Identity.Application.SubAccounts.UpdateSubAccountEmail;
 using Identity.Application.SubAccounts.UpdateSubAccountProfile;
-using Identity.Application.SubAccounts.UpdateSubAccountScope;
 using Identity.Domain.Enums;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
@@ -113,16 +112,20 @@ public static class SubAccountEndpoints
         .RequirePermission(PermissionCatalog.SubAccountsEdit);
     }
 
-    private static void MapUpdateEmail(IEndpointRouteBuilder subAccounts)
+     private static void MapUpdateEmail(IEndpointRouteBuilder subAccounts)
     {
         subAccounts.MapPut("/{id:guid}/email", async (
             Guid id,
             UpdateSubAccountEmailRequestBody body,
+            ClaimsPrincipal user,
             ISender sender,
             CancellationToken ct) =>
         {
+            var customerId = user.GetOrganizationId();
+
             var result = await sender.Send(
                 new UpdateSubAccountEmailCommand(
+                    customerId,
                     id,
                     body.Email),
                 ct);
@@ -133,6 +136,7 @@ public static class SubAccountEndpoints
         })
         .RequirePermission(PermissionCatalog.SubAccountsEdit);
     }
+
 
     private static void MapDelete(IEndpointRouteBuilder subAccounts)
     {
@@ -156,7 +160,30 @@ public static class SubAccountEndpoints
         })
         .RequirePermission(PermissionCatalog.SubAccountsDelete);
     }
+    private static void MapPasswordReset(IEndpointRouteBuilder subAccounts)
+    {
+        subAccounts.MapPost("/{id:guid}/reset-password", async (
+            Guid id,
+            ResetSubAccountPasswordRequestBody body,
+            ClaimsPrincipal user,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var customerId = user.GetOrganizationId();
 
+            var result = await sender.Send(
+                new ResetSubAccountPasswordCommand(
+                    customerId,
+                    id,
+                    body.NewPassword),
+                ct);
+
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.BadRequest(result.Error);
+        })
+        .RequirePermission(PermissionCatalog.SubAccountsEdit);
+    }
     private static void MapActivation(IEndpointRouteBuilder subAccounts)
     {
         subAccounts.MapPost("/{id:guid}/activate", async (
@@ -199,32 +226,6 @@ public static class SubAccountEndpoints
         })
         .RequirePermission(PermissionCatalog.SubAccountsSuspend);
     }
-    // To be revised
-
-    private static void MapPasswordReset(IEndpointRouteBuilder subAccounts)
-    {
-        subAccounts.MapPost("/{id:guid}/reset-password", async (
-            Guid id,
-            ResetSubAccountPasswordRequestBody body,
-            ClaimsPrincipal user,
-            ISender sender,
-            CancellationToken ct) =>
-        {
-            var customerId = user.GetOrganizationId();
-
-            var result = await sender.Send(
-                new ResetSubAccountPasswordCommand(
-                    customerId,
-                    id,
-                    body.NewPassword),
-                ct);
-
-            return result.IsSuccess
-                ? Results.NoContent()
-                : Results.BadRequest(result.Error);
-        })
-        .RequirePermission(PermissionCatalog.SubAccountsEdit);
-    }
 
     private static void MapPermissions(IEndpointRouteBuilder subAccounts)
     {
@@ -250,8 +251,8 @@ public static class SubAccountEndpoints
         })
         .RequirePermission(PermissionCatalog.SubAccountsEdit);
 
-        subAccounts.MapDelete(
-            "/{id:guid}/permissions/{permissionKey}",
+        subAccounts.MapDelete("/{id:guid}/permissions/{permissionKey}",
+
             async (
                 Guid id,
                 string permissionKey,

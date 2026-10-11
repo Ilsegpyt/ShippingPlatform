@@ -10,7 +10,9 @@ namespace Customers.Application.Services;
 /// </summary>
 internal sealed class CustomerQueries(ICustomerRepository repository) : ICustomerQueries
 {
-    public async Task<CustomerAuthInfo?> GetByUserIdAsync(Guid userId, CancellationToken ct)
+    public async Task<CustomerAuthInfo?> GetByUserIdAsync(
+     Guid userId,
+     CancellationToken ct)
     {
         var customer = await repository.GetByUserIdAsync(userId, ct);
 
@@ -18,9 +20,13 @@ internal sealed class CustomerQueries(ICustomerRepository repository) : ICustome
             ? null
             : new CustomerAuthInfo(
                 customer.Id,
-                customer.Status == CustomerStatus.Active);
+                customer.Status == CustomerStatus.Active,
+                customer.IsDeleted);
     }
-    public async Task<CustomerInfo?> GetByIdAsync(Guid customerId, CancellationToken ct)
+
+public async Task<CustomerInfo?> GetByIdAsync(
+    Guid customerId,
+    CancellationToken ct)
     {
         var customer = await repository.GetByIdAsync(customerId, ct);
 
@@ -28,7 +34,8 @@ internal sealed class CustomerQueries(ICustomerRepository repository) : ICustome
             ? null
             : new CustomerInfo(
                 customer.Id,
-                customer.Status == CustomerStatus.Active);
+                customer.Status == CustomerStatus.Active,
+                customer.IsDeleted);
     }
     public async Task<CustomerOwnerInfo?> GetOwnerByCustomerIdAsync(Guid customerId, CancellationToken ct)
     {

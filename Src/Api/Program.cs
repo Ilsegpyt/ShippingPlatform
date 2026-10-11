@@ -1,5 +1,7 @@
+
 using System.Text.Json.Serialization;
-using System.Threading.RateLimiting;
+// using System.Threading.RateLimiting;
+
 using Api.BackgroundJobs;
 using Api.Infrastructure;
 using Api.Infrastructure.Email;
@@ -20,7 +22,7 @@ using Identity.Application.Abstractions;
 using Identity.Application.Auth.ForgotPassword;
 using Identity.Infrastructure;
 using Identity.Infrastructure.Seeding;
-using Microsoft.AspNetCore.RateLimiting;
+// using Microsoft.AspNetCore.RateLimiting;
 using Notifications.Application;
 using Notifications.Infrastructure;
 using Operations.Application;
@@ -56,77 +58,78 @@ builder.Services.AddCors(options =>
 });
 
 // ==================================================
-// Rate Limiting
+// Rate Limiting - TEMPORARILY DISABLED
 // ==================================================
-builder.Services.AddRateLimiter(options =>
-{
-    options.RejectionStatusCode =
-        StatusCodes.Status429TooManyRequests;
 
-    options.OnRejected = async (context, cancellationToken) =>
-    {
-        var logger = context.HttpContext.RequestServices
-            .GetRequiredService<ILoggerFactory>()
-            .CreateLogger("RateLimiting");
+// builder.Services.AddRateLimiter(options =>
+// {
+//     options.RejectionStatusCode =
+//         StatusCodes.Status429TooManyRequests;
 
-        var endpoint = context.HttpContext.GetEndpoint();
+//     options.OnRejected = async (context, cancellationToken) =>
+//     {
+//         var logger = context.HttpContext.RequestServices
+//             .GetRequiredService<ILoggerFactory>()
+//             .CreateLogger("RateLimiting");
 
-        var policyName = endpoint?.Metadata
-            .GetMetadata<EnableRateLimitingAttribute>()
-            ?.PolicyName ?? "GlobalLimiter";
+//         var endpoint = context.HttpContext.GetEndpoint();
 
-        logger.LogWarning(
-            "RATE LIMIT REJECTED | Method: {Method} | Path: {Path} | IP: {IP} | Policy: {Policy}",
-            context.HttpContext.Request.Method,
-            context.HttpContext.Request.Path,
-            context.HttpContext.Connection.RemoteIpAddress?.ToString(),
-            policyName
-        );
+//         var policyName = endpoint?.Metadata
+//             .GetMetadata<EnableRateLimitingAttribute>()
+//             ?.PolicyName ?? "GlobalLimiter";
 
-        context.HttpContext.Response.StatusCode =
-            StatusCodes.Status429TooManyRequests;
+//         logger.LogWarning(
+//             "RATE LIMIT REJECTED | Method: {Method} | Path: {Path} | IP: {IP} | Policy: {Policy}",
+//             context.HttpContext.Request.Method,
+//             context.HttpContext.Request.Path,
+//             context.HttpContext.Connection.RemoteIpAddress?.ToString(),
+//             policyName
+//         );
 
-        await Task.CompletedTask;
-    };
+//         context.HttpContext.Response.StatusCode =
+//             StatusCodes.Status429TooManyRequests;
 
-    // Global limit: زيادة الليميت لـ 250 وإلغاء الـ Queue لمنع البطء وتجنب الـ 429
-    options.GlobalLimiter =
-        PartitionedRateLimiter.Create<HttpContext, string>(
-            httpContext =>
-            {
-                var ipAddress =
-                    httpContext.Connection.RemoteIpAddress?.ToString()
-                    ?? "unknown";
+//         await Task.CompletedTask;
+//     };
 
-                return RateLimitPartition.GetFixedWindowLimiter(
-                    ipAddress,
-                    _ => new FixedWindowRateLimiterOptions
-                    {
-                        PermitLimit = 250,
-                        Window = TimeSpan.FromMinutes(1),
-                        QueueLimit = 0,
-                        AutoReplenishment = true
-                    });
-            });
+//     // Global limit
+//     options.GlobalLimiter =
+//         PartitionedRateLimiter.Create<HttpContext, string>(
+//             httpContext =>
+//             {
+//                 var ipAddress =
+//                     httpContext.Connection.RemoteIpAddress?.ToString()
+//                     ?? "unknown";
 
-    // Login limit: 5 requests per minute per IP
-    options.AddPolicy("LoginPolicy", httpContext =>
-    {
-        var ipAddress =
-            httpContext.Connection.RemoteIpAddress?.ToString()
-            ?? "unknown";
+//                 return RateLimitPartition.GetFixedWindowLimiter(
+//                     ipAddress,
+//                     _ => new FixedWindowRateLimiterOptions
+//                     {
+//                         PermitLimit = 2000,
+//                         Window = TimeSpan.FromMinutes(1),
+//                         QueueLimit = 0,
+//                         AutoReplenishment = true
+//                     });
+//             });
 
-        return RateLimitPartition.GetFixedWindowLimiter(
-            ipAddress,
-            _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 5,
-                Window = TimeSpan.FromMinutes(1),
-                QueueLimit = 0,
-                AutoReplenishment = true
-            });
-    });
-});
+//     // Login limit: 5 requests per minute per IP
+//     options.AddPolicy("LoginPolicy", httpContext =>
+//     {
+//         var ipAddress =
+//             httpContext.Connection.RemoteIpAddress?.ToString()
+//             ?? "unknown";
+
+//         return RateLimitPartition.GetFixedWindowLimiter(
+//             ipAddress,
+//             _ => new FixedWindowRateLimiterOptions
+//             {
+//                 PermitLimit = 5,
+//                 Window = TimeSpan.FromMinutes(1),
+//                 QueueLimit = 0,
+//                 AutoReplenishment = true
+//             });
+//     });
+// });
 
 // ==================================================
 // Identity & Customers
@@ -192,6 +195,7 @@ builder.Services.AddOpenApi();
 // ==================================================
 builder.Services.Configure<ForgotPasswordOptions>(
     builder.Configuration.GetSection("Notifications"));
+
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(
@@ -249,7 +253,9 @@ app.Use(async (context, next) =>
     }
 });
 
-app.UseRateLimiter();
+// Rate Limiting Middleware - TEMPORARILY DISABLED
+// app.UseRateLimiter();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

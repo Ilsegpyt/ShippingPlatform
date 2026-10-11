@@ -1,9 +1,8 @@
 ﻿using BuildingBlocks.Application;
 using Customers.Application.Abstractions;
-using Customers.Application.Commands.UpdateCustomerProfile;
 using MediatR;
 
-namespace Customers.Application.Customers.UpdateCustomerProfile;
+namespace Customers.Application.Commands.UpdateCustomerProfile;
 
 
 public sealed class UpdateCustomerProfileCommandHandler(ICustomerRepository repository, ICustomersUnitOfWork iCustomersUnitOfWork)

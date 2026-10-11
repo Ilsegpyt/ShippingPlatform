@@ -2,7 +2,7 @@
 using Customers.Application.Abstractions;
 using MediatR;
 
-namespace Customers.Application.Customers.UpdateCustomerEmail;
+namespace Customers.Application.Commands.UpdateCustomerEmail;
 
 public sealed class UpdateCustomerEmailCommandHandler(
     ICustomerRepository repository,

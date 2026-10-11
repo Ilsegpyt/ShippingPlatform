@@ -1,4 +1,5 @@
-﻿namespace Api.Modules.Customers;
+﻿
+namespace Api.Modules.Customers;
 
 public sealed record UpdateCustomerProfileRequest(
     string OwnerName,
@@ -12,6 +13,7 @@ public sealed record RegisterCustomerRequest(
     string OwnerPhone,
     string OwnerEmail,
     string? Industry);
+
 public sealed record UpdateCustomerEmailRequest(
     string Email);
 
@@ -23,3 +25,6 @@ public sealed record CreateCustomerVoiceRequest(
     string Subject,
     string Message);
 
+public sealed record UpdateOwnCustomerProfileRequest(
+    string OwnerName,
+    string OwnerPhone);

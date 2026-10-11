@@ -1,4 +1,6 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
+using Customers.Contracts;
 using Identity.Application.Abstractions;
 using Identity.Domain.Repositories;
 using Identity.Domain.ValueObjects;
@@ -16,19 +18,34 @@ public sealed class RevokeSubAccountPermissionHandler
 {
     private readonly ISubAccountRepository _subAccounts;
     private readonly IIdentityUnitOfWork _identityUnitOfWork;
+    private readonly ICustomerQueries _customerQueries;
 
     public RevokeSubAccountPermissionHandler(
         ISubAccountRepository subAccounts,
-        IIdentityUnitOfWork identityUnitOfWork)
+        IIdentityUnitOfWork identityUnitOfWork,
+        ICustomerQueries customerQueries)
     {
         _subAccounts = subAccounts;
         _identityUnitOfWork = identityUnitOfWork;
+        _customerQueries = customerQueries;
     }
 
     public async Task<Result> Handle(
         RevokeSubAccountPermissionCommand request,
         CancellationToken ct)
     {
+        var customer = await _customerQueries.GetByIdAsync(
+            request.CustomerId,
+            ct);
+
+        if (customer is null ||
+            customer.IsDeleted ||
+            !customer.IsActive)
+        {
+            return Result.Failure(
+                "Only active customers can manage sub-accounts.");
+        }
+
         var subAccount = await _subAccounts.GetByIdAsync(
             request.SubAccountId,
             ct);
@@ -36,7 +53,6 @@ public sealed class RevokeSubAccountPermissionHandler
         if (subAccount is null)
             return Result.Failure("Sub-account not found.");
 
-        // Make sure the sub-account belongs to the authenticated user's organization.
         if (subAccount.CustomerId != request.CustomerId)
             return Result.Failure(
                 "Sub-account does not belong to this organization.");

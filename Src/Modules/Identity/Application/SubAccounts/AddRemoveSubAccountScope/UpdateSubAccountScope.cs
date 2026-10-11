@@ -1,4 +1,6 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
+using Customers.Contracts;
 using Identity.Application.Abstractions;
 using Identity.Domain.Enums;
 using Identity.Domain.Exceptions;
@@ -15,7 +17,6 @@ public sealed record AddScopeCommand(
     ScopeService Service,
     ScopeShipmentType Type) : IRequest<Result>;
 
-
 public sealed record RemoveScopeCommand(
     Guid CustomerId,
     Guid SubAccountId,
@@ -23,26 +24,39 @@ public sealed record RemoveScopeCommand(
     ScopeService Service,
     ScopeShipmentType Type) : IRequest<Result>;
 
+public sealed class AddScopeHandler : IRequestHandler<AddScopeCommand, Result>
 
-
-public sealed class AddScopeHandler
-    : IRequestHandler<AddScopeCommand, Result>
 {
     private readonly ISubAccountRepository _subAccounts;
     private readonly IIdentityUnitOfWork _identityUnitOfWork;
+    private readonly ICustomerQueries _customerQueries;
 
     public AddScopeHandler(
         ISubAccountRepository subAccounts,
-        IIdentityUnitOfWork identityUnitOfWork)
+        IIdentityUnitOfWork identityUnitOfWork,
+        ICustomerQueries customerQueries)
     {
         _subAccounts = subAccounts;
         _identityUnitOfWork = identityUnitOfWork;
+        _customerQueries = customerQueries;
     }
 
     public async Task<Result> Handle(
         AddScopeCommand request,
         CancellationToken ct)
     {
+        var customer = await _customerQueries.GetByIdAsync(
+            request.CustomerId,
+            ct);
+
+        if (customer is null ||
+            customer.IsDeleted ||
+            !customer.IsActive)
+        {
+            return Result.Failure(
+                "Only active customers can manage sub-accounts.");
+        }
+
         var subAccount = await _subAccounts.GetByIdAsync(
             request.SubAccountId,
             ct);
@@ -76,24 +90,39 @@ public sealed class AddScopeHandler
     }
 }
 
-public sealed class RemoveScopeHandler
-    : IRequestHandler<RemoveScopeCommand, Result>
+public sealed class RemoveScopeHandler : IRequestHandler<RemoveScopeCommand, Result>
+
 {
     private readonly ISubAccountRepository _subAccounts;
     private readonly IIdentityUnitOfWork _identityUnitOfWork;
+    private readonly ICustomerQueries _customerQueries;
 
     public RemoveScopeHandler(
         ISubAccountRepository subAccounts,
-        IIdentityUnitOfWork IdentityUnitOfWork)
+        IIdentityUnitOfWork identityUnitOfWork,
+        ICustomerQueries customerQueries)
     {
         _subAccounts = subAccounts;
-        _identityUnitOfWork = IdentityUnitOfWork;
+        _identityUnitOfWork = identityUnitOfWork;
+        _customerQueries = customerQueries;
     }
 
     public async Task<Result> Handle(
         RemoveScopeCommand request,
         CancellationToken ct)
     {
+        var customer = await _customerQueries.GetByIdAsync(
+            request.CustomerId,
+            ct);
+
+        if (customer is null ||
+            customer.IsDeleted ||
+            !customer.IsActive)
+        {
+            return Result.Failure(
+                "Only active customers can manage sub-accounts.");
+        }
+
         var subAccount = await _subAccounts.GetByIdAsync(
             request.SubAccountId,
             ct);

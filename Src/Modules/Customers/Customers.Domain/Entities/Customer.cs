@@ -101,7 +101,13 @@ public sealed class Customer : AggregateRoot<Guid>, ISoftDeletable
         OwnerPhone = ownerPhone;
         Industry = industry;
     }
-
+    public void UpdateContactInfo(
+    string ownerName,
+    string ownerPhone)
+    {
+        OwnerName = ownerName;
+        OwnerPhone = ownerPhone;
+    }
     public void Suspend()
     {
         if (Status == CustomerStatus.Suspended)

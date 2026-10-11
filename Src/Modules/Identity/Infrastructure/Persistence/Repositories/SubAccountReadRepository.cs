@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.EntityFrameworkCore;
 using Identity.Application.SubAccounts.GetSubAccounts;
 using Identity.Infrastructure.Persistence;
 using Identity.Domain.Entities;
@@ -12,7 +13,9 @@ public sealed class SubAccountReadRepository : ISubAccountReadRepository
 
     public SubAccountReadRepository(IdentityDbContext db) => _db = db;
 
-    public async Task<IReadOnlyList<SubAccountListItem>> GetByCustomerIdAsync(Guid organizationId, CancellationToken ct)
+    public async Task<IReadOnlyList<SubAccountListItem>> GetByCustomerIdAsync(
+        Guid organizationId,
+        CancellationToken ct)
     {
         var subAccounts = await _db.SubAccounts
             .Where(x => x.CustomerId == organizationId)
@@ -29,7 +32,13 @@ public sealed class SubAccountReadRepository : ISubAccountReadRepository
             sa.Name,
             emailsByUserId.GetValueOrDefault(sa.UserId, string.Empty),
             sa.Status.ToString(),
-            BuildScopeDescriptions(sa)
+            BuildScopeDescriptions(sa),
+            sa.ScopeType,
+            sa.Scopes.Select(s => new SubAccountScopeItem(
+                s.Category,
+                s.Service,
+                s.Type
+            )).ToList()
         )).ToList();
     }
 

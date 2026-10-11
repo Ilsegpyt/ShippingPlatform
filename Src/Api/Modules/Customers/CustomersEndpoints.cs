@@ -1,10 +1,12 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
 using Customers.Application.Commands.DeleteCustomer;
+using Customers.Application.Commands.UpdateCustomerEmail;
 using Customers.Application.Commands.UpdateCustomerProfile;
+using Customers.Application.Commands.UpdateMyCustomerProfile;
 using Customers.Application.Customers.ActivateCustomer;
 using Customers.Application.Customers.RegisterCustomer;
 using Customers.Application.Customers.SuspendCustomer;
-using Customers.Application.Customers.UpdateCustomerEmail;
 using Customers.Application.Customers.UpdateCustomerProfile;
 using Customers.Application.Queries.GetCustomerById;
 using Customers.Application.Queries.ListAllCustomers;
@@ -28,13 +30,13 @@ public static class CustomersEndpoints
         MapGetAllIncludingDeleted(group);
         MapGetById(group);
         MapUpdate(group);
+        MapUpdateMyProfile(group);
         MapSuspend(group);
         MapActivate(group);
         MapRegister(group);
         MapUpdateEmail(group);
         MapDelete(group);
         MapGetOwner(group);
-
     }
 
     private static void MapGetAll(IEndpointRouteBuilder customers)
@@ -114,6 +116,31 @@ public static class CustomersEndpoints
         })
         .RequirePermission(PermissionCatalog.CustomersEdit);
     }
+
+    private static void MapUpdateMyProfile(IEndpointRouteBuilder group)
+    {
+        group.MapPut("/me/profile", async (
+            UpdateOwnCustomerProfileRequest body,
+            ClaimsPrincipal user,
+            ISender sender,
+            CancellationToken ct) =>
+        {
+            var customerId = user.GetOrganizationId();
+
+            var result = await sender.Send(
+                new UpdateMyCustomerProfileCommand(
+                    customerId,
+                    body.OwnerName,
+                    body.OwnerPhone),
+                ct);
+
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.BadRequest(result.Error);
+        })
+        .RequireAuthorization();
+    }
+
     private static void MapUpdateEmail(IEndpointRouteBuilder group)
     {
         group.MapPut("/{id:guid}/email", async (
@@ -122,9 +149,7 @@ public static class CustomersEndpoints
             ISender sender) =>
         {
             var result = await sender.Send(
-                new UpdateCustomerEmail(
-                    id,
-                    body.Email));
+                new UpdateCustomerEmail(id, body.Email));
 
             return result.IsSuccess
                 ? Results.NoContent()
@@ -132,6 +157,7 @@ public static class CustomersEndpoints
         })
         .RequirePermission(PermissionCatalog.CustomersEdit);
     }
+
     private static void MapSuspend(IEndpointRouteBuilder group)
     {
         group.MapPost("/{id:guid}/suspend", async (
@@ -186,8 +212,7 @@ public static class CustomersEndpoints
         })
         .RequirePermission(PermissionCatalog.CustomersCreate);
     }
-  
-    
+
     private static void MapDelete(IEndpointRouteBuilder group)
     {
         group.MapDelete("/", async (
@@ -196,12 +221,8 @@ public static class CustomersEndpoints
             ISender sender,
             CancellationToken ct) =>
         {
-            var deletedByUserId = user.GetUserId();
-
             var result = await sender.Send(
-                new DeleteCustomersCommand(
-                    request.CustomerIds
-                    ),
+                new DeleteCustomersCommand(request.CustomerIds),
                 ct);
 
             return result.IsSuccess
@@ -210,8 +231,6 @@ public static class CustomersEndpoints
         })
         .RequirePermission(PermissionCatalog.CustomersDelete);
     }
-    
-   
 
     private static void MapGetOwner(IEndpointRouteBuilder group)
     {
@@ -220,7 +239,8 @@ public static class CustomersEndpoints
             ICustomerQueries customerQueries,
             CancellationToken ct) =>
         {
-            var result = await customerQueries.GetOwnerByCustomerIdAsync(id, ct);
+            var result = await customerQueries
+                .GetOwnerByCustomerIdAsync(id, ct);
 
             return result is not null
                 ? Results.Ok(result)
@@ -228,6 +248,4 @@ public static class CustomersEndpoints
         })
         .RequirePermission(PermissionCatalog.CustomersImpersonate);
     }
-
 }
-

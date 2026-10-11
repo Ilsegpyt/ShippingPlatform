@@ -13,8 +13,8 @@ public interface ICustomerQueries
     CancellationToken ct);
 }
 
-public sealed record CustomerAuthInfo(Guid CustomerId, bool IsActive);
-public sealed record CustomerInfo(Guid CustomerId, bool IsActive);
+public sealed record CustomerAuthInfo(Guid CustomerId, bool IsActive, bool IsDeleted);
+public sealed record CustomerInfo(Guid CustomerId, bool IsActive, bool IsDeleted);
 public sealed record CustomerOwnerInfo(Guid CustomerId, Guid OwnerUserId, string OwnerEmail);
 public sealed record CustomerMeInfo(Guid CustomerId, string OwnerName, string CompanyName, string OwnerPhone, string OwnerEmail);
 

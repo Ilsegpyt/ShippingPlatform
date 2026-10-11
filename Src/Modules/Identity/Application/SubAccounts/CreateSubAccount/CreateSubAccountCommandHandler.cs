@@ -1,4 +1,6 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
+using Customers.Contracts;
 using Identity.Application.Abstractions;
 using Identity.Application.Options;
 using Identity.Domain.Entities;
@@ -17,17 +19,20 @@ public sealed class CreateSubAccountCommandHandler
     private readonly IIdentityUserService _identityUsers;
     private readonly ISubAccountRepository _subAccounts;
     private readonly IIdentityUnitOfWork _identityUnitOfWork;
+    private readonly ICustomerQueries _customerQueries;
     private readonly SubAccountOptions _options;
 
     public CreateSubAccountCommandHandler(
         IIdentityUserService identityUsers,
         ISubAccountRepository subAccounts,
         IIdentityUnitOfWork identityUnitOfWork,
+        ICustomerQueries customerQueries,
         IOptions<SubAccountOptions> options)
     {
         _identityUsers = identityUsers;
         _subAccounts = subAccounts;
         _identityUnitOfWork = identityUnitOfWork;
+        _customerQueries = customerQueries;
         _options = options.Value;
     }
 
@@ -35,6 +40,19 @@ public sealed class CreateSubAccountCommandHandler
         CreateSubAccountCommand command,
         CancellationToken ct)
     {
+        // Ensure the customer exists, is active, and is not deleted.
+        var customer = await _customerQueries.GetByIdAsync(
+            command.CustomerId,
+            ct);
+
+        if (customer is null ||
+            customer.IsDeleted ||
+            !customer.IsActive)
+        {
+            return Result.Failure<CreateSubAccountResponse>(
+                "Only active customers can create sub-accounts.");
+        }
+
         if (command.GrantFullScope && command.Scopes.Count > 0)
         {
             return Result.Failure<CreateSubAccountResponse>(
@@ -106,7 +124,6 @@ public sealed class CreateSubAccountCommandHandler
             return Result.Success(
                 new CreateSubAccountResponse(
                     subAccount.Id));
-
         }
         catch
         {

@@ -1,5 +1,4 @@
-﻿
-using BuildingBlocks.Application;
+﻿using BuildingBlocks.Application;
 using MediatR;
 
 namespace Customers.Application.Commands.UpdateCustomerProfile;

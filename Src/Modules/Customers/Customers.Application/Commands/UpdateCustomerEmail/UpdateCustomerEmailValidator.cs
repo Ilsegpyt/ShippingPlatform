@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Customers.Application.Customers.UpdateCustomerEmail;
+namespace Customers.Application.Commands.UpdateCustomerEmail;
 
 public sealed class UpdateCustomerEmailValidator
     : AbstractValidator<UpdateCustomerEmail>
