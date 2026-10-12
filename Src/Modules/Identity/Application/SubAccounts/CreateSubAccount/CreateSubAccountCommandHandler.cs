@@ -2,7 +2,6 @@
 using BuildingBlocks.Application;
 using Customers.Contracts;
 using Identity.Application.Abstractions;
-using Identity.Application.Options;
 using Identity.Domain.Entities;
 using Identity.Domain.Enums;
 using Identity.Domain.Exceptions;
@@ -20,20 +19,20 @@ public sealed class CreateSubAccountCommandHandler
     private readonly ISubAccountRepository _subAccounts;
     private readonly IIdentityUnitOfWork _identityUnitOfWork;
     private readonly ICustomerQueries _customerQueries;
-    private readonly SubAccountOptions _options;
+  
 
     public CreateSubAccountCommandHandler(
         IIdentityUserService identityUsers,
         ISubAccountRepository subAccounts,
         IIdentityUnitOfWork identityUnitOfWork,
-        ICustomerQueries customerQueries,
-        IOptions<SubAccountOptions> options)
+        ICustomerQueries customerQueries
+        )
     {
         _identityUsers = identityUsers;
         _subAccounts = subAccounts;
         _identityUnitOfWork = identityUnitOfWork;
         _customerQueries = customerQueries;
-        _options = options.Value;
+      
     }
 
     public async Task<Result<CreateSubAccountResponse>> Handle(

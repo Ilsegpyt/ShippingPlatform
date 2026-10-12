@@ -1,7 +1,6 @@
 ﻿using Identity.Application;
 using Identity.Application.Abstractions;
 using Identity.Application.AccountManagerAssignments;
-using Identity.Application.Options;
 using Identity.Application.SubAccounts.GetSubAccounts;
 using Identity.Contracts;
 using Identity.Domain.Repositories;
@@ -37,10 +36,7 @@ public static class IdentityModuleServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddOptions<SubAccountOptions>()
-            .Bind(configuration.GetSection(
-                SubAccountOptions.SectionName))
-            .ValidateOnStart();
+  
 
         services.AddOptions<Seeding.SeedOptions>()
             .Bind(configuration.GetSection(
