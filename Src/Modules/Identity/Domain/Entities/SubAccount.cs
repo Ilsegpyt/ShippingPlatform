@@ -199,11 +199,11 @@ public sealed class SubAccount : AggregateRoot<Guid>
     {
         Email = email.Trim();
 
-        RaiseDomainEvent(
-            new SubAccountEmailChangedEvent(
-                Id,
-                UserId,
-                Email,
-                DateTime.UtcNow));
+        //RaiseDomainEvent(
+        //    new SubAccountEmailChangedEvent(
+        //        Id,
+        //        UserId,
+        //        Email,
+        //        DateTime.UtcNow));
     }
 }
