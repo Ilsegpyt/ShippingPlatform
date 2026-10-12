@@ -1,6 +1,5 @@
 ﻿using Identity.Application.Abstractions;
 using Identity.Domain.Entities;
-using Identity.Domain.Enums;
 using Identity.Domain.Repositories;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Persistence;
