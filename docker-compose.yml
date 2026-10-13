@@ -59,7 +59,7 @@ services:
         echo "Database initialization completed successfully."
 
   api:
-    image: ilsegypt/shippingplatform-api:1.0
+    image: ilsegypt/shippingplatform-api:1.1
     container_name: shippingplatform-api
     depends_on:
       db-init:
@@ -86,7 +86,7 @@ services:
       Email__FromEmail: "${EMAIL_FROM_EMAIL}"
       Email__FromName: "${EMAIL_FROM_NAME}"
 
-      Notifications__FrontendBaseUrl: "${FRONTEND_BASE_URL}"
+      Notifications__FrontendBaseUrl: "http://127.0.0.1:5173"
 
     ports:
       - "8080:8080"

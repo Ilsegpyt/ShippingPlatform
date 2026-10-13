@@ -1,4 +1,5 @@
-﻿using Identity.Domain.ValueObjects;
+﻿
+using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -26,6 +27,14 @@ public static class CreateRecruitmentApplicationEndpoint
 
                 if (cv is null || cv.Length == 0)
                     return Results.BadRequest("CV is required.");
+
+                const long maxFileSize = 5 * 1024 * 1024; // 5 MB
+
+                if (cv.Length > maxFileSize)
+                {
+                    return Results.BadRequest(
+                        "CV file size must not exceed 5 MB.");
+                }
 
                 await using var signatureStream = cv.OpenReadStream();
 
