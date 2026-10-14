@@ -1,4 +1,5 @@
-﻿using ContentEntity = Content.Domain.Entities.Content;
+﻿
+using ContentEntity = Content.Domain.Entities.Content;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -21,6 +22,7 @@ public sealed class ContentConfiguration
         builder.Property(x => x.Type)
             .IsRequired();
 
+        // Existing fields
         builder.Property(x => x.Body)
             .IsRequired(false);
 
@@ -30,6 +32,14 @@ public sealed class ContentConfiguration
         builder.Property(x => x.LinkUrl)
             .IsRequired(false);
 
+        // Page-specific fields
+        builder.Property(x => x.PageIntroText)
+            .IsRequired(false);
+
+        builder.Property(x => x.PageContentOrder)
+            .IsRequired(false);
+
+        // Existing hierarchy relationship
         builder.HasOne(x => x.Parent)
             .WithMany(x => x.Children)
             .HasForeignKey(x => x.ParentId)

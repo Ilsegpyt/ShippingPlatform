@@ -1,4 +1,5 @@
-﻿using Content.Domain.Entities;
+﻿
+using Content.Domain.Entities;
 using BuildingBlocks.Application;
 using MediatR;
 
@@ -12,5 +13,7 @@ public sealed record CreateContentCommand(
     string? FeaturedImage,
     string? LinkUrl,
     string? Category,
-    DateTime? PublishedAt
+    DateTime? PublishedAt,
+    string? PageIntroText = null,
+    string? PageContentOrder = null
 ) : IRequest<Result<Guid>>;

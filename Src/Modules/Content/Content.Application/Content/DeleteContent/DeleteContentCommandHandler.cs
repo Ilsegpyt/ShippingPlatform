@@ -35,7 +35,8 @@ public sealed class DeleteContentCommandHandler(
 
         var imageUrls = ContentImageHelper.ExtractLocalImageUrls(
             content.FeaturedImage,
-            content.Body);
+            content.Body,
+            content.PageContentOrder);
 
         contentRepository.Delete(content);
         await unitOfWork.SaveChangesAsync(ct);

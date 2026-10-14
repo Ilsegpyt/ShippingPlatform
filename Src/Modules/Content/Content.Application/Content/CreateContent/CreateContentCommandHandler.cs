@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
 using Content.Application.Abstractions;
 using Content.Domain.Entities;
 using ContentEntity = Content.Domain.Entities.Content;
@@ -35,15 +36,22 @@ public sealed class CreateContentCommandHandler(
             }
         }
 
+        // Pages use PageIntroText and PageContentOrder, not Body.
+        var body = command.Type == ContentType.Page
+            ? null
+            : command.Body;
+
         var content = ContentEntity.Create(
             command.ParentId,
             command.Title,
             command.Type,
-            command.Body,
+            body,
             command.FeaturedImage,
             command.LinkUrl,
             command.Category,
-            command.PublishedAt);
+            command.PublishedAt,
+            command.PageIntroText,
+            command.PageContentOrder);
 
         contentRepository.Add(content);
 

@@ -7,7 +7,8 @@ public static class ContentImageHelper
     // Extracts local image URLs from the featured image and HTML body.
     public static HashSet<string> ExtractLocalImageUrls(
         string? featuredImage,
-        string? body)
+        string? body,
+        string? pageContentOrder = null)
     {
         var imageUrls = new HashSet<string>(
             StringComparer.OrdinalIgnoreCase);
@@ -15,11 +16,14 @@ public static class ContentImageHelper
         // Include the featured image if it belongs to our uploads folder.
         AddLocalImageUrl(imageUrls, featuredImage);
 
-        // Extract image sources from the HTML body.
-        if (!string.IsNullOrWhiteSpace(body))
+        // Extract image sources from the HTML body and ordered Page JSON.
+        foreach (var html in new[] { body, pageContentOrder })
         {
+            if (string.IsNullOrWhiteSpace(html))
+                continue;
+
             var matches = Regex.Matches(
-                body,
+                html,
                 """src\s*=\s*["']([^"']+)["']""",
                 RegexOptions.IgnoreCase);
 

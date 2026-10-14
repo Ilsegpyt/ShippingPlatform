@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
 using Content.Application.Abstractions;
 using Content.Application.Content.GetContentById;
 using MediatR;
@@ -29,7 +30,9 @@ public sealed class GetRootContentQueryHandler(
                 content.FeaturedImage,
                 content.LinkUrl,
                 content.Category,
-                content.PublishedAt))
+                content.PublishedAt,
+                content.PageIntroText,
+                content.PageContentOrder))
             .ToList();
 
         return Result.Success<IReadOnlyList<ContentDto>>(result);

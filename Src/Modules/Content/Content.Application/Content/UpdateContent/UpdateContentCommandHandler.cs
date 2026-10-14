@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
 using Content.Application.Abstractions;
 using Content.Application.Content;
 using Content.Domain.Entities;
@@ -73,10 +74,8 @@ public sealed class UpdateContentCommandHandler(
                 if (!ancestor.ParentId.HasValue)
                     break;
 
-                var ancestorId = ancestor.ParentId.Value;
-
                 var nextAncestor = await contentRepository.GetByIdAsync(
-                    ancestorId,
+                    ancestor.ParentId.Value,
                     ct);
 
                 if (nextAncestor is null)
@@ -104,21 +103,29 @@ public sealed class UpdateContentCommandHandler(
             }
         }
 
-        // Step 4: Save the old image URLs before updating the content.
+        // Step 4: Save old image URLs before updating.
         var oldImageUrls = ContentImageHelper.ExtractLocalImageUrls(
             content.FeaturedImage,
-            content.Body);
+            content.Body,
+            content.PageContentOrder);
+
+        // Pages use PageIntroText and PageContentOrder, not Body.
+        var body = command.Type == ContentType.Page
+            ? null
+            : command.Body;
 
         // Step 5: Apply the requested changes.
         content.Update(
             command.ParentId,
             command.Title,
             command.Type,
-            command.Body,
+            body,
             command.FeaturedImage,
             command.LinkUrl,
             command.Category,
-            command.PublishedAt);
+            command.PublishedAt,
+            command.PageIntroText,
+            command.PageContentOrder);
 
         // Step 6: Save database changes before cleaning up old files.
         await unitOfWork.SaveChangesAsync(ct);
@@ -126,9 +133,10 @@ public sealed class UpdateContentCommandHandler(
         // Step 7: Collect image URLs referenced after the update.
         var newImageUrls = ContentImageHelper.ExtractLocalImageUrls(
             content.FeaturedImage,
-            content.Body);
+            content.Body,
+            content.PageContentOrder);
 
-        // Step 8: Find old images that are no longer used by this content.
+        // Step 8: Find old images no longer referenced by this content.
         var imagesToCheck = oldImageUrls.Except(
             newImageUrls,
             StringComparer.OrdinalIgnoreCase);

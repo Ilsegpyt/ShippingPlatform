@@ -31,6 +31,12 @@ namespace Content.Infrastructure.Migrations
                     b.Property<string>("Body")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PageIntroText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PageContentOrder")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Category")
                         .HasColumnType("nvarchar(max)");
 

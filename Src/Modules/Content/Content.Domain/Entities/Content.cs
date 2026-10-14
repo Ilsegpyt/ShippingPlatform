@@ -1,4 +1,5 @@
-﻿namespace Content.Domain.Entities;
+﻿
+namespace Content.Domain.Entities;
 
 public sealed class Content
 {
@@ -10,6 +11,7 @@ public sealed class Content
 
     public ContentType Type { get; private set; }
 
+    // Existing content field. Preserved for current content types.
     public string? Body { get; private set; }
 
     public string? FeaturedImage { get; private set; }
@@ -21,9 +23,16 @@ public sealed class Content
 
     public DateTime? PublishedAt { get; private set; }
 
+    // Page-specific fields
+    public string? PageIntroText { get; private set; }
+
+    // Ordered page structure serialized as JSON.
+    public string? PageContentOrder { get; private set; }
+
     public Content? Parent { get; private set; }
 
-    public ICollection<Content> Children { get; private set; } = new List<Content>();
+    public ICollection<Content> Children { get; private set; }
+        = new List<Content>();
 
     public static Content Create(
         Guid? parentId,
@@ -33,7 +42,9 @@ public sealed class Content
         string? featuredImage,
         string? linkUrl,
         string? category,
-        DateTime? publishedAt)
+        DateTime? publishedAt,
+        string? pageIntroText = null,
+        string? pageContentOrder = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
 
@@ -46,7 +57,9 @@ public sealed class Content
             featuredImage,
             linkUrl,
             category,
-            publishedAt);
+            publishedAt,
+            pageIntroText,
+            pageContentOrder);
     }
 
     private Content()
@@ -62,7 +75,9 @@ public sealed class Content
         string? featuredImage,
         string? linkUrl,
         string? category,
-        DateTime? publishedAt)
+        DateTime? publishedAt,
+        string? pageIntroText,
+        string? pageContentOrder)
     {
         Id = id;
         ParentId = parentId;
@@ -73,6 +88,8 @@ public sealed class Content
         LinkUrl = linkUrl;
         Category = category;
         PublishedAt = publishedAt;
+        PageIntroText = pageIntroText;
+        PageContentOrder = pageContentOrder;
     }
 
     public void Update(
@@ -83,7 +100,9 @@ public sealed class Content
         string? featuredImage,
         string? linkUrl,
         string? category,
-        DateTime? publishedAt)
+        DateTime? publishedAt,
+        string? pageIntroText = null,
+        string? pageContentOrder = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
 
@@ -95,6 +114,8 @@ public sealed class Content
         LinkUrl = linkUrl;
         Category = category;
         PublishedAt = publishedAt;
+        PageIntroText = pageIntroText;
+        PageContentOrder = pageContentOrder;
     }
 }
 

@@ -100,24 +100,24 @@ builder.Services.AddRateLimiter(options =>
 
     // Global limit - TEMPORARILY DISABLED
     // Disabled temporarily to investigate repeated 429 responses.
-    options.GlobalLimiter =
-        PartitionedRateLimiter.Create<HttpContext, string>(
-            httpContext =>
-            {
-                var ipAddress =
-                    httpContext.Connection.RemoteIpAddress?.ToString()
-                    ?? "unknown";
+    //options.GlobalLimiter =
+    //    PartitionedRateLimiter.Create<HttpContext, string>(
+    //        httpContext =>
+    //        {
+    //            var ipAddress =
+    //                httpContext.Connection.RemoteIpAddress?.ToString()
+    //                ?? "unknown";
 
-                return RateLimitPartition.GetFixedWindowLimiter(
-                    ipAddress,
-                    _ => new FixedWindowRateLimiterOptions
-                    {
-                        PermitLimit = 500,
-                        Window = TimeSpan.FromMinutes(1),
-                        QueueLimit = 0,
-                        AutoReplenishment = true
-                    });
-            });
+    //            return RateLimitPartition.GetFixedWindowLimiter(
+    //                ipAddress,
+    //                _ => new FixedWindowRateLimiterOptions
+    //                {
+    //                    PermitLimit = 500,
+    //                    Window = TimeSpan.FromMinutes(1),
+    //                    QueueLimit = 0,
+    //                    AutoReplenishment = true
+    //                });
+    //        });
 
     // Login limit: 5 requests per minute per IP
     options.AddPolicy("LoginPolicy", httpContext =>

@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
 using Content.Domain.Entities;
 using MediatR;
 
@@ -13,5 +14,7 @@ public sealed record UpdateContentCommand(
     string? FeaturedImage,
     string? LinkUrl,
     string? Category,
-    DateTime? PublishedAt
+    DateTime? PublishedAt,
+    string? PageIntroText = null,
+    string? PageContentOrder = null
 ) : IRequest<Result>;

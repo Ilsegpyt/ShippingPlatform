@@ -1,4 +1,5 @@
-﻿using Content.Application.Content.UpdateContent;
+﻿
+using Content.Application.Content.UpdateContent;
 using Content.Domain.Entities;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
@@ -25,7 +26,9 @@ public static class UpdateContentEndpoint
                 request.FeaturedImage,
                 request.LinkUrl,
                 request.Category,
-                request.PublishedAt);
+                request.PublishedAt,
+                request.PageIntroText,
+                request.PageContentOrder);
 
             var result = await sender.Send(command, ct);
 
@@ -33,7 +36,7 @@ public static class UpdateContentEndpoint
                 ? Results.NoContent()
                 : Results.BadRequest(result.Error);
         })
-            .RequirePermission(PermissionCatalog.ContentEdit);
+        .RequirePermission(PermissionCatalog.ContentEdit);
     }
 }
 
@@ -45,4 +48,6 @@ public sealed record UpdateContentRequest(
     string? FeaturedImage,
     string? LinkUrl,
     string? Category,
-    DateTime? PublishedAt);
+    DateTime? PublishedAt,
+    string? PageIntroText = null,
+    string? PageContentOrder = null);

@@ -23,7 +23,9 @@ public static class CreateContentEndpoint
                 request.FeaturedImage,
                 request.LinkUrl,
                 request.Category,
-                request.PublishedAt);
+                request.PublishedAt,
+                request.PageIntroText,
+                request.PageContentOrder);
 
             var result = await sender.Send(command, ct);
 
@@ -31,7 +33,7 @@ public static class CreateContentEndpoint
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(result.Error);
         })
-            .RequirePermission(PermissionCatalog.ContentCreate);
+        .RequirePermission(PermissionCatalog.ContentCreate);
     }
 }
 
@@ -43,4 +45,6 @@ public sealed record CreateContentRequest(
     string? FeaturedImage,
     string? LinkUrl,
     string? Category,
-    DateTime? PublishedAt);
+    DateTime? PublishedAt,
+    string? PageIntroText = null,
+    string? PageContentOrder = null);

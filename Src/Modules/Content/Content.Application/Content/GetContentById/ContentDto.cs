@@ -1,4 +1,5 @@
-﻿using Content.Domain.Entities;
+﻿
+using Content.Domain.Entities;
 
 namespace Content.Application.Content.GetContentById;
 
@@ -11,5 +12,7 @@ public sealed record ContentDto(
     string? FeaturedImage,
     string? LinkUrl,
     string? Category,
-    DateTime? PublishedAt
+    DateTime? PublishedAt,
+    string? PageIntroText,
+    string? PageContentOrder
 );
