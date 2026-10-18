@@ -43,20 +43,35 @@ builder.Logging.AddDebug();
 // ==================================================
 // CORS
 // ==================================================
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "http://localhost:5174",
-                "http://127.0.0.1:5173"
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        if (builder.Environment.IsDevelopment())
+        {
+            policy
+                .WithOrigins(
+                    "http://localhost:5173",
+                    "http://localhost:5174",
+                    "http://127.0.0.1:5173"
+                )
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
+        else
+        {
+            policy
+                .WithOrigins(
+                    "https://ilsegypt.com",
+                    "https://www.ilsegypt.com"
+                )
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
     });
 });
+
 
 // ==================================================
 // Rate Limiting

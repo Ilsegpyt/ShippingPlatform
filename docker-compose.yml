@@ -1,97 +1,20 @@
-
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: shippingplatform-db
-    environment:
-      ACCEPT_EULA: "Y"
-      MSSQL_PID: Developer
-      MSSQL_SA_PASSWORD: "${DB_SA_PASSWORD}"
-    volumes:
-      - sqlserver_data:/var/opt/mssql
-    restart: unless-stopped
-
-  db-init:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: shippingplatform-db-init
-    depends_on:
-      - sqlserver
-    environment:
-      DB_SA_PASSWORD: "${DB_SA_PASSWORD}"
-    volumes:
-      - ./database/init:/scripts:ro
-    entrypoint: ["/bin/bash", "-c"]
-    command:
-      - |
-        set -e
-
-        echo "Waiting for SQL Server..."
-
-        until /opt/mssql-tools18/bin/sqlcmd \
-          -S sqlserver -U sa -P "$$DB_SA_PASSWORD" \
-          -C -Q "SELECT 1" >/dev/null 2>&1; do
-          sleep 3
-        done
-
-        echo "Creating database if needed..."
-
-        /opt/mssql-tools18/bin/sqlcmd \
-          -S sqlserver -U sa -P "$$DB_SA_PASSWORD" \
-          -C -b \
-          -Q "IF DB_ID('ShippingPlatform') IS NULL CREATE DATABASE ShippingPlatform"
-
-        for file in \
-          /scripts/Identity.sql \
-          /scripts/Customers.sql \
-          /scripts/Notifications.sql \
-          /scripts/Reports.sql \
-          /scripts/Operations.sql \
-          /scripts/Content.sql \
-          /scripts/Website.sql; do
-
-          echo "Applying $$file..."
-
-          /opt/mssql-tools18/bin/sqlcmd \
-            -S sqlserver -U sa -P "$$DB_SA_PASSWORD" \
-            -C -d ShippingPlatform -b -i "$$file"
-        done
-
-        echo "Database initialization completed successfully."
-
   api:
-    image: ilsegypt/shippingplatform-api:1.1
-    container_name: shippingplatform-api
-    depends_on:
-      db-init:
-        condition: service_completed_successfully
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_HTTP_PORTS: "8080"
+    image: ${DOCKER_REGISTRY-}api
+    build:
+      context: .
+      dockerfile: Src/Api/Dockerfile
 
-      ConnectionStrings__IdentityDb: "Server=sqlserver,1433;Database=ShippingPlatform;User Id=sa;Password=${DB_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True"
-      ConnectionStrings__CustomersDb: "Server=sqlserver,1433;Database=ShippingPlatform;User Id=sa;Password=${DB_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True"
-      ConnectionStrings__NotificationsDb: "Server=sqlserver,1433;Database=ShippingPlatform;User Id=sa;Password=${DB_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True"
-      ConnectionStrings__ReportsDb: "Server=sqlserver,1433;Database=ShippingPlatform;User Id=sa;Password=${DB_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True"
-      ConnectionStrings__ContentDb: "Server=sqlserver,1433;Database=ShippingPlatform;User Id=sa;Password=${DB_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True"
-      ConnectionStrings__OperationsDb: "Server=sqlserver,1433;Database=ShippingPlatform;User Id=sa;Password=${DB_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True"
-      ConnectionStrings__WebsiteDb: "Server=sqlserver,1433;Database=ShippingPlatform;User Id=sa;Password=${DB_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True"
-
-      Seed__SuperAdminPassword: "${SEED_SUPERADMIN_PASSWORD}"
-      Jwt__SigningKey: "${JWT_SIGNING_KEY}"
-
-      Email__Username: "${EMAIL_USERNAME}"
-      Email__Password: "${EMAIL_PASSWORD}"
-      Email__SmtpHost: "${EMAIL_SMTP_HOST}"
-      Email__SmtpPort: "${EMAIL_SMTP_PORT}"
-      Email__FromEmail: "${EMAIL_FROM_EMAIL}"
-      Email__FromName: "${EMAIL_FROM_NAME}"
-
-      Notifications__FrontendBaseUrl: "http://127.0.0.1:5173"
-
-    ports:
-      - "8080:8080"
-
-    restart: unless-stopped
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+  
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2025-latest
 
 volumes:
   sqlserver_data:
+
+networks:
+  app-network:
+    driver: bridge
+    name: app-network
