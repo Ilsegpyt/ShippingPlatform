@@ -1,4 +1,7 @@
-﻿using MediatR;
+﻿
+using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Operations.Application.Operations.CreateOperation;
 using Operations.Domain.Enums;
 
@@ -13,7 +16,9 @@ public static class CreateOperationEndpoint
             ISender sender,
             CancellationToken ct) =>
         {
+            var isExport = request.OperationType == OperationType.Export;
             var command = new CreateOperationCommand(
+                // Common
                 request.ClientId,
                 request.ShippingLineId,
                 request.OperationType,
@@ -21,7 +26,7 @@ public static class CreateOperationEndpoint
 
                 // Import
                 request.MBLNumber,
-                request.Destination,
+                isExport ? null : request.Destination,
                 request.PODId,
                 request.FreeTimeTill,
                 request.RequiredOffloadingDate,
@@ -32,14 +37,17 @@ public static class CreateOperationEndpoint
                 request.BookingNumber,
                 request.POLId,
                 request.POWId,
-                request.CutOffDate);
+                request.CutOffDate,
+                request.ExportDestination // الإضافة المطلوبة
+            );
 
             var result = await sender.Send(command, ct);
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
                 : Results.BadRequest(result.Error);
-        });
+        })
+        .RequirePermission(PermissionCatalog.OperationsCreate);
     }
 }
 
@@ -62,4 +70,6 @@ public sealed record CreateOperationRequest(
     string? BookingNumber,
     Guid? POLId,
     Guid? POWId,
-    DateOnly? CutOffDate);
+    DateOnly? CutOffDate,
+    string? ExportDestination = null
+);

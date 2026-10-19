@@ -21,6 +21,7 @@ public static class OperationsModuleServiceCollectionExtensions
             sp => sp.GetRequiredService<OperationsDbContext>());
 
         services.AddScoped<IOperationRepository, OperationRepository>();
+        services.AddScoped<IFclRepository, FclRepository>();
 
         return services;
     }

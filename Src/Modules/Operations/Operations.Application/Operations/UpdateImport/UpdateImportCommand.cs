@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
 using MediatR;
 using Operations.Domain.Enums;
 
@@ -11,13 +12,11 @@ public sealed record UpdateImportCommand(
     string? ShipmentNumber,
     string? CertificateNumber,
     DateTime? InvoicesReceivedDate,
-    OperationStatus? Status,
 
     // Containers
     IReadOnlyCollection<UpdateImportContainerItem> Containers
 
 ) : IRequest<Result<bool>>;
-
 
 public sealed record UpdateImportContainerItem(
     Guid ContainerId,
@@ -38,5 +37,9 @@ public sealed record UpdateImportContainerItem(
     DateTime? CheckOutFromThePort,
 
     string? MissingDocs,
-    DateOnly? MissingDocsReceivedDate
+    DateOnly? MissingDocsReceivedDate,
+
+    // Editable per container
+    string? Destination,
+    DateOnly? FreeTimeTill
 );

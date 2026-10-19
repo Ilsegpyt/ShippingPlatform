@@ -1,4 +1,7 @@
-﻿using MediatR;
+﻿
+using Identity.Domain.ValueObjects;
+using Identity.Infrastructure.Authorization;
+using MediatR;
 using Operations.Application.Operations.UpdateImport;
 using Operations.Domain.Enums;
 
@@ -21,7 +24,6 @@ public static class UpdateImportEndpoint
                     request.ShipmentNumber,
                     request.CertificateNumber,
                     request.InvoicesReceivedDate,
-                    request.Status,
                     request.Containers
                         .Select(x => new UpdateImportContainerItem(
                             x.ContainerId,
@@ -36,7 +38,9 @@ public static class UpdateImportEndpoint
                             x.DriverId,
                             x.CheckOutFromThePort,
                             x.MissingDocs,
-                            x.MissingDocsReceivedDate))
+                            x.MissingDocsReceivedDate,
+                            x.Destination,
+                            x.FreeTimeTill))
                         .ToList());
 
                 var result = await sender.Send(command, ct);
@@ -44,7 +48,8 @@ public static class UpdateImportEndpoint
                 return result.IsSuccess
                     ? Results.Ok(result.Value)
                     : Results.BadRequest(result.Error);
-            });
+            })
+            .RequirePermission(PermissionCatalog.OperationsEdit);
     }
 }
 
@@ -52,7 +57,6 @@ public sealed record UpdateImportRequest(
     string? ShipmentNumber,
     string? CertificateNumber,
     DateTime? InvoicesReceivedDate,
-    OperationStatus? Status,
     IReadOnlyCollection<UpdateImportContainerRequest> Containers);
 
 public sealed record UpdateImportContainerRequest(
@@ -74,4 +78,7 @@ public sealed record UpdateImportContainerRequest(
     DateTime? CheckOutFromThePort,
 
     string? MissingDocs,
-    DateOnly? MissingDocsReceivedDate);
+    DateOnly? MissingDocsReceivedDate,
+
+    string? Destination,
+    DateOnly? FreeTimeTill);

@@ -2,7 +2,7 @@
 
 public class ContainerUpdate
 {
-    public Guid Id { get; private set; } = Guid.NewGuid();
+    public Guid Id { get; private set; }
 
     public Guid OperationContainerId { get; private set; }
 

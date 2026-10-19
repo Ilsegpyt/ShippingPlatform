@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿
+using FluentValidation;
 using Operations.Domain.Enums;
 
 namespace Operations.Application.Operations.CreateOperation;
@@ -22,13 +23,10 @@ public sealed class CreateOperationValidator
             .WithMessage("Invalid operation type.");
 
         RuleFor(x => x.NumberOfContainers)
-            .GreaterThan(0)
-            .WithMessage("Number of containers must be greater than zero.");
+            .InclusiveBetween(1, 200)
+            .WithMessage("Number of containers must be between 1 and 200.");
 
-        // =========================
         // Import
-        // =========================
-
         When(x => x.OperationType == OperationType.Import, () =>
         {
             RuleFor(x => x.MBLNumber)
@@ -57,7 +55,6 @@ public sealed class CreateOperationValidator
                 .NotNull()
                 .WithMessage("Required Offloading Time is required.");
 
-            // Export fields are not allowed for Import
             RuleFor(x => x.ClearanceType)
                 .Null()
                 .WithMessage("Clearance Type is not allowed for Import.");
@@ -79,15 +76,14 @@ public sealed class CreateOperationValidator
                 .WithMessage("Cut Off Date is not allowed for Import.");
         });
 
-        // =========================
         // Export
-        // =========================
-
         When(x => x.OperationType == OperationType.Export, () =>
         {
             RuleFor(x => x.ClearanceType)
                 .NotNull()
-                .WithMessage("Clearance Type is required.");
+                .WithMessage("Clearance Type is required.")
+                .IsInEnum()
+                .WithMessage("Invalid clearance type.");
 
             RuleFor(x => x.BookingNumber)
                 .NotEmpty()
@@ -98,9 +94,8 @@ public sealed class CreateOperationValidator
                 .NotEmpty()
                 .WithMessage("POL is required.");
 
-            // POW and Cut Off are optional for Export
+            // POW and Cut Off Date are optional.
 
-            // Import fields are not allowed for Export
             RuleFor(x => x.MBLNumber)
                 .Null()
                 .WithMessage("M/BL Number is not allowed for Export.");

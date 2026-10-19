@@ -15,6 +15,27 @@ public sealed class CreateOperationCommandHandler(
         CreateOperationCommand command,
         CancellationToken ct)
     {
+        if (command.NumberOfContainers is < 1 or > 200)
+        {
+            return Result.Failure<Guid>(
+                "Number of containers must be between 1 and 200.");
+        }
+
+        if (command.OperationType == OperationType.Import)
+        {
+            if (string.IsNullOrWhiteSpace(command.Destination))
+            {
+                return Result.Failure<Guid>(
+                    "Destination is required for Import.");
+            }
+
+            if (!command.FreeTimeTill.HasValue)
+            {
+                return Result.Failure<Guid>(
+                    "Free time till is required for Import.");
+            }
+        }
+
         var operation = new Operation(
             command.ClientId,
             command.ShippingLineId,
@@ -23,21 +44,39 @@ public sealed class CreateOperationCommandHandler(
             null,
             null);
 
+        operation.UpdateNumberOfContainers(command.NumberOfContainers);
+
         for (short ordinal = 1; ordinal <= command.NumberOfContainers; ordinal++)
         {
-            operation.Containers.Add(
-                new OperationContainer(
-                    operation.Id,
-                    ordinal));
+            var container = new OperationContainer(
+                operation.Id,
+                ordinal);
+
+            if (command.OperationType == OperationType.Import)
+            {
+                container.InitializeImportData(
+                    command.Destination!,
+                    command.FreeTimeTill!.Value);
+            }
+            else if (command.OperationType == OperationType.Export &&
+                     !string.IsNullOrWhiteSpace(command.ExportDestination))
+            {
+                container.UpdateExportData(
+                    null,
+                    null,
+                    null,
+                    null,
+                    command.ExportDestination);
+            }
+
+            operation.Containers.Add(container);
         }
 
         if (command.OperationType == OperationType.Import)
         {
             var importDetails = new ImportDetails(
                 command.MBLNumber!,
-                command.Destination!,
                 command.PODId!.Value,
-                command.FreeTimeTill!.Value,
                 command.RequiredOffloadingDate!.Value,
                 command.RequiredOffloadingTime!.Value);
 
@@ -56,7 +95,6 @@ public sealed class CreateOperationCommandHandler(
         }
 
         await operationRepository.AddAsync(operation, ct);
-
         await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success(operation.Id);

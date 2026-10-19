@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Operations.Domain.Entities;
 
@@ -21,6 +22,14 @@ public sealed class OperationContainerConfiguration
         builder.Property(x => x.ContainerNumber)
             .HasMaxLength(11);
 
+        builder.Property(x => x.Destination)
+            .IsRequired(false)
+            .HasMaxLength(200);
+
+        builder.Property(x => x.FreeTimeTill)
+            .IsRequired(false)
+            .HasColumnType("date");
+
         builder.Property(x => x.MissingDocs)
             .HasMaxLength(1000);
 
@@ -32,7 +41,7 @@ public sealed class OperationContainerConfiguration
         {
             table.HasCheckConstraint(
                 "CK_OperationContainer_Ordinal",
-                "[Ordinal] >= 0 AND [Ordinal] < 200");
+                "[Ordinal] >= 1 AND [Ordinal] <= 200");
         });
 
         builder.HasIndex(x => new
@@ -43,7 +52,7 @@ public sealed class OperationContainerConfiguration
         .IsUnique();
 
         // -------------------------
-        // Legacy indexes
+        // Indexes
         // -------------------------
 
         builder.HasIndex(x => x.ContainerNumber)

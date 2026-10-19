@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Domain;
+﻿
+using BuildingBlocks.Domain;
 
 namespace Operations.Domain.Entities;
 
@@ -10,13 +11,9 @@ public class ImportDetails : SoftDeletableEntity<Guid>
 
     public string MBLNumber { get; private set; } = null!;
 
-    public string Destination { get; private set; } = null!;
-
     public Guid PODId { get; private set; }
 
     public Port POD { get; private set; } = null!;
-
-    public DateOnly FreeTimeTill { get; private set; }
 
     public DateOnly RequiredOffloadingDate { get; private set; }
 
@@ -28,16 +25,12 @@ public class ImportDetails : SoftDeletableEntity<Guid>
 
     public ImportDetails(
         string mblNumber,
-        string destination,
         Guid podId,
-        DateOnly freeTimeTill,
         DateOnly requiredOffloadingDate,
         TimeOnly requiredOffloadingTime)
     {
         MBLNumber = mblNumber;
-        Destination = destination;
         PODId = podId;
-        FreeTimeTill = freeTimeTill;
         RequiredOffloadingDate = requiredOffloadingDate;
         RequiredOffloadingTime = requiredOffloadingTime;
     }

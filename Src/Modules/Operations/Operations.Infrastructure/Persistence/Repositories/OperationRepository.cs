@@ -22,6 +22,7 @@ public sealed class OperationRepository(
         CancellationToken cancellationToken = default)
     {
         return await dbContext.Operations
+            .Include(x => x.ExportDetails)
             .Include(x => x.Containers)
                 .ThenInclude(x => x.Updates)
             .FirstOrDefaultAsync(

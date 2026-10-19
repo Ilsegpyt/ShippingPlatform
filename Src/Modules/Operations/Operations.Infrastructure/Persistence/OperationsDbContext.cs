@@ -1,6 +1,8 @@
-﻿using BuildingBlocks.Application.Abstractions;
+﻿
+using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Operations.Application.Abstractions;
 using Operations.Domain.Entities;
 
@@ -9,6 +11,7 @@ namespace Operations.Infrastructure.Persistence;
 public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
 {
     private readonly ICurrentUser _currentUser;
+    private IDbContextTransaction? _currentTransaction;
 
     public OperationsDbContext(
         DbContextOptions<OperationsDbContext> options,
@@ -28,15 +31,14 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
     public DbSet<Transporter> Transporters => Set<Transporter>();
     public DbSet<Driver> Drivers => Set<Driver>();
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
+    public DbSet<FclSuggestion> FclSuggestions => Set<FclSuggestion>();
+    public DbSet<FclApproval> FclApprovals => Set<FclApproval>();
+    public DbSet<OperationStatusAudit> OperationStatusAudits => Set<OperationStatusAudit>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(
             typeof(OperationsDbContext).Assembly);
-
-        // -------------------------
-        // Soft Delete Query Filters
-        // -------------------------
 
         builder.Entity<Operation>()
             .HasQueryFilter(x => !x.IsDeleted);
@@ -53,16 +55,63 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
         base.OnModelCreating(builder);
     }
 
+    public async Task BeginTransactionAsync(
+        CancellationToken ct = default)
+    {
+        if (_currentTransaction is not null)
+        {
+            throw new InvalidOperationException(
+                "A transaction is already active.");
+        }
+
+        _currentTransaction =
+            await Database.BeginTransactionAsync(ct);
+    }
+
+    public async Task CommitTransactionAsync(
+        CancellationToken ct = default)
+    {
+        if (_currentTransaction is null)
+        {
+            throw new InvalidOperationException(
+                "No active transaction exists.");
+        }
+
+        try
+        {
+            await _currentTransaction.CommitAsync(ct);
+        }
+        finally
+        {
+            await _currentTransaction.DisposeAsync();
+            _currentTransaction = null;
+        }
+    }
+
+    public async Task RollbackTransactionAsync(
+        CancellationToken ct = default)
+    {
+        if (_currentTransaction is null)
+            return;
+
+        try
+        {
+            await _currentTransaction.RollbackAsync(ct);
+        }
+        finally
+        {
+            await _currentTransaction.DisposeAsync();
+            _currentTransaction = null;
+        }
+    }
+
     public override async Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default)
     {
         var userId = _currentUser.UserId;
-        var userName = await _currentUser.GetUserNameAsync(cancellationToken);
+        var userName = await _currentUser.GetUserNameAsync(
+            cancellationToken);
         var now = DateTime.UtcNow;
-
-        // -------------------------
-        // Soft Delete
-        // -------------------------
 
         var deletedEntries = ChangeTracker
             .Entries()
@@ -82,10 +131,6 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
 
             entry.State = EntityState.Modified;
         }
-
-        // -------------------------
-        // Audit
-        // -------------------------
 
         var auditEntries = ChangeTracker
             .Entries<AuditableEntity<Guid>>()
@@ -113,9 +158,23 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
             }
         }
 
-        // -------------------------
-        // Container Update Audit
-        // -------------------------
+        var statusChanges = ChangeTracker
+            .Entries<Operation>()
+            .Where(entry =>
+                entry.State == EntityState.Modified &&
+                entry.Property(x => x.Status).IsModified &&
+                entry.Property(x => x.Status).OriginalValue !=
+                entry.Entity.Status)
+            .Select(entry => new OperationStatusAudit(
+                entry.Entity.Id,
+                entry.Property(x => x.Status).OriginalValue,
+                entry.Entity.Status,
+                userId.ToString(),
+                now))
+            .ToList();
+
+        if (statusChanges.Count > 0)
+            OperationStatusAudits.AddRange(statusChanges);
 
         var containerUpdateEntries = ChangeTracker
             .Entries<ContainerUpdate>()
@@ -131,5 +190,23 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
         }
 
         return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    public override void Dispose()
+    {
+        _currentTransaction?.Dispose();
+        _currentTransaction = null;
+        base.Dispose();
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (_currentTransaction is not null)
+        {
+            await _currentTransaction.DisposeAsync();
+            _currentTransaction = null;
+        }
+
+        await base.DisposeAsync();
     }
 }

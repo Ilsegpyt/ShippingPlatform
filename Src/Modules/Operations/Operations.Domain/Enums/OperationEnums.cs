@@ -62,3 +62,15 @@ public enum ContainerType
     [Description("40' Tank")]
     Tank40 = 14
 }
+public enum OperationSource
+{
+    Form = 1,
+    Import = 2,
+    Fcl = 3
+}
+
+public enum FclSuggestionStatus
+{
+    Pending = 1,
+    Approved = 2
+}

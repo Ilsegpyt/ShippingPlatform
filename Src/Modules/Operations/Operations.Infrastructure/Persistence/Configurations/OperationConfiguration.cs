@@ -30,6 +30,21 @@ public sealed class OperationConfiguration : IEntityTypeConfiguration<Operation>
             .HasConversion<string>()
             .HasMaxLength(20);
 
+        builder.Property(x => x.Source)
+            .IsRequired()
+            .HasConversion(
+                source => source.ToString().ToLowerInvariant(),
+                source => Enum.Parse<Operations.Domain.Enums.OperationSource>(source, ignoreCase: true))
+            .HasMaxLength(8)
+            .HasDefaultValue(Operations.Domain.Enums.OperationSource.Form);
+
+        builder.ToTable("Operations", table =>
+        {
+            table.HasCheckConstraint(
+                "CK_Operations_Source",
+                "[Source] IN ('form', 'import', 'fcl')");
+        });
+
         builder.Property(x => x.ShipmentNumber)
             .HasMaxLength(120);
 

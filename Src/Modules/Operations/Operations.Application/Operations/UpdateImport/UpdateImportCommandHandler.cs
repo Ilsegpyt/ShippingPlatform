@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
 using BuildingBlocks.Application.Abstractions;
 using MediatR;
 using Operations.Application.Abstractions;
@@ -23,40 +24,46 @@ public sealed class UpdateImportCommandHandler(
                 ct);
 
         if (operation is null)
-        {
-            return Result.Failure<bool>(
-                "Operation not found.");
-        }
+            return Result.Failure<bool>("Operation not found.");
 
         if (operation.OperationType != OperationType.Import)
-        {
             return Result.Failure<bool>(
                 "This operation is not an Import operation.");
-        }
+
+        if (operation.Status == OperationStatus.Delivered)
+            return Result.Failure<bool>(
+                "Delivered operations cannot be edited. Reopen the operation first.");
+
+        var duplicateContainer = command.Containers
+            .GroupBy(x => x.ContainerId)
+            .FirstOrDefault(g => g.Count() > 1);
+
+        if (duplicateContainer is not null)
+            return Result.Failure<bool>(
+                "A container can only appear once in the request.");
+
+        var operationContainerIds = operation.Containers
+            .Select(x => x.Id)
+            .ToHashSet();
+
+        var invalidContainer = command.Containers
+            .FirstOrDefault(x => !operationContainerIds.Contains(x.ContainerId));
+
+        if (invalidContainer is not null)
+            return Result.Failure<bool>(
+                $"Container '{invalidContainer.ContainerId}' does not belong to this operation.");
 
         operation.UpdateImportData(
             command.ShipmentNumber,
             command.CertificateNumber,
-            command.InvoicesReceivedDate,
-            command.Status);
+            command.InvoicesReceivedDate);
 
         var userName = await currentUser.GetUserNameAsync(ct);
         var userId = currentUser.UserId.ToString();
         var utcNow = DateTime.UtcNow;
 
-        var operationContainerIds =
-            operation.Containers
-                .Select(x => x.Id)
-                .ToHashSet();
-
         foreach (var item in command.Containers)
         {
-            if (!operationContainerIds.Contains(item.ContainerId))
-            {
-                return Result.Failure<bool>(
-                    $"Container '{item.ContainerId}' does not belong to this operation.");
-            }
-
             var container = operation.Containers
                 .First(x => x.Id == item.ContainerId);
 
@@ -72,20 +79,16 @@ public sealed class UpdateImportCommandHandler(
                 item.DriverId,
                 item.CheckOutFromThePort,
                 item.MissingDocs,
-                item.MissingDocsReceivedDate);
+                item.MissingDocsReceivedDate,
+                item.Destination,
+                item.FreeTimeTill);
 
-            var details =
-                $"Import container updated. " +
-                $"Container Number: {item.ContainerNumber ?? "N/A"}";
-
-            var update = ContainerUpdate.Create(
+            container.Updates.Add(ContainerUpdate.Create(
                 container.Id,
-                details,
+                $"Import container updated. Container Number: {item.ContainerNumber ?? container.ContainerNumber ?? "N/A"}",
                 userId,
                 userName,
-                utcNow);
-
-            container.Updates.Add(update);
+                utcNow));
         }
 
         await unitOfWork.SaveChangesAsync(ct);

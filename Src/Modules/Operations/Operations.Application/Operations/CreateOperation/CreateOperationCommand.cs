@@ -24,6 +24,7 @@ public sealed record CreateOperationCommand(
     string? BookingNumber,
     Guid? POLId,
     Guid? POWId,
-    DateOnly? CutOffDate
+    DateOnly? CutOffDate,
+    string? ExportDestination
 
 ) : IRequest<Result<Guid>>;

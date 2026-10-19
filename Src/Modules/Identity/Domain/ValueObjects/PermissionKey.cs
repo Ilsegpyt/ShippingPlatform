@@ -166,6 +166,28 @@ public static class PermissionCatalog
     public static readonly PermissionKey ImpersonatedCustomerView =
       PermissionKey.Of("customers.impersonation.view");
 
+    // Operations
+    public static readonly PermissionKey OperationsView =
+    PermissionKey.Of("operations.view");
+
+    public static readonly PermissionKey OperationsCreate =
+        PermissionKey.Of("operations.create");
+
+    public static readonly PermissionKey OperationsEdit =
+        PermissionKey.Of("operations.edit");
+
+    public static readonly PermissionKey OperationsDelete =
+        PermissionKey.Of("operations.delete");
+
+    public static readonly PermissionKey OperationsDeliver =
+        PermissionKey.Of("operations.deliver");
+
+    public static readonly PermissionKey OperationsReopen =
+        PermissionKey.Of("operations.reopen");
+
+
+
+
     // Reports
     public static readonly PermissionKey ReportsView =
         PermissionKey.Of("reports.view");
@@ -182,7 +204,7 @@ public static class PermissionCatalog
         PermissionKey.Of("notifications.view");
 
 
-  
+
 
 
     // Permissions available to SubAccounts
@@ -213,13 +235,13 @@ public static class PermissionCatalog
         SubAccountsDelete,
         SubAccountsSuspend,
 
-     
+
         ReportsView,
         ReportsDownload,
 
         NotificationsView,
 
-       
+
     ];
 
 
@@ -290,13 +312,22 @@ public static class PermissionCatalog
 
     
 
+        // Operations
+        OperationsDeliver,
+        OperationsReopen,
+
         // Reports
         ReportsView,
         ReportsUpload,
         ReportsDownload,
 
-
-
+        //Operations
+        OperationsView,
+        OperationsCreate,
+        OperationsEdit,
+        OperationsDelete,
+        OperationsDeliver, // ???
+        OperationsReopen,
 
         // Notifications
         NotificationsView,

@@ -170,6 +170,165 @@ namespace Operations.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Operations.Domain.Entities.FclApproval", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ApprovalKey")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime>("ApprovedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ApprovedByUserId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<Guid>("ExportOperationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SuggestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovalKey")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FclApprovals_ApprovalKey");
+
+                    b.HasIndex("ExportOperationId");
+
+                    b.HasIndex("SuggestionId")
+                        .IsUnique();
+
+                    b.ToTable("FclApprovals", (string)null);
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.FclSuggestion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BookingNumber")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("ClearanceType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ContainerNumber")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("nvarchar(11)");
+
+                    b.Property<bool>("ContainerSizeMatch")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ContainerType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateOnly?>("CutOffDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Destination")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("DestinationMatch")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ExportContainerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ExportOperationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("FreeTimeMatch")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("ImportContainerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ImportOperationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("MatchCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("OffloadingLoadingTimeMatch")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("POLId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("POWId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("PodPolMatch")
+                        .HasColumnType("bit");
+
+                    b.Property<DateOnly>("RequiredLoadingDate")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly>("RequiredLoadingTime")
+                        .HasColumnType("time");
+
+                    b.Property<Guid>("ShippingLineId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("ShippingLineMatch")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Pending");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExportContainerId");
+
+                    b.HasIndex("ExportOperationId");
+
+                    b.HasIndex("ImportContainerId");
+
+                    b.HasIndex("ImportOperationId");
+
+                    b.HasIndex("POLId");
+
+                    b.HasIndex("POWId");
+
+                    b.HasIndex("ShippingLineId");
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("FclSuggestions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_FclSuggestions_ClearanceType", "[ClearanceType] IN ('Bosla', 'Cert')");
+
+                            t.HasCheckConstraint("CK_FclSuggestions_MatchCount", "[MatchCount] >= 5 AND [MatchCount] <= 6");
+
+                            t.HasCheckConstraint("CK_FclSuggestions_Status", "[Status] IN ('Pending', 'Approved')");
+                        });
+                });
+
             modelBuilder.Entity("Operations.Domain.Entities.ImportDetails", b =>
                 {
                     b.Property<Guid>("Id")
@@ -198,14 +357,6 @@ namespace Operations.Infrastructure.Migrations
 
                     b.Property<Guid?>("DeletedByUserId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Destination")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateOnly>("FreeTimeTill")
-                        .HasColumnType("date");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -323,6 +474,13 @@ namespace Operations.Infrastructure.Migrations
                     b.Property<Guid>("ShippingLineId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)")
+                        .HasDefaultValue("form");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -343,7 +501,10 @@ namespace Operations.Infrastructure.Migrations
 
                     b.HasIndex("ShippingLineId");
 
-                    b.ToTable("Operations");
+                    b.ToTable("Operations", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Operations_Source", "[Source] IN ('form', 'import', 'fcl')");
+                        });
                 });
 
             modelBuilder.Entity("Operations.Domain.Entities.OperationContainer", b =>
@@ -388,8 +549,15 @@ namespace Operations.Infrastructure.Migrations
                     b.Property<Guid?>("DeletedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Destination")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<Guid?>("DriverId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("FreeTimeTill")
+                        .HasColumnType("date");
 
                     b.Property<DateOnly?>("GateOutDate")
                         .HasColumnType("date");
@@ -452,7 +620,48 @@ namespace Operations.Infrastructure.Migrations
 
                     b.ToTable("OperationContainers", null, t =>
                         {
-                            t.HasCheckConstraint("CK_OperationContainer_Ordinal", "[Ordinal] >= 0 AND [Ordinal] < 200");
+                            t.HasCheckConstraint("CK_OperationContainer_Ordinal", "[Ordinal] >= 1 AND [Ordinal] <= 200");
+                        });
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.OperationStatusAudit", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AfterStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("AtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("BeforeStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("OperationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperationId", "AtUtc");
+
+                    b.ToTable("audit_log", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_audit_log_StatusChanged", "[BeforeStatus] <> [AfterStatus]");
                         });
                 });
 
@@ -586,6 +795,81 @@ namespace Operations.Infrastructure.Migrations
                     b.Navigation("POW");
                 });
 
+            modelBuilder.Entity("Operations.Domain.Entities.FclApproval", b =>
+                {
+                    b.HasOne("Operations.Domain.Entities.Operation", "ExportOperation")
+                        .WithMany()
+                        .HasForeignKey("ExportOperationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Operations.Domain.Entities.FclSuggestion", "Suggestion")
+                        .WithOne()
+                        .HasForeignKey("Operations.Domain.Entities.FclApproval", "SuggestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ExportOperation");
+
+                    b.Navigation("Suggestion");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.FclSuggestion", b =>
+                {
+                    b.HasOne("Operations.Domain.Entities.OperationContainer", "ExportContainer")
+                        .WithMany()
+                        .HasForeignKey("ExportContainerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Operations.Domain.Entities.Operation", "ExportOperation")
+                        .WithMany()
+                        .HasForeignKey("ExportOperationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Operations.Domain.Entities.OperationContainer", "ImportContainer")
+                        .WithMany()
+                        .HasForeignKey("ImportContainerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Operations.Domain.Entities.Operation", "ImportOperation")
+                        .WithMany()
+                        .HasForeignKey("ImportOperationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Operations.Domain.Entities.Port", "POL")
+                        .WithMany()
+                        .HasForeignKey("POLId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Operations.Domain.Entities.Port", "POW")
+                        .WithMany()
+                        .HasForeignKey("POWId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Operations.Domain.Entities.ShippingLine", "ShippingLine")
+                        .WithMany()
+                        .HasForeignKey("ShippingLineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ExportContainer");
+
+                    b.Navigation("ExportOperation");
+
+                    b.Navigation("ImportContainer");
+
+                    b.Navigation("ImportOperation");
+
+                    b.Navigation("POL");
+
+                    b.Navigation("POW");
+
+                    b.Navigation("ShippingLine");
+                });
+
             modelBuilder.Entity("Operations.Domain.Entities.ImportDetails", b =>
                 {
                     b.HasOne("Operations.Domain.Entities.Operation", "Operation")
@@ -646,6 +930,17 @@ namespace Operations.Infrastructure.Migrations
                     b.Navigation("Transporter");
 
                     b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.OperationStatusAudit", b =>
+                {
+                    b.HasOne("Operations.Domain.Entities.Operation", "Operation")
+                        .WithMany()
+                        .HasForeignKey("OperationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Operation");
                 });
 
             modelBuilder.Entity("Operations.Domain.Entities.Operation", b =>

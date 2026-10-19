@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Operations.Domain.Entities;
 
@@ -10,10 +11,6 @@ public sealed class ExportDetailsConfiguration
     public void Configure(EntityTypeBuilder<ExportDetails> builder)
     {
         builder.HasKey(x => x.Id);
-
-        // -------------------------
-        // Properties
-        // -------------------------
 
         builder.Property(x => x.OperationId)
             .IsRequired();
@@ -39,10 +36,6 @@ public sealed class ExportDetailsConfiguration
         builder.Property(x => x.Customs)
             .HasMaxLength(160);
 
-        // -------------------------
-        // Audit
-        // -------------------------
-
         builder.Property(x => x.CreatedByUserId)
             .IsRequired()
             .HasMaxLength(128);
@@ -60,20 +53,12 @@ public sealed class ExportDetailsConfiguration
         builder.Property(x => x.DeletedByName)
             .HasMaxLength(200);
 
-        // -------------------------
-        // Constraints
-        // -------------------------
-
         builder.ToTable("ExportDetails", table =>
         {
             table.HasCheckConstraint(
                 "CK_ExportDetails_ClearanceType",
                 "[ClearanceType] IN ('Bosla', 'Cert')");
         });
-
-        // -------------------------
-        // Relationships
-        // -------------------------
 
         builder.HasOne(x => x.Operation)
             .WithOne(x => x.ExportDetails)
@@ -90,7 +75,6 @@ public sealed class ExportDetailsConfiguration
             .HasForeignKey(x => x.POWId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // One ExportDetails per Operation
         builder.HasIndex(x => x.OperationId)
             .IsUnique();
     }

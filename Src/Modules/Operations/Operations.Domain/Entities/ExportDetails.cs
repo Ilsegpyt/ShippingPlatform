@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Domain;
+﻿
+using BuildingBlocks.Domain;
 using Operations.Domain.Enums;
 
 namespace Operations.Domain.Entities;
@@ -27,6 +28,13 @@ public class ExportDetails : SoftDeletableEntity<Guid>
 
     private ExportDetails()
     {
+    }
+
+    public void UpdateCustoms(string? customs)
+    {
+        Customs = string.IsNullOrWhiteSpace(customs)
+            ? null
+            : customs.Trim();
     }
 
     public ExportDetails(
