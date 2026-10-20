@@ -1,6 +1,7 @@
 ﻿
 using BuildingBlocks.Domain;
 using Operations.Domain.Enums;
+using Operations.Domain.Common;
 
 namespace Operations.Domain.Entities;
 
@@ -45,7 +46,7 @@ public class ExportDetails : SoftDeletableEntity<Guid>
         DateOnly? cutOffDate)
     {
         ClearanceType = clearanceType;
-        BookingNumber = bookingNumber;
+        BookingNumber = IdentifierNormalizer.Normalize(bookingNumber) ?? string.Empty;
         POLId = polId;
         POWId = powId;
         CutOffDate = cutOffDate;

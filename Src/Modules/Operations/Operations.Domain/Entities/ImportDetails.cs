@@ -1,5 +1,6 @@
 ﻿
 using BuildingBlocks.Domain;
+using Operations.Domain.Common;
 
 namespace Operations.Domain.Entities;
 
@@ -29,7 +30,7 @@ public class ImportDetails : SoftDeletableEntity<Guid>
         DateOnly requiredOffloadingDate,
         TimeOnly requiredOffloadingTime)
     {
-        MBLNumber = mblNumber;
+        MBLNumber = IdentifierNormalizer.Normalize(mblNumber) ?? string.Empty;
         PODId = podId;
         RequiredOffloadingDate = requiredOffloadingDate;
         RequiredOffloadingTime = requiredOffloadingTime;

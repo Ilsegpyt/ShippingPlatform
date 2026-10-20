@@ -1,6 +1,7 @@
 ﻿
 using BuildingBlocks.Domain;
 using Operations.Domain.Enums;
+using Operations.Domain.Common;
 
 namespace Operations.Domain.Entities;
 
@@ -51,8 +52,8 @@ public class Operation : SoftDeletableEntity<Guid>, IAggregateRoot
         ClientId = clientId;
         ShippingLineId = shippingLineId;
         OperationType = operationType;
-        ShipmentNumber = shipmentNumber;
-        CertificateNumber = certificateNumber;
+        ShipmentNumber = NormalizeOptionalIdentifier(shipmentNumber);
+        CertificateNumber = NormalizeOptionalIdentifier(certificateNumber);
         InvoicesReceivedDate = invoicesReceivedDate;
         Source = OperationSource.Form;
     }
@@ -132,9 +133,7 @@ public class Operation : SoftDeletableEntity<Guid>, IAggregateRoot
         if (shipmentNumber is null)
             return;
 
-        ShipmentNumber = string.IsNullOrWhiteSpace(shipmentNumber)
-            ? null
-            : shipmentNumber.Trim();
+        ShipmentNumber = NormalizeOptionalIdentifier(shipmentNumber);
     }
 
     public void UpdateExportCertificateNumber(string? certificateNumber)
@@ -143,9 +142,7 @@ public class Operation : SoftDeletableEntity<Guid>, IAggregateRoot
             throw new InvalidOperationException(
                 "Certificate details can only be updated for an Export operation.");
 
-        CertificateNumber = string.IsNullOrWhiteSpace(certificateNumber)
-            ? null
-            : certificateNumber.Trim();
+        CertificateNumber = NormalizeOptionalIdentifier(certificateNumber);
     }
 
     public void UpdateImportData(
@@ -154,10 +151,10 @@ public class Operation : SoftDeletableEntity<Guid>, IAggregateRoot
         DateTime? invoicesReceivedDate)
     {
         if (shipmentNumber is not null)
-            ShipmentNumber = shipmentNumber;
+            ShipmentNumber = NormalizeOptionalIdentifier(shipmentNumber);
 
         if (certificateNumber is not null)
-            CertificateNumber = certificateNumber;
+            CertificateNumber = NormalizeOptionalIdentifier(certificateNumber);
 
         if (invoicesReceivedDate.HasValue)
             InvoicesReceivedDate = invoicesReceivedDate.Value;
@@ -229,6 +226,15 @@ public class Operation : SoftDeletableEntity<Guid>, IAggregateRoot
     public void SetExportDetails(ExportDetails details)
     {
         ExportDetails = details;
+    }
+
+    private static string? NormalizeOptionalIdentifier(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        var normalized = IdentifierNormalizer.Normalize(value);
+        return string.IsNullOrEmpty(normalized) ? null : normalized;
     }
 
     public void ClearDomainEvents()
