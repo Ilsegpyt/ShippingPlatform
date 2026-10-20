@@ -114,6 +114,26 @@ public sealed class ApproveFclSuggestionCommandHandler(
                 sourceDetails.POWId,
                 sourceDetails.CutOffDate));
 
+            var duplicateCheckKey = OperationDuplicateCheckKey.Create(
+                newExport.ShipmentNumber,
+                newExport.ExportDetails.BookingNumber,
+                newExport.ExportDetails.ClearanceType == ClearanceType.Bosla
+                    ? null
+                    : newExport.CertificateNumber);
+
+            if (duplicateCheckKey is not null &&
+                await operationRepository.DuplicateCheckKeyExistsAsync(
+                    OperationType.Export,
+                    duplicateCheckKey,
+                    newExport.Id,
+                    ct))
+            {
+                return Result.Failure<Guid>(
+                    "This Export Shipment Number, Booking Number and Certificate Number combination already exists.");
+            }
+
+            newExport.UpdateDuplicateCheckKey(duplicateCheckKey);
+
             // Create exactly one container in the new Export operation.
             var newContainer = new OperationContainer(
                 newExport.Id,

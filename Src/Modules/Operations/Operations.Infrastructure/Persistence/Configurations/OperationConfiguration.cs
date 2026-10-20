@@ -51,6 +51,14 @@ public sealed class OperationConfiguration : IEntityTypeConfiguration<Operation>
         builder.Property(x => x.CertificateNumber)
             .HasMaxLength(80);
 
+        builder.Property(x => x.DuplicateCheckKey)
+            .HasMaxLength(400);
+
+        builder.HasIndex(x => new { x.OperationType, x.DuplicateCheckKey })
+            .IsUnique()
+            .HasDatabaseName("UX_Operations_OperationType_DuplicateCheckKey")
+            .HasFilter("[IsDeleted] = 0 AND [DuplicateCheckKey] IS NOT NULL");
+
         builder.Property(x => x.DeliveredByUserId)
             .HasMaxLength(128);
 

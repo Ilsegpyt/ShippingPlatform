@@ -7,6 +7,7 @@ namespace Operations.Application.Operations.UpdateExport;
 
 public sealed record UpdateExportCommand(
     Guid OperationId,
+    string? ShipmentNumber,
     string? CertificateNumber,
     string? Customs,
     IReadOnlyCollection<UpdateExportContainerItem> Containers

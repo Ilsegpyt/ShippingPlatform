@@ -19,6 +19,7 @@ public class Operation : SoftDeletableEntity<Guid>, IAggregateRoot
     public OperationSource Source { get; private set; } = OperationSource.Form;
     public string? ShipmentNumber { get; private set; }
     public string? CertificateNumber { get; private set; }
+    public string? DuplicateCheckKey { get; private set; }
     public DateTime? InvoicesReceivedDate { get; private set; }
     public DateTime? DeliveredAtUtc { get; private set; }
     public string? DeliveredByUserId { get; private set; }
@@ -116,6 +117,24 @@ public class Operation : SoftDeletableEntity<Guid>, IAggregateRoot
                 "Number of containers must be between 1 and 200.");
 
         NumberOfContainers = count;
+    }
+
+
+    public void UpdateDuplicateCheckKey(string? duplicateCheckKey)
+    {
+        DuplicateCheckKey = string.IsNullOrWhiteSpace(duplicateCheckKey)
+            ? null
+            : duplicateCheckKey;
+    }
+
+    public void UpdateExportShipmentNumber(string? shipmentNumber)
+    {
+        if (shipmentNumber is null)
+            return;
+
+        ShipmentNumber = string.IsNullOrWhiteSpace(shipmentNumber)
+            ? null
+            : shipmentNumber.Trim();
     }
 
     public void UpdateExportCertificateNumber(string? certificateNumber)

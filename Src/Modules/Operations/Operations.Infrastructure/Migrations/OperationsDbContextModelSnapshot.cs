@@ -446,6 +446,10 @@ namespace Operations.Infrastructure.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
+                    b.Property<string>("DuplicateCheckKey")
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
                     b.Property<DateTime?>("InvoicesReceivedDate")
                         .HasColumnType("datetime2");
 
@@ -504,6 +508,11 @@ namespace Operations.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ShippingLineId");
+
+                    b.HasIndex("OperationType", "DuplicateCheckKey")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Operations_OperationType_DuplicateCheckKey")
+                        .HasFilter("[IsDeleted] = 0 AND [DuplicateCheckKey] IS NOT NULL");
 
                     b.ToTable("Operations", null, t =>
                         {

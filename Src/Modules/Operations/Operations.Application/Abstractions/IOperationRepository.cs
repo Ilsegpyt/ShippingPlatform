@@ -1,4 +1,5 @@
 ﻿using Operations.Domain.Entities;
+using Operations.Domain.Enums;
 
 namespace Operations.Application.Abstractions;
 
@@ -6,6 +7,12 @@ public interface IOperationRepository
 {
     Task AddAsync(
         Operation operation,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> DuplicateCheckKeyExistsAsync(
+        OperationType operationType,
+        string duplicateCheckKey,
+        Guid excludeOperationId,
         CancellationToken cancellationToken = default);
 
     Task<Operation?> GetByIdForUpdateAsync(

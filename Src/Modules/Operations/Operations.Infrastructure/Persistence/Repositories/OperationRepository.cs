@@ -15,11 +15,25 @@ public sealed class OperationRepository(
         await dbContext.Operations.AddAsync(operation, cancellationToken);
     }
 
+    public Task<bool> DuplicateCheckKeyExistsAsync(
+        Operations.Domain.Enums.OperationType operationType,
+        string duplicateCheckKey,
+        Guid excludeOperationId,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.Operations.AnyAsync(
+            x => x.OperationType == operationType &&
+                 x.DuplicateCheckKey == duplicateCheckKey &&
+                 x.Id != excludeOperationId,
+            cancellationToken);
+    }
+
     public Task<Operation?> GetByIdForUpdateAsync(
         Guid operationId,
         CancellationToken cancellationToken = default)
     {
         return dbContext.Operations
+            .Include(x => x.ImportDetails)
             .Include(x => x.ExportDetails)
             .Include(x => x.Containers)
                 .ThenInclude(x => x.Updates)

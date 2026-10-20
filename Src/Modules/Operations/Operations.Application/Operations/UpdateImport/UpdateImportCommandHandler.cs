@@ -1,8 +1,8 @@
-﻿
-using BuildingBlocks.Application;
+﻿using BuildingBlocks.Application;
 using BuildingBlocks.Application.Abstractions;
 using MediatR;
 using Operations.Application.Abstractions;
+using Operations.Application.Common;
 using Operations.Domain.Entities;
 using Operations.Domain.Enums;
 
@@ -47,7 +47,8 @@ public sealed class UpdateImportCommandHandler(
             .ToHashSet();
 
         var invalidContainer = command.Containers
-            .FirstOrDefault(x => !operationContainerIds.Contains(x.ContainerId));
+            .FirstOrDefault(
+                x => !operationContainerIds.Contains(x.ContainerId));
 
         if (invalidContainer is not null)
             return Result.Failure<bool>(
@@ -57,6 +58,24 @@ public sealed class UpdateImportCommandHandler(
             command.ShipmentNumber,
             command.CertificateNumber,
             command.InvoicesReceivedDate);
+
+        var duplicateKey = OperationDuplicateCheckKey.Create(
+            operation.ShipmentNumber,
+            operation.ImportDetails?.MBLNumber,
+            operation.CertificateNumber);
+
+        if (duplicateKey is not null &&
+            await operationRepository.DuplicateCheckKeyExistsAsync(
+                OperationType.Import,
+                duplicateKey,
+                operation.Id,
+                ct))
+        {
+            return Result.Failure<bool>(
+                "This Import Shipment Number, M/BL Number and Certificate Number combination already exists.");
+        }
+
+        operation.UpdateDuplicateCheckKey(duplicateKey);
 
         var userName = await currentUser.GetUserNameAsync(ct);
         var userId = currentUser.UserId.ToString();

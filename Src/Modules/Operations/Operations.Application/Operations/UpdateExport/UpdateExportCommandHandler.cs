@@ -1,8 +1,8 @@
-
 using BuildingBlocks.Application;
 using BuildingBlocks.Application.Abstractions;
 using MediatR;
 using Operations.Application.Abstractions;
+using Operations.Application.Common;
 using Operations.Domain.Entities;
 using Operations.Domain.Enums;
 
@@ -91,6 +91,37 @@ public sealed class UpdateExportCommandHandler(
 
             operation.UpdateExportCertificateNumber(null);
         }
+
+        var effectiveShipmentNumber =
+            command.ShipmentNumber ?? operation.ShipmentNumber;
+
+        var effectiveCertificateNumber =
+            operation.ExportDetails.ClearanceType == ClearanceType.Bosla
+                ? null
+                : command.CertificateNumber is not null
+                    ? (string.IsNullOrWhiteSpace(command.CertificateNumber)
+                        ? null
+                        : command.CertificateNumber.Trim())
+                    : operation.CertificateNumber;
+
+        var duplicateKey = OperationDuplicateCheckKey.Create(
+            effectiveShipmentNumber,
+            operation.ExportDetails.BookingNumber,
+            effectiveCertificateNumber);
+
+        if (duplicateKey is not null &&
+            await operationRepository.DuplicateCheckKeyExistsAsync(
+                OperationType.Export,
+                duplicateKey,
+                operation.Id,
+                ct))
+        {
+            return Result.Failure<bool>(
+                "This Export Shipment Number, Booking Number and Certificate Number combination already exists.");
+        }
+
+        operation.UpdateExportShipmentNumber(command.ShipmentNumber);
+        operation.UpdateDuplicateCheckKey(duplicateKey);
 
         var userName = await currentUser.GetUserNameAsync(ct);
         var userId = currentUser.UserId.ToString();

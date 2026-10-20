@@ -12,6 +12,11 @@ public sealed class UpdateExportValidator : AbstractValidator<UpdateExportComman
             .NotEmpty()
             .WithMessage("Operation is required.");
 
+        RuleFor(x => x.ShipmentNumber)
+            .MaximumLength(120)
+            .When(x => x.ShipmentNumber is not null)
+            .WithMessage("Shipment Number cannot exceed 120 characters.");
+
         RuleFor(x => x.Containers)
             .NotNull()
             .WithMessage("Containers are required.");

@@ -19,6 +19,7 @@ public static class UpdateExportEndpoint
         {
             var command = new UpdateExportCommand(
                 operationId,
+                request.ShipmentNumber,
                 request.CertificateNumber,
                 request.Customs,
                 (request.Containers ?? Array.Empty<UpdateExportContainerRequest>())
@@ -42,6 +43,7 @@ public static class UpdateExportEndpoint
 }
 
 public sealed record UpdateExportRequest(
+    string? ShipmentNumber,
     string? CertificateNumber,
     string? Customs,
     IReadOnlyCollection<UpdateExportContainerRequest> Containers
