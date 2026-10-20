@@ -84,6 +84,14 @@ public sealed class FclRepository(OperationsDbContext dbContext)
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<FclSuggestion>> GetAllSuggestionsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.FclSuggestions
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddSuggestionsAsync(
         IEnumerable<FclSuggestion> suggestions,
         CancellationToken cancellationToken = default)
@@ -97,5 +105,4 @@ public sealed class FclRepository(OperationsDbContext dbContext)
     {
         dbContext.FclSuggestions.RemoveRange(suggestions);
     }
-
 }

@@ -2,6 +2,7 @@
 using Api.Modules.Operations.CreateOperation;
 using Api.Modules.Operations.DeliverOperation;
 using Api.Modules.Operations.GenerateFclSuggestions;
+using Api.Modules.Operations.GetAllFclSuggestions;
 using Api.Modules.Operations.GetAllOperations;
 using Api.Modules.Operations.GetFclSuggestions;
 using Api.Modules.Operations.GetOperationById;
@@ -25,5 +26,6 @@ public static class OperationsEndpoints
         GetFclSuggestionsEndpoint.Map(app);
         ApproveFclSuggestionEndpoint.Map(app);
         UpdateExportEndpoint.Map(app);
+        GetAllFclSuggestionsEndpoint.Map(app);
     }
 }
