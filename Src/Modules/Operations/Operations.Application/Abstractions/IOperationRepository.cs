@@ -2,6 +2,8 @@
 using Operations.Domain.Enums;
 using Operations.Domain.Enums;
 
+using Operations.Application.Operations.SearchOperations;
+
 namespace Operations.Application.Abstractions;
 
 public interface IOperationRepository
@@ -30,4 +32,8 @@ public interface IOperationRepository
     Task<IReadOnlyList<Operation>> GetDeliveredWithDetailsAsync(
         OperationType? operationType,
         CancellationToken cancellationToken = default);
+
+    Task<OperationSearchPage> SearchWithDetailsAsync(
+    AdvancedOperationsSearchRequest request,
+    CancellationToken cancellationToken = default);
 }

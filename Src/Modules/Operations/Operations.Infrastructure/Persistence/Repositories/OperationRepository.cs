@@ -2,6 +2,7 @@
 using Operations.Application.Abstractions;
 using Operations.Domain.Entities;
 using Operations.Domain.Enums;
+using Operations.Application.Operations.SearchOperations;
 
 namespace Operations.Infrastructure.Persistence.Repositories;
 
@@ -97,6 +98,62 @@ public sealed class OperationRepository(
                 .ThenInclude(x => x.Updates)
             .OrderByDescending(x => x.DeliveredAtUtc)
             .ToListAsync(cancellationToken);
+    }
+
+
+    public async Task<OperationSearchPage> SearchWithDetailsAsync(
+        AdvancedOperationsSearchRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var query = dbContext.Operations
+            .AsNoTracking()
+            .AsSplitQuery()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(request.OperationType))
+        {
+            if (!Enum.TryParse<OperationType>(request.OperationType, true, out var operationType))
+                throw new ArgumentException("Invalid operation type. Use Import or Export.");
+
+            query = query.Where(x => x.OperationType == operationType);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Status))
+        {
+            if (!Enum.TryParse<OperationStatus>(request.Status, true, out var status))
+                throw new ArgumentException("Invalid status.");
+
+            query = query.Where(x => x.Status == status);
+        }
+
+        query = AdvancedOperationQueryBuilder.Apply(
+            query, request.Rules, request.SortBy, request.SortDirection);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var page = Math.Max(1, request.Page);
+        var pageSize = Math.Clamp(request.PageSize, 1, 200);
+
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Include(x => x.ShippingLine)
+            .Include(x => x.ImportDetails)
+                .ThenInclude(x => x!.POD)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POW)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Transporter)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Driver)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Vehicle)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Updates)
+            .ToListAsync(cancellationToken);
+
+        return new OperationSearchPage(items, totalCount);
     }
 
     public async Task<IReadOnlyList<Operation>> GetAllWithDetailsAsync(
