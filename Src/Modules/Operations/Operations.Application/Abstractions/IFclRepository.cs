@@ -36,5 +36,8 @@ public interface IFclRepository
     Task<IReadOnlyList<FclSuggestion>> GetAllSuggestionsAsync(
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<FclApproval>> GetAllApprovalsAsync(
+    CancellationToken cancellationToken = default);
+
     void RemoveSuggestions(IEnumerable<FclSuggestion> suggestions);
 }

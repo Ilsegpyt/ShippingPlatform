@@ -100,7 +100,14 @@ public sealed class FclRepository(OperationsDbContext dbContext)
             suggestions,
             cancellationToken);
     }
-
+    public async Task<IReadOnlyList<FclApproval>> GetAllApprovalsAsync(
+    CancellationToken cancellationToken = default)
+    {
+        return await dbContext.FclApprovals
+            .AsNoTracking()
+            .OrderByDescending(x => x.ApprovedAtUtc)
+            .ToListAsync(cancellationToken);
+    }
     public void RemoveSuggestions(IEnumerable<FclSuggestion> suggestions)
     {
         dbContext.FclSuggestions.RemoveRange(suggestions);
