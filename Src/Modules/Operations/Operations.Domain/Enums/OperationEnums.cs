@@ -18,6 +18,11 @@ public enum ClearanceType
     Bosla = 1,
     Cert = 2
 }
+public enum FclSuggestionStatus
+{
+    Pending = 1,
+    Approved = 2
+}
 public enum ContainerType
 {
     [Description("20' Dry Standard")]
@@ -69,8 +74,3 @@ public enum OperationSource
     Fcl = 3
 }
 
-public enum FclSuggestionStatus
-{
-    Pending = 1,
-    Approved = 2
-}

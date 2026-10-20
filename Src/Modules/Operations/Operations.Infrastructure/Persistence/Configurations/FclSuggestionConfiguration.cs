@@ -30,6 +30,7 @@ public sealed class FclSuggestionConfiguration
         builder.Property(x => x.Id).ValueGeneratedNever();
 
         builder.Property(x => x.ClientId).IsRequired();
+
         builder.Property(x => x.ClearanceType)
             .IsRequired()
             .HasConversion<string>()
@@ -79,6 +80,17 @@ public sealed class FclSuggestionConfiguration
         builder.HasIndex(x => x.ExportOperationId);
         builder.HasIndex(x => x.ExportContainerId);
         builder.HasIndex(x => x.Status);
+
+        // Prevent duplicate Pending suggestions for the same container pair.
+        // Legacy suggestions with a null ExportContainerId are excluded.
+        builder.HasIndex(x => new
+        {
+            x.ImportContainerId,
+            x.ExportContainerId
+        })
+            .IsUnique()
+            .HasFilter(
+                "[ExportContainerId] IS NOT NULL AND [Status] = 'Pending'");
 
         builder.HasOne(x => x.ImportOperation)
             .WithMany()

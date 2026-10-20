@@ -319,6 +319,10 @@ namespace Operations.Infrastructure.Migrations
 
                     b.HasIndex("Status");
 
+                    b.HasIndex("ImportContainerId", "ExportContainerId")
+                        .IsUnique()
+                        .HasFilter("[ExportContainerId] IS NOT NULL AND [Status] = 'Pending'");
+
                     b.ToTable("FclSuggestions", null, t =>
                         {
                             t.HasCheckConstraint("CK_FclSuggestions_ClearanceType", "[ClearanceType] IN ('Bosla', 'Cert')");

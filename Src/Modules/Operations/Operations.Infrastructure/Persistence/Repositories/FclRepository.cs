@@ -92,4 +92,10 @@ public sealed class FclRepository(OperationsDbContext dbContext)
             suggestions,
             cancellationToken);
     }
+
+    public void RemoveSuggestions(IEnumerable<FclSuggestion> suggestions)
+    {
+        dbContext.FclSuggestions.RemoveRange(suggestions);
+    }
+
 }

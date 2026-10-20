@@ -1,5 +1,4 @@
-﻿
-using BuildingBlocks.Application;
+﻿using BuildingBlocks.Application;
 using MediatR;
 using Operations.Application.Abstractions;
 using Operations.Domain.Entities;
@@ -42,12 +41,18 @@ public sealed class GenerateFclSuggestionsCommandHandler(
             await repository.GetSuggestionsForExportContainerAsync(
                 exportContainer.Id, ct);
 
+        // Keep approved suggestions and never recreate their Import container pair.
         var approvedImportContainers = existingSuggestions
             .Where(x => x.Status == FclSuggestionStatus.Approved)
             .Select(x => x.ImportContainerId)
             .ToHashSet();
 
-        var suggestions = new List<FclSuggestion>();
+        // All non-approved suggestions for this Export container will be rebuilt.
+        var suggestionsToRemove = existingSuggestions
+            .Where(x => x.Status != FclSuggestionStatus.Approved)
+            .ToList();
+
+        var suggestionsToCreate = new List<FclSuggestion>();
 
         var loadingAt = exportContainer.RequiredLoadingDate.Value
             .ToDateTime(exportContainer.RequiredLoadingTime.Value);
@@ -71,17 +76,8 @@ public sealed class GenerateFclSuggestionsCommandHandler(
                     continue;
                 }
 
-                // Never recreate a suggestion that has already been approved.
                 if (approvedImportContainers.Contains(importContainer.Id))
                     continue;
-
-                // Skip a duplicate pending pair; this workflow does not delete suggestions.
-                if (existingSuggestions.Any(x =>
-                    x.ImportContainerId == importContainer.Id
-                    && x.Status == FclSuggestionStatus.Pending))
-                {
-                    continue;
-                }
 
                 // 1. Import container free time >= Export loading + 48 hours.
                 var freeTimeMatch =
@@ -128,7 +124,7 @@ public sealed class GenerateFclSuggestionsCommandHandler(
 
                 var details = export.ExportDetails;
 
-                suggestions.Add(new FclSuggestion(
+                suggestionsToCreate.Add(new FclSuggestion(
                     import.Id,
                     importContainer.Id,
                     export.Id,
@@ -154,13 +150,30 @@ public sealed class GenerateFclSuggestionsCommandHandler(
             }
         }
 
-        if (suggestions.Count > 0)
+        // Delete and recreate in one transaction so a failure cannot leave the
+        // Export container without its previous suggestions.
+        await unitOfWork.BeginTransactionAsync(ct);
+
+        try
         {
-            await repository.AddSuggestionsAsync(suggestions, ct);
+            repository.RemoveSuggestions(suggestionsToRemove);
             await unitOfWork.SaveChangesAsync(ct);
+
+            if (suggestionsToCreate.Count > 0)
+            {
+                await repository.AddSuggestionsAsync(suggestionsToCreate, ct);
+                await unitOfWork.SaveChangesAsync(ct);
+            }
+
+            await unitOfWork.CommitTransactionAsync(ct);
+        }
+        catch
+        {
+            await unitOfWork.RollbackTransactionAsync(ct);
+            throw;
         }
 
-        return Result.Success(suggestions.Count);
+        return Result.Success(suggestionsToCreate.Count);
     }
 
     private static string Normalize(string? value) =>

@@ -32,4 +32,6 @@ public interface IFclRepository
     Task AddSuggestionsAsync(
         IEnumerable<FclSuggestion> suggestions,
         CancellationToken cancellationToken = default);
+
+    void RemoveSuggestions(IEnumerable<FclSuggestion> suggestions);
 }
