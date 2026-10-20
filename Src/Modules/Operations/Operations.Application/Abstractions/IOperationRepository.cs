@@ -1,5 +1,6 @@
 ﻿using Operations.Domain.Entities;
 using Operations.Domain.Enums;
+using Operations.Domain.Enums;
 
 namespace Operations.Application.Abstractions;
 
@@ -24,5 +25,9 @@ public interface IOperationRepository
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Operation>> GetAllWithDetailsAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Operation>> GetDeliveredWithDetailsAsync(
+        OperationType? operationType,
         CancellationToken cancellationToken = default);
 }

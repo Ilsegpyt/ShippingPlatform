@@ -7,6 +7,7 @@ using Api.Modules.Operations.GetAllFclSuggestions;
 using Api.Modules.Operations.GetAllOperations;
 using Api.Modules.Operations.GetFclSuggestions;
 using Api.Modules.Operations.GetOperationById;
+using Api.Modules.Operations.GetDeliveredOperations;
 using Api.Modules.Operations.ReopenOperation;
 using Api.Modules.Operations.UpdateExport;
 using Api.Modules.Operations.UpdateImport;
@@ -20,6 +21,7 @@ public static class OperationsEndpoints
         CreateOperationEndpoint.Map(app);
         GetAllOperationsEndpoint.Map(app);
         GetOperationByIdEndpoint.Map(app);
+        GetDeliveredOperationsEndpoint.Map(app);
         UpdateImportEndpoint.Map(app);
         DeliverOperationEndpoint.Map(app);
         ReopenOperationEndpoint.Map(app);
