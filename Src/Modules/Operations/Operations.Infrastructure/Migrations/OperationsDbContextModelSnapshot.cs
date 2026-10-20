@@ -102,38 +102,12 @@ namespace Operations.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("CreatedByUserId")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
                     b.Property<string>("Customs")
                         .HasMaxLength(160)
                         .HasColumnType("nvarchar(160)");
 
                     b.Property<DateOnly?>("CutOffDate")
                         .HasColumnType("date");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.Property<Guid>("OperationId")
                         .HasColumnType("uniqueidentifier");
@@ -143,17 +117,6 @@ namespace Operations.Infrastructure.Migrations
 
                     b.Property<Guid?>("POWId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("UpdatedByUserId")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
 
                     b.HasKey("Id");
 
@@ -339,32 +302,6 @@ namespace Operations.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("CreatedByUserId")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("MBLNumber")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -381,17 +318,6 @@ namespace Operations.Infrastructure.Migrations
 
                     b.Property<TimeOnly>("RequiredOffloadingTime")
                         .HasColumnType("time");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("UpdatedByUserId")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
 
                     b.HasKey("Id");
 
@@ -429,16 +355,6 @@ namespace Operations.Infrastructure.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("DeliveredAtUtc")
                         .HasColumnType("datetime2");
 
@@ -452,9 +368,6 @@ namespace Operations.Infrastructure.Migrations
 
                     b.Property<DateTime?>("InvoicesReceivedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.Property<int>("NumberOfContainers")
                         .HasColumnType("int");
@@ -494,17 +407,6 @@ namespace Operations.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("UpdatedByUserId")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ShippingLineId");
@@ -512,7 +414,7 @@ namespace Operations.Infrastructure.Migrations
                     b.HasIndex("OperationType", "DuplicateCheckKey")
                         .IsUnique()
                         .HasDatabaseName("UX_Operations_OperationType_DuplicateCheckKey")
-                        .HasFilter("[IsDeleted] = 0 AND [DuplicateCheckKey] IS NOT NULL");
+                        .HasFilter("[DuplicateCheckKey] IS NOT NULL");
 
                     b.ToTable("Operations", null, t =>
                         {
@@ -542,26 +444,6 @@ namespace Operations.Infrastructure.Migrations
                     b.Property<int?>("ContainerType")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CreatedByUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedByName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Destination")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -577,9 +459,6 @@ namespace Operations.Infrastructure.Migrations
 
                     b.Property<TimeOnly?>("GateOutTime")
                         .HasColumnType("time");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("MissingDocs")
                         .HasMaxLength(1000)
@@ -602,15 +481,6 @@ namespace Operations.Infrastructure.Migrations
 
                     b.Property<Guid?>("TransporterId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedByName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UpdatedByUserId")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("VehicleId")
                         .HasColumnType("uniqueidentifier");

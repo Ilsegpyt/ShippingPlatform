@@ -57,7 +57,7 @@ public sealed class OperationConfiguration : IEntityTypeConfiguration<Operation>
         builder.HasIndex(x => new { x.OperationType, x.DuplicateCheckKey })
             .IsUnique()
             .HasDatabaseName("UX_Operations_OperationType_DuplicateCheckKey")
-            .HasFilter("[IsDeleted] = 0 AND [DuplicateCheckKey] IS NOT NULL");
+            .HasFilter("[DuplicateCheckKey] IS NOT NULL");
 
         builder.Property(x => x.DeliveredByUserId)
             .HasMaxLength(128);
@@ -67,6 +67,19 @@ public sealed class OperationConfiguration : IEntityTypeConfiguration<Operation>
 
         builder.Property(x => x.ReopenReason)
             .HasMaxLength(500);
+
+        builder.Property(x => x.CreatedAtUtc)
+            .IsRequired()
+            .HasColumnType("datetime2");
+
+        builder.Property(x => x.CreatedByUserId)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(x => x.CreatedByName)
+            .IsRequired()
+            .HasMaxLength(200);
+
 
         // -------------------------
         // Audit
@@ -80,18 +93,13 @@ public sealed class OperationConfiguration : IEntityTypeConfiguration<Operation>
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(x => x.UpdatedByUserId)
-            .HasMaxLength(128);
-
-        builder.Property(x => x.UpdatedByName)
-            .HasMaxLength(200);
+       
 
         // -------------------------
         // Soft Delete
         // -------------------------
 
-        builder.Property(x => x.DeletedByName)
-            .HasMaxLength(200);
+       
 
         // -------------------------
         // Relationships

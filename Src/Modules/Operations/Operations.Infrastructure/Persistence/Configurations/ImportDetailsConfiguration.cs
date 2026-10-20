@@ -29,22 +29,7 @@ public sealed class ImportDetailsConfiguration
         builder.Property(x => x.RequiredOffloadingTime)
             .IsRequired();
 
-        builder.Property(x => x.CreatedByUserId)
-            .IsRequired()
-            .HasMaxLength(128);
 
-        builder.Property(x => x.CreatedByName)
-            .IsRequired()
-            .HasMaxLength(200);
-
-        builder.Property(x => x.UpdatedByUserId)
-            .HasMaxLength(128);
-
-        builder.Property(x => x.UpdatedByName)
-            .HasMaxLength(200);
-
-        builder.Property(x => x.DeletedByName)
-            .HasMaxLength(200);
 
         builder.HasOne(x => x.Operation)
             .WithOne(x => x.ImportDetails)

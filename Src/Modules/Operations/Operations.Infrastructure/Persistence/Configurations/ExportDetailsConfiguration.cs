@@ -36,22 +36,9 @@ public sealed class ExportDetailsConfiguration
         builder.Property(x => x.Customs)
             .HasMaxLength(160);
 
-        builder.Property(x => x.CreatedByUserId)
-            .IsRequired()
-            .HasMaxLength(128);
+        
 
-        builder.Property(x => x.CreatedByName)
-            .IsRequired()
-            .HasMaxLength(200);
-
-        builder.Property(x => x.UpdatedByUserId)
-            .HasMaxLength(128);
-
-        builder.Property(x => x.UpdatedByName)
-            .HasMaxLength(200);
-
-        builder.Property(x => x.DeletedByName)
-            .HasMaxLength(200);
+      
 
         builder.ToTable("ExportDetails", table =>
         {

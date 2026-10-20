@@ -4,7 +4,7 @@ using Operations.Domain.Enums;
 
 namespace Operations.Domain.Entities;
 
-public class OperationContainer : SoftDeletableEntity<Guid>
+public class OperationContainer : Entity<Guid>
 {
     public Guid OperationId { get; private set; }
 

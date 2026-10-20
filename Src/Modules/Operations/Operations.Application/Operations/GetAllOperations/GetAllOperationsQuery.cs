@@ -8,6 +8,8 @@ public sealed record GetAllOperationsQuery
 
 public sealed record OperationDto(
     Guid Id,
+    DateTime CreatedAtUtc,
+    string CreatedByName,
     Guid ClientId,
     Guid ShippingLineId,
     string ShippingLineName,

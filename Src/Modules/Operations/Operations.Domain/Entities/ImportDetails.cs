@@ -4,7 +4,7 @@ using Operations.Domain.Common;
 
 namespace Operations.Domain.Entities;
 
-public class ImportDetails : SoftDeletableEntity<Guid>
+public class ImportDetails : Entity<Guid>
 {
     public Guid OperationId { get; private set; }
 

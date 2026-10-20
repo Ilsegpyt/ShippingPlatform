@@ -40,17 +40,7 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
         builder.ApplyConfigurationsFromAssembly(
             typeof(OperationsDbContext).Assembly);
 
-        builder.Entity<Operation>()
-            .HasQueryFilter(x => !x.IsDeleted);
-
-        builder.Entity<OperationContainer>()
-            .HasQueryFilter(x => !x.IsDeleted);
-
-        builder.Entity<ImportDetails>()
-            .HasQueryFilter(x => !x.IsDeleted);
-
-        builder.Entity<ExportDetails>()
-            .HasQueryFilter(x => !x.IsDeleted);
+       
 
         base.OnModelCreating(builder);
     }
@@ -105,92 +95,55 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
         }
     }
 
-    public override async Task<int> SaveChangesAsync(
-        CancellationToken cancellationToken = default)
+  public override async Task<int> SaveChangesAsync(
+    bool acceptAllChangesOnSuccess,
+    CancellationToken cancellationToken = default)
+{
+    var userId = _currentUser.UserId.ToString();
+
+    var now = DateTime.UtcNow;
+
+    var addedOperations = ChangeTracker
+        .Entries<Operation>()
+        .Where(entry => entry.State == EntityState.Added)
+        .ToList();
+
+    if (addedOperations.Count > 0)
     {
-        var userId = _currentUser.UserId;
         var userName = await _currentUser.GetUserNameAsync(
             cancellationToken);
-        var now = DateTime.UtcNow;
 
-        var deletedEntries = ChangeTracker
-            .Entries()
-            .Where(entry =>
-                entry.State == EntityState.Deleted &&
-                entry.Entity is ISoftDeletable)
-            .ToList();
-
-        foreach (var entry in deletedEntries)
+        foreach (var entry in addedOperations)
         {
-            var softDeletable = (ISoftDeletable)entry.Entity;
-
-            softDeletable.MarkAsDeleted(
+            entry.Entity.SetCreatedAudit(
                 userId,
                 userName,
                 now);
-
-            entry.State = EntityState.Modified;
         }
-
-        var auditEntries = ChangeTracker
-            .Entries<AuditableEntity<Guid>>()
-            .Where(entry =>
-                entry.State == EntityState.Added ||
-                (entry.State == EntityState.Modified &&
-                 !deletedEntries.Contains(entry)))
-            .ToList();
-
-        foreach (var entry in auditEntries)
-        {
-            if (entry.State == EntityState.Added)
-            {
-                entry.Entity.SetCreatedAudit(
-                    userId.ToString(),
-                    userName,
-                    now);
-            }
-            else
-            {
-                entry.Entity.SetUpdatedAudit(
-                    userId.ToString(),
-                    userName,
-                    now);
-            }
-        }
-
-        var statusChanges = ChangeTracker
-            .Entries<Operation>()
-            .Where(entry =>
-                entry.State == EntityState.Modified &&
-                entry.Property(x => x.Status).IsModified &&
-                entry.Property(x => x.Status).OriginalValue !=
-                entry.Entity.Status)
-            .Select(entry => new OperationStatusAudit(
-                entry.Entity.Id,
-                entry.Property(x => x.Status).OriginalValue,
-                entry.Entity.Status,
-                userId.ToString(),
-                now))
-            .ToList();
-
-        if (statusChanges.Count > 0)
-            OperationStatusAudits.AddRange(statusChanges);
-
-        var containerUpdateEntries = ChangeTracker
-            .Entries<ContainerUpdate>()
-            .Where(entry => entry.State == EntityState.Added)
-            .ToList();
-
-        foreach (var entry in containerUpdateEntries)
-        {
-            entry.Entity.SetCreatedAudit(
-                userId.ToString(),
-                userName,
-                now);
-        }
-
-        return await base.SaveChangesAsync(cancellationToken);
     }
+
+    var statusChanges = ChangeTracker
+        .Entries<Operation>()
+        .Where(entry =>
+            entry.State == EntityState.Modified &&
+            entry.Property(x => x.Status).IsModified &&
+            entry.Property(x => x.Status).OriginalValue !=
+            entry.Entity.Status)
+        .Select(entry => new OperationStatusAudit(
+            entry.Entity.Id,
+            entry.Property(x => x.Status).OriginalValue,
+            entry.Entity.Status,
+            userId,
+            now))
+        .ToList();
+
+    if (statusChanges.Count > 0)
+        OperationStatusAudits.AddRange(statusChanges);
+
+    return await base.SaveChangesAsync(
+        acceptAllChangesOnSuccess,
+        cancellationToken);
+}
 
     public override void Dispose()
     {

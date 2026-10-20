@@ -22,6 +22,8 @@ public sealed class GetOperationByIdQueryHandler(
 
         var response = new OperationDto(
             operation.Id,
+            operation.CreatedAtUtc,
+            operation.CreatedByName,
             operation.ClientId,
             operation.ShippingLineId,
             operation.ShippingLine.Name,

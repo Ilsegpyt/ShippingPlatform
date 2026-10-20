@@ -1,11 +1,12 @@
 ﻿
 using BuildingBlocks.Domain;
-using Operations.Domain.Enums;
 using Operations.Domain.Common;
+using Operations.Domain.Enums;
+using System.Security.Cryptography;
 
 namespace Operations.Domain.Entities;
 
-public class Operation : SoftDeletableEntity<Guid>, IAggregateRoot
+public class Operation : Entity<Guid>, IAggregateRoot
 {
     private readonly List<IDomainEvent> _domainEvents = new();
 
@@ -29,6 +30,17 @@ public class Operation : SoftDeletableEntity<Guid>, IAggregateRoot
     public string? ReopenReason { get; private set; }
 
     public int NumberOfContainers { get; private set; }
+
+
+
+    public DateTime CreatedAtUtc { get; private set; }
+
+    public string CreatedByUserId { get; private set; } = null!;
+
+    public string CreatedByName { get; private set; } = null!;
+
+
+
 
     public ICollection<OperationContainer> Containers { get; private set; }
         = new List<OperationContainer>();
@@ -217,7 +229,30 @@ public class Operation : SoftDeletableEntity<Guid>, IAggregateRoot
         ReopenedAtUtc = reopenedAtUtc;
         ReopenReason = reason.Trim();
     }
+    public void SetCreatedAudit(
+    string createdByUserId,
+    string createdByName,
+    DateTime createdAtUtc)
+    {
+        if (string.IsNullOrWhiteSpace(createdByUserId))
+            throw new ArgumentException(
+                "Created by user ID is required.",
+                nameof(createdByUserId));
 
+        if (string.IsNullOrWhiteSpace(createdByName))
+            throw new ArgumentException(
+                "Created by name is required.",
+                nameof(createdByName));
+
+        if (createdAtUtc.Kind != DateTimeKind.Utc)
+            throw new ArgumentException(
+                "Created timestamp must be UTC.",
+                nameof(createdAtUtc));
+
+        CreatedByUserId = createdByUserId;
+        CreatedByName = createdByName;
+        CreatedAtUtc = createdAtUtc;
+    }
     public void SetImportDetails(ImportDetails details)
     {
         ImportDetails = details;

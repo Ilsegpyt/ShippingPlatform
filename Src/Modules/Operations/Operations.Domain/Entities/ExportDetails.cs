@@ -5,7 +5,7 @@ using Operations.Domain.Common;
 
 namespace Operations.Domain.Entities;
 
-public class ExportDetails : SoftDeletableEntity<Guid>
+public class ExportDetails : Entity<Guid>
 {
     public Guid OperationId { get; private set; }
 

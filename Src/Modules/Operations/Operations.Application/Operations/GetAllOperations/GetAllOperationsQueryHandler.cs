@@ -19,6 +19,8 @@ public sealed class GetAllOperationsQueryHandler(
         IReadOnlyList<OperationDto> response = operations
             .Select(operation => new OperationDto(
                 operation.Id,
+                operation.CreatedAtUtc,
+                operation.CreatedByName,
                 operation.ClientId,
                 operation.ShippingLineId,
                 operation.ShippingLine.Name,
