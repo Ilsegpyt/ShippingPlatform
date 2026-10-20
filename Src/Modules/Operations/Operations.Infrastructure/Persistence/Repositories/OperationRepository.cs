@@ -12,21 +12,67 @@ public sealed class OperationRepository(
         Operation operation,
         CancellationToken cancellationToken = default)
     {
-        await dbContext.Operations.AddAsync(
-            operation,
-            cancellationToken);
+        await dbContext.Operations.AddAsync(operation, cancellationToken);
     }
 
-    public async Task<Operation?> GetByIdForUpdateAsync(
+    public Task<Operation?> GetByIdForUpdateAsync(
         Guid operationId,
         CancellationToken cancellationToken = default)
     {
-        return await dbContext.Operations
+        return dbContext.Operations
             .Include(x => x.ExportDetails)
             .Include(x => x.Containers)
                 .ThenInclude(x => x.Updates)
-            .FirstOrDefaultAsync(
-                x => x.Id == operationId,
-                cancellationToken);
+            .FirstOrDefaultAsync(x => x.Id == operationId, cancellationToken);
+    }
+
+    public Task<Operation?> GetByIdWithDetailsAsync(
+        Guid operationId,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.Operations
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(x => x.ShippingLine)
+            .Include(x => x.ImportDetails)
+                .ThenInclude(x => x!.POD)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POW)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Transporter)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Driver)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Vehicle)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Updates)
+            .FirstOrDefaultAsync(x => x.Id == operationId, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Operation>> GetAllWithDetailsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Operations
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(x => x.ShippingLine)
+            .Include(x => x.ImportDetails)
+                .ThenInclude(x => x!.POD)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POW)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Transporter)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Driver)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Vehicle)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Updates)
+            .OrderByDescending(x => x.Id)
+            .ToListAsync(cancellationToken);
     }
 }

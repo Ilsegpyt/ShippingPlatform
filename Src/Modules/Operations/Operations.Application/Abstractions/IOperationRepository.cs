@@ -9,6 +9,13 @@ public interface IOperationRepository
         CancellationToken cancellationToken = default);
 
     Task<Operation?> GetByIdForUpdateAsync(
-      Guid operationId,
-      CancellationToken cancellationToken = default);
+        Guid operationId,
+        CancellationToken cancellationToken = default);
+
+    Task<Operation?> GetByIdWithDetailsAsync(
+        Guid operationId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Operation>> GetAllWithDetailsAsync(
+        CancellationToken cancellationToken = default);
 }
