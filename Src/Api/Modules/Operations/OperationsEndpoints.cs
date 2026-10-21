@@ -13,6 +13,7 @@ using Api.Modules.Operations.GetAdvancedOperationsSearch;
 using Api.Modules.Operations.ReopenOperation;
 using Api.Modules.Operations.UpdateExport;
 using Api.Modules.Operations.UpdateImport;
+using Api.Modules.Operations.ImportTrips;
 using Api.Modules.Operations.GetOperationCustomers;
 using Api.Modules.Operations.GetOperationShippingLines;
 using Api.Modules.Operations.GetOperationPorts;
@@ -27,6 +28,7 @@ public static class OperationsEndpoints
     public static void MapOperationsEndpoints(this IEndpointRouteBuilder app)
     {
         CreateOperationEndpoint.Map(app);
+        ImportTripsEndpoint.Map(app);
         GetOperationCustomersEndpoint.Map(app);
         GetOperationShippingLinesEndpoint.Map(app);
         GetOperationPortsEndpoint.Map(app);
