@@ -1,5 +1,6 @@
 
 using BuildingBlocks.Application;
+using Customers.Contracts;
 using MediatR;
 using Operations.Application.Abstractions;
 using Operations.Application.Operations.GetAllOperations;
@@ -7,7 +8,8 @@ using Operations.Application.Operations.GetAllOperations;
 namespace Operations.Application.Operations.GetDeliveredOperations;
 
 public sealed class GetDeliveredOperationsQueryHandler(
-    IOperationRepository repository)
+    IOperationRepository repository,
+    ICustomerQueries customerQueries)
     : IRequestHandler<GetDeliveredOperationsQuery, Result<IReadOnlyList<OperationDto>>>
 {
     public async Task<Result<IReadOnlyList<OperationDto>>> Handle(
@@ -18,12 +20,20 @@ public sealed class GetDeliveredOperationsQueryHandler(
             query.OperationType,
             cancellationToken);
 
+        var customerIds = operations
+            .Select(operation => operation.ClientId)
+            .Distinct()
+            .ToArray();
+        var customers = await customerQueries.GetByIdsAsync(customerIds, cancellationToken);
+        var clientNames = customers.ToDictionary(customer => customer.CustomerId, customer => customer.CompanyName);
+
         IReadOnlyList<OperationDto> response = operations
             .Select(operation => new OperationDto(
                 operation.Id,
                 operation.CreatedAtUtc,
                 operation.CreatedByName,
                 operation.ClientId,
+                clientNames.GetValueOrDefault(operation.ClientId),
                 operation.ShippingLineId,
                 operation.ShippingLine.Name,
                 operation.OperationType.ToString(),

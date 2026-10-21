@@ -24,9 +24,9 @@ internal sealed class CustomerQueries(ICustomerRepository repository) : ICustome
                 customer.IsDeleted);
     }
 
-public async Task<CustomerInfo?> GetByIdAsync(
-    Guid customerId,
-    CancellationToken ct)
+    public async Task<CustomerInfo?> GetByIdAsync(
+        Guid customerId,
+        CancellationToken ct)
     {
         var customer = await repository.GetByIdAsync(customerId, ct);
 
@@ -101,4 +101,25 @@ public async Task<CustomerInfo?> GetByIdAsync(
                     customer.IsDeleted))
             .ToList();
     }
+
+    public async Task<IReadOnlyList<CustomerOperationOption>> GetAllForOperationsAsync(
+        CancellationToken ct)
+    {
+        var customers = await repository.ListAsync(
+            0,
+            int.MaxValue,
+            ct);
+
+        return customers
+            .Where(customer =>
+                customer.Status == CustomerStatus.Active &&
+                !customer.IsDeleted)
+            .Select(customer => new CustomerOperationOption(
+                customer.Id,
+                customer.CompanyName,
+                customer.OwnerName,
+                customer.OwnerEmail))
+            .ToList();
+    }
+
 }

@@ -11,6 +11,7 @@ public sealed record OperationDto(
     DateTime CreatedAtUtc,
     string CreatedByName,
     Guid ClientId,
+    string? ClientName,
     Guid ShippingLineId,
     string ShippingLineName,
     string OperationType,

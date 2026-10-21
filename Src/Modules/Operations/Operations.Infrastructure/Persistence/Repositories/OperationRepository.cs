@@ -156,6 +156,56 @@ public sealed class OperationRepository(
         return new OperationSearchPage(items, totalCount);
     }
 
+    public async Task<IReadOnlyList<Operation>> SearchForExportAsync(
+        AdvancedOperationsSearchRequest request,
+        IReadOnlyCollection<Guid>? operationIds,
+        DateTime? createdFromUtc,
+        DateTime? createdToUtc,
+        CancellationToken cancellationToken = default)
+    {
+        var query = dbContext.Operations
+            .AsNoTracking()
+            .AsSplitQuery()
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(request.OperationType))
+        {
+            if (!Enum.TryParse<OperationType>(request.OperationType, true, out var operationType))
+                throw new ArgumentException("Invalid operation type. Use Import or Export.");
+            query = query.Where(x => x.OperationType == operationType);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Status))
+        {
+            if (!Enum.TryParse<OperationStatus>(request.Status, true, out var status))
+                throw new ArgumentException("Invalid status.");
+            query = query.Where(x => x.Status == status);
+        }
+
+        if (operationIds is { Count: > 0 })
+            query = query.Where(x => operationIds.Contains(x.Id));
+
+        if (createdFromUtc.HasValue)
+            query = query.Where(x => x.CreatedAtUtc >= createdFromUtc.Value);
+
+        if (createdToUtc.HasValue)
+            query = query.Where(x => x.CreatedAtUtc < createdToUtc.Value);
+
+        query = AdvancedOperationQueryBuilder.Apply(
+            query, request.Rules, request.SortBy, request.SortDirection);
+
+        return await query
+            .Include(x => x.ShippingLine)
+            .Include(x => x.ImportDetails).ThenInclude(x => x!.POD)
+            .Include(x => x.ExportDetails).ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails).ThenInclude(x => x!.POW)
+            .Include(x => x.Containers).ThenInclude(x => x.Transporter)
+            .Include(x => x.Containers).ThenInclude(x => x.Driver)
+            .Include(x => x.Containers).ThenInclude(x => x.Vehicle)
+            .Include(x => x.Containers).ThenInclude(x => x.Updates)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<Operation>> GetAllWithDetailsAsync(
         CancellationToken cancellationToken = default)
     {
@@ -179,5 +229,100 @@ public sealed class OperationRepository(
                 .ThenInclude(x => x.Updates)
             .OrderByDescending(x => x.Id)
             .ToListAsync(cancellationToken);
+    }
+
+
+    public async Task<IReadOnlyList<ShippingLine>> GetActiveShippingLinesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.ShippingLines
+            .AsNoTracking()
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Port>> GetActivePortsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Ports
+            .AsNoTracking()
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Transporter>> GetActiveTransportersAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Transporters
+            .AsNoTracking()
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Driver>> GetActiveDriversAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Drivers
+            .AsNoTracking()
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Vehicle>> GetActiveVehiclesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Vehicles
+            .AsNoTracking()
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.CarNumber)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<bool> ActiveShippingLineExistsAsync(
+        Guid shippingLineId,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.ShippingLines.AnyAsync(
+            x => x.Id == shippingLineId && x.IsActive,
+            cancellationToken);
+    }
+
+    public Task<bool> ActivePortExistsAsync(
+        Guid portId,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.Ports.AnyAsync(
+            x => x.Id == portId && x.IsActive,
+            cancellationToken);
+    }
+    public Task<bool> ActiveTransporterExistsAsync(
+    Guid id,
+    CancellationToken cancellationToken = default)
+    {
+        return dbContext.Transporters.AnyAsync(
+            x => x.Id == id && x.IsActive,
+            cancellationToken);
+    }
+
+    public Task<bool> ActiveDriverExistsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.Drivers.AnyAsync(
+            x => x.Id == id && x.IsActive,
+            cancellationToken);
+    }
+
+    public Task<bool> ActiveVehicleExistsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.Vehicles.AnyAsync(
+            x => x.Id == id && x.IsActive,
+            cancellationToken);
     }
 }

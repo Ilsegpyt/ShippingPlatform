@@ -11,6 +11,8 @@ public interface ICustomerQueries
     CancellationToken ct);
     Task<IReadOnlyList<CustomerAssignmentInfo>> GetAllForAssignmentAsync(
     CancellationToken ct);
+    Task<IReadOnlyList<CustomerOperationOption>> GetAllForOperationsAsync(
+        CancellationToken ct);
 }
 
 public sealed record CustomerAuthInfo(Guid CustomerId, bool IsActive, bool IsDeleted);
@@ -25,6 +27,12 @@ public sealed record CustomerAssignmentInfo(
     string CompanyName,
     bool IsActive,
     bool IsDeleted);
+
+public sealed record CustomerOperationOption(
+    Guid CustomerId,
+    string CompanyName,
+    string OwnerName,
+    string OwnerEmail);
 
 
 

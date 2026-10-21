@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
 using BuildingBlocks.Application.Abstractions;
 using MediatR;
 using Operations.Application.Abstractions;
@@ -53,6 +54,34 @@ public sealed class UpdateImportCommandHandler(
         if (invalidContainer is not null)
             return Result.Failure<bool>(
                 $"Container '{invalidContainer.ContainerId}' does not belong to this operation.");
+
+        // Validate all referenced entities before modifying the operation.
+        foreach (var item in command.Containers)
+        {
+            if (item.TransporterId.HasValue &&
+                !await operationRepository.ActiveTransporterExistsAsync(
+                    item.TransporterId.Value, ct))
+            {
+                return Result.Failure<bool>(
+                    $"Transporter '{item.TransporterId}' does not exist or is inactive.");
+            }
+
+            if (item.DriverId.HasValue &&
+                !await operationRepository.ActiveDriverExistsAsync(
+                    item.DriverId.Value, ct))
+            {
+                return Result.Failure<bool>(
+                    $"Driver '{item.DriverId}' does not exist or is inactive.");
+            }
+
+            if (item.VehicleId.HasValue &&
+                !await operationRepository.ActiveVehicleExistsAsync(
+                    item.VehicleId.Value, ct))
+            {
+                return Result.Failure<bool>(
+                    $"Vehicle '{item.VehicleId}' does not exist or is inactive.");
+            }
+        }
 
         operation.UpdateImportData(
             command.ShipmentNumber,

@@ -1,4 +1,5 @@
 using BuildingBlocks.Application;
+using Customers.Contracts;
 using MediatR;
 using Operations.Application.Abstractions;
 using Operations.Application.Operations.GetAllOperations;
@@ -6,7 +7,8 @@ using Operations.Application.Operations.GetAllOperations;
 namespace Operations.Application.Operations.GetOperationById;
 
 public sealed class GetOperationByIdQueryHandler(
-    IOperationRepository repository)
+    IOperationRepository repository,
+    ICustomerQueries customerQueries)
     : IRequestHandler<GetOperationByIdQuery, Result<OperationDto>>
 {
     public async Task<Result<OperationDto>> Handle(
@@ -20,11 +22,17 @@ public sealed class GetOperationByIdQueryHandler(
         if (operation is null)
             return Result.Failure<OperationDto>("Operation not found.");
 
+        var customers = await customerQueries.GetByIdsAsync(
+            new[] { operation.ClientId },
+            cancellationToken);
+        var clientName = customers.FirstOrDefault()?.CompanyName;
+
         var response = new OperationDto(
             operation.Id,
             operation.CreatedAtUtc,
             operation.CreatedByName,
             operation.ClientId,
+            clientName,
             operation.ShippingLineId,
             operation.ShippingLine.Name,
             operation.OperationType.ToString(),

@@ -1,4 +1,5 @@
-﻿using BuildingBlocks.Application;
+﻿
+using BuildingBlocks.Application;
 using MediatR;
 using Operations.Application.Abstractions;
 using Operations.Domain.Entities;
@@ -21,6 +22,13 @@ public sealed class CreateOperationCommandHandler(
                 "Number of containers must be between 1 and 200.");
         }
 
+        if (!await operationRepository.ActiveShippingLineExistsAsync(
+                command.ShippingLineId, ct))
+        {
+            return Result.Failure<Guid>(
+                "Shipping line does not exist or is inactive.");
+        }
+
         if (command.OperationType == OperationType.Import)
         {
             if (string.IsNullOrWhiteSpace(command.Destination))
@@ -33,6 +41,33 @@ public sealed class CreateOperationCommandHandler(
             {
                 return Result.Failure<Guid>(
                     "Free time till is required for Import.");
+            }
+
+            if (!command.PODId.HasValue ||
+                !await operationRepository.ActivePortExistsAsync(
+                    command.PODId.Value, ct))
+            {
+                return Result.Failure<Guid>(
+                    "POD does not exist or is inactive.");
+            }
+        }
+
+        if (command.OperationType == OperationType.Export)
+        {
+            if (!command.POLId.HasValue ||
+                !await operationRepository.ActivePortExistsAsync(
+                    command.POLId.Value, ct))
+            {
+                return Result.Failure<Guid>(
+                    "POL does not exist or is inactive.");
+            }
+
+            if (command.POWId.HasValue &&
+                !await operationRepository.ActivePortExistsAsync(
+                    command.POWId.Value, ct))
+            {
+                return Result.Failure<Guid>(
+                    "POW does not exist or is inactive.");
             }
         }
 
