@@ -1,4 +1,4 @@
-﻿
+
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
@@ -40,7 +40,8 @@ public static class UpdateImportEndpoint
                             x.MissingDocs,
                             x.MissingDocsReceivedDate,
                             x.Destination,
-                            x.FreeTimeTill))
+                            x.FreeTimeTill,
+                            x.CarNumber))
                         .ToList());
 
                 var result = await sender.Send(command, ct);
@@ -81,4 +82,6 @@ public sealed record UpdateImportContainerRequest(
     DateOnly? MissingDocsReceivedDate,
 
     string? Destination,
-    DateOnly? FreeTimeTill);
+    DateOnly? FreeTimeTill,
+    string? CarNumber = null);
+

@@ -1,4 +1,4 @@
-﻿
+
 using BuildingBlocks.Application;
 using BuildingBlocks.Application.Abstractions;
 using MediatR;
@@ -11,8 +11,7 @@ namespace Operations.Application.Operations.UpdateImport;
 
 public sealed class UpdateImportCommandHandler(
     IOperationRepository operationRepository,
-    IOperationsUnitOfWork unitOfWork,
-    ICurrentUser currentUser)
+    IOperationsUnitOfWork unitOfWork)
     : IRequestHandler<UpdateImportCommand, Result<bool>>
 {
     public async Task<Result<bool>> Handle(
@@ -56,6 +55,8 @@ public sealed class UpdateImportCommandHandler(
                 $"Container '{invalidContainer.ContainerId}' does not belong to this operation.");
 
         // Validate all referenced entities before modifying the operation.
+        var newlyAddedVehicles = new Dictionary<string, Vehicle>(StringComparer.OrdinalIgnoreCase);
+
         foreach (var item in command.Containers)
         {
             if (item.TransporterId.HasValue &&
@@ -74,7 +75,7 @@ public sealed class UpdateImportCommandHandler(
                     $"Driver '{item.DriverId}' does not exist or is inactive.");
             }
 
-            if (item.VehicleId.HasValue &&
+            if (item.VehicleId.HasValue && string.IsNullOrWhiteSpace(item.CarNumber) &&
                 !await operationRepository.ActiveVehicleExistsAsync(
                     item.VehicleId.Value, ct))
             {
@@ -88,32 +89,53 @@ public sealed class UpdateImportCommandHandler(
             command.CertificateNumber,
             command.InvoicesReceivedDate);
 
-        var duplicateKey = OperationDuplicateCheckKey.Create(
-            operation.ShipmentNumber,
-            operation.ImportDetails?.MBLNumber,
-            operation.CertificateNumber);
-
-        if (duplicateKey is not null &&
-            await operationRepository.DuplicateCheckKeyExistsAsync(
-                OperationType.Import,
-                duplicateKey,
-                operation.Id,
-                ct))
+        if (!string.IsNullOrWhiteSpace(command.ShipmentNumber) &&
+            await operationRepository.ShipmentNumberExistsAsync(command.ShipmentNumber, operation.Id, ct))
         {
             return Result.Failure<bool>(
-                "This Import Shipment Number, M/BL Number and Certificate Number combination already exists.");
+                $"رقم الشحنة (Shipment #) '{command.ShipmentNumber.Trim()}' مسجل بالفعل لعملية أخرى.");
         }
 
-        operation.UpdateDuplicateCheckKey(duplicateKey);
+        if (operation.ImportDetails is not null &&
+            !string.IsNullOrWhiteSpace(operation.ImportDetails.MBLNumber) &&
+            await operationRepository.MblNumberExistsAsync(operation.ImportDetails.MBLNumber, operation.Id, ct))
+        {
+            return Result.Failure<bool>(
+                $"رقم بوليصة الشحن (M/BL) '{operation.ImportDetails.MBLNumber.Trim()}' مسجل بالفعل لشحنة وارد أخرى.");
+        }
 
-        var userName = await currentUser.GetUserNameAsync(ct);
-        var userId = currentUser.UserId.ToString();
-        var utcNow = DateTime.UtcNow;
+        operation.UpdateDuplicateCheckKey(null);
 
         foreach (var item in command.Containers)
         {
             var container = operation.Containers
                 .First(x => x.Id == item.ContainerId);
+
+            Guid? resolvedVehicleId = item.VehicleId;
+
+            if (!string.IsNullOrWhiteSpace(item.CarNumber))
+            {
+                var cleanCar = item.CarNumber.Trim();
+                if (newlyAddedVehicles.TryGetValue(cleanCar, out var tracked))
+                {
+                    resolvedVehicleId = tracked.Id;
+                }
+                else
+                {
+                    var existingVehicle = await operationRepository.GetVehicleByCarNumberAsync(cleanCar, ct);
+                    if (existingVehicle is not null)
+                    {
+                        resolvedVehicleId = existingVehicle.Id;
+                    }
+                    else
+                    {
+                        var newVehicle = Vehicle.Create(cleanCar);
+                        await operationRepository.AddVehicleAsync(newVehicle, ct);
+                        newlyAddedVehicles[cleanCar] = newVehicle;
+                        resolvedVehicleId = newVehicle.Id;
+                    }
+                }
+            }
 
             container.UpdateImportData(
                 item.ActualArrivalDate,
@@ -123,20 +145,13 @@ public sealed class UpdateImportCommandHandler(
                 item.ContainerType,
                 item.ContainerNumber,
                 item.TransporterId,
-                item.VehicleId,
+                resolvedVehicleId,
                 item.DriverId,
                 item.CheckOutFromThePort,
                 item.MissingDocs,
                 item.MissingDocsReceivedDate,
                 item.Destination,
                 item.FreeTimeTill);
-
-            container.Updates.Add(ContainerUpdate.Create(
-                container.Id,
-                $"Import container updated. Container Number: {item.ContainerNumber ?? container.ContainerNumber ?? "N/A"}",
-                userId,
-                userName,
-                utcNow));
         }
 
         await unitOfWork.SaveChangesAsync(ct);

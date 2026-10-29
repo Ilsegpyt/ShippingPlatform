@@ -1,4 +1,3 @@
-
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
@@ -29,8 +28,24 @@ public static class UpdateExportEndpoint
                         x.ContainerNumber,
                         x.RequiredLoadingDate,
                         x.RequiredLoadingTime,
-                        x.Destination))
-                    .ToArray()
+                        x.Destination,
+                        x.ActualArrivalDate,
+                        x.ActualArrivalTime,
+                        x.GateOutDate,
+                        x.GateOutTime,
+                        x.TransporterId,
+                        x.VehicleId,
+                        x.DriverId,
+                        x.MissingDocs,
+                        x.MissingDocsReceivedDate,
+                        x.CarNumber))
+                    .ToArray(),
+                request.POLId,
+                request.PODId,
+                request.POWId,
+                request.InvoicesReceivedDate,
+                request.ClearPOD,
+                request.ClearPOW
             );
 
             var result = await sender.Send(command, ct);
@@ -46,7 +61,13 @@ public sealed record UpdateExportRequest(
     string? ShipmentNumber,
     string? CertificateNumber,
     string? Customs,
-    IReadOnlyCollection<UpdateExportContainerRequest> Containers
+    IReadOnlyCollection<UpdateExportContainerRequest> Containers,
+    Guid? POLId = null,
+    Guid? PODId = null,
+    Guid? POWId = null,
+    DateTime? InvoicesReceivedDate = null,
+    bool ClearPOD = false,
+    bool ClearPOW = false
 );
 
 public sealed record UpdateExportContainerRequest(
@@ -55,5 +76,15 @@ public sealed record UpdateExportContainerRequest(
     string? ContainerNumber,
     DateOnly? RequiredLoadingDate,
     TimeOnly? RequiredLoadingTime,
-    string? Destination
+    string? Destination,
+    DateOnly? ActualArrivalDate = null,
+    TimeOnly? ActualArrivalTime = null,
+    DateOnly? GateOutDate = null,
+    TimeOnly? GateOutTime = null,
+    Guid? TransporterId = null,
+    Guid? VehicleId = null,
+    Guid? DriverId = null,
+    string? MissingDocs = null,
+    DateOnly? MissingDocsReceivedDate = null,
+    string? CarNumber = null
 );

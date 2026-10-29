@@ -1,4 +1,4 @@
-﻿
+
 using Operations.Domain.Entities;
 using Operations.Domain.Enums;
 using Operations.Application.Operations.SearchOperations;
@@ -9,6 +9,21 @@ public interface IOperationRepository
 {
     Task AddAsync(
         Operation operation,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ShipmentNumberExistsAsync(
+        string shipmentNumber,
+        Guid? excludeOperationId = null,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> MblNumberExistsAsync(
+        string mblNumber,
+        Guid? excludeOperationId = null,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> BookingNumberExistsAsync(
+        string bookingNumber,
+        Guid? excludeOperationId = null,
         CancellationToken cancellationToken = default);
 
     Task<bool> DuplicateCheckKeyExistsAsync(
@@ -30,6 +45,9 @@ public interface IOperationRepository
 
     Task<IReadOnlyList<Operation>> GetDeliveredWithDetailsAsync(
         OperationType? operationType,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Operation>> GetDeletedWithDetailsAsync(
         CancellationToken cancellationToken = default);
 
     Task<OperationSearchPage> SearchWithDetailsAsync(
@@ -58,6 +76,26 @@ public interface IOperationRepository
     Task<IReadOnlyList<Vehicle>> GetActiveVehiclesAsync(
         CancellationToken cancellationToken = default);
 
+    Task<Vehicle?> GetVehicleByCarNumberAsync(
+        string carNumber,
+        CancellationToken cancellationToken = default);
+
+    Task AddVehicleAsync(
+        Vehicle vehicle,
+        CancellationToken cancellationToken = default);
+
+
+    Task<IReadOnlyList<Destination>> GetActiveDestinationsAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ActiveDestinationNameExistsAsync(
+        string name,
+        CancellationToken cancellationToken = default);
+
+    Task AddDestinationAsync(
+        Destination destination,
+        CancellationToken cancellationToken = default);
+
     Task<bool> ActiveShippingLineExistsAsync(
         Guid shippingLineId,
         CancellationToken cancellationToken = default);
@@ -78,4 +116,11 @@ public interface IOperationRepository
         Guid id,
         CancellationToken cancellationToken = default);
 
+    Task<OperationContainer?> GetContainerByIdAsync(
+        Guid containerId,
+        CancellationToken cancellationToken = default);
+
+    Task AddContainerUpdateAsync(
+        ContainerUpdate update,
+        CancellationToken cancellationToken = default);
 }

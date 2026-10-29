@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Operations.Domain.Entities;
 
@@ -99,7 +99,19 @@ public sealed class OperationConfiguration : IEntityTypeConfiguration<Operation>
         // Soft Delete
         // -------------------------
 
-       
+        builder.Property(x => x.IsDeleted)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(x => x.DeletedAtUtc)
+            .HasColumnType("datetime2");
+
+        builder.Property(x => x.DeletedByUserId);
+
+        builder.Property(x => x.DeletedByName)
+            .HasMaxLength(200);
+
+        builder.HasQueryFilter(x => !x.IsDeleted);
 
         // -------------------------
         // Relationships

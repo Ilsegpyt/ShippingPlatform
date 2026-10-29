@@ -28,7 +28,11 @@ public sealed record OperationDto(
     int NumberOfContainers,
     ImportDetailsDto? ImportDetails,
     ExportDetailsDto? ExportDetails,
-    IReadOnlyList<OperationContainerDto> Containers);
+    IReadOnlyList<OperationContainerDto> Containers,
+    bool IsDeleted = false,
+    DateTime? DeletedAtUtc = null,
+    Guid? DeletedByUserId = null,
+    string? DeletedByName = null);
 
 public sealed record ImportDetailsDto(
     Guid Id,
@@ -50,7 +54,10 @@ public sealed record ExportDetailsDto(
     string? POWName,
     string? POWCode,
     DateOnly? CutOffDate,
-    string? Customs);
+    string? Customs,
+    Guid? PODId = null,
+    string? PODName = null,
+    string? PODCode = null);
 
 public sealed record OperationContainerDto(
     Guid Id,

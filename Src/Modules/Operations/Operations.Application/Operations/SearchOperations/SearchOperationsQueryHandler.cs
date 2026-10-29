@@ -77,7 +77,10 @@ public sealed class SearchOperationsQueryHandler(
                         exportDetails.POW?.Name,
                         exportDetails.POW?.Code,
                         exportDetails.CutOffDate,
-                        exportDetails.Customs)
+                        exportDetails.Customs,
+                exportDetails.PODId,
+                exportDetails.POD?.Name,
+                exportDetails.POD?.Code)
                     : null,
 
                 operation.Containers

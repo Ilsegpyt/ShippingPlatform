@@ -1,4 +1,4 @@
-﻿
+
 using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Domain;
 using Microsoft.EntityFrameworkCore;
@@ -31,8 +31,8 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
     public DbSet<Transporter> Transporters => Set<Transporter>();
     public DbSet<Driver> Drivers => Set<Driver>();
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
-    public DbSet<FclSuggestion> FclSuggestions => Set<FclSuggestion>();
     public DbSet<FclApproval> FclApprovals => Set<FclApproval>();
+    public DbSet<Destination> Destinations => Set<Destination>();
     public DbSet<OperationStatusAudit> OperationStatusAudits => Set<OperationStatusAudit>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -40,7 +40,24 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
         builder.ApplyConfigurationsFromAssembly(
             typeof(OperationsDbContext).Assembly);
 
-       
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime))
+                {
+                    property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>(
+                        v => v.Kind == DateTimeKind.Utc ? v : DateTime.SpecifyKind(v, DateTimeKind.Utc),
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc)));
+                }
+                else if (property.ClrType == typeof(DateTime?))
+                {
+                    property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime?, DateTime?>(
+                        v => v.HasValue ? (v.Value.Kind == DateTimeKind.Utc ? v.Value : DateTime.SpecifyKind(v.Value, DateTimeKind.Utc)) : v,
+                        v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v));
+                }
+            }
+        }
 
         base.OnModelCreating(builder);
     }

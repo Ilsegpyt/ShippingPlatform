@@ -11,7 +11,6 @@ namespace Operations.Application.Operations.ApproveFclSuggestion;
 
 public sealed class ApproveFclSuggestionCommandHandler(
     IFclRepository fclRepository,
-    IOperationRepository operationRepository,
     IOperationsUnitOfWork unitOfWork,
     ICurrentUser currentUser)
     : IRequestHandler<ApproveFclSuggestionCommand, Result<Guid>>
@@ -20,43 +19,24 @@ public sealed class ApproveFclSuggestionCommandHandler(
         ApproveFclSuggestionCommand command,
         CancellationToken ct)
     {
-        var suggestion = await fclRepository
-            .GetSuggestionForApprovalAsync(command.SuggestionId, ct);
+        // 1. Resolve import container directly
+        var importContainer = await fclRepository
+            .GetImportContainerForApprovalAsync(command.SuggestionId, ct);
 
-        if (suggestion is null)
+        if (importContainer is null)
         {
             return Result.Failure<Guid>(
-                "FCL suggestion not found.");
+                "Import container not found.");
         }
 
-        if (suggestion.Status != FclSuggestionStatus.Pending)
+        // 2. Ensure container is not already approved
+        if (await fclRepository.IsImportContainerApprovedAsync(importContainer.Id, ct))
         {
             return Result.Failure<Guid>(
-                "This FCL suggestion has already been processed.");
+                "This import container has already been approved.");
         }
 
-        // Only a perfect match can be approved.
-        if (suggestion.MatchCount != 6)
-        {
-            return Result.Failure<Guid>(
-                $"This suggestion matches {suggestion.MatchCount}/6 criteria. " +
-                "Only 6/6 suggestions can be approved.");
-        }
-
-        var import = suggestion.ImportOperation;
-        var importContainer = suggestion.ImportContainer;
-        var sourceExportContainer = suggestion.ExportContainer;
-        var sourceExport = sourceExportContainer?.Operation;
-
-        if (sourceExport is null ||
-            sourceExport.OperationType != OperationType.Export ||
-            sourceExport.Status != OperationStatus.Open ||
-            sourceExport.ExportDetails is null)
-        {
-            return Result.Failure<Guid>(
-                "The source Export container or its open operation was not found.");
-        }
-
+        var import = importContainer.Operation;
         if (import.ImportDetails is null ||
             string.IsNullOrWhiteSpace(import.ImportDetails.MBLNumber))
         {
@@ -71,14 +51,34 @@ public sealed class ApproveFclSuggestionCommandHandler(
                 "The Import container has incomplete container data.");
         }
 
-        string approvalKey;
+        // 3. Resolve booking number and export operation ID
+        string? bookingNumber = command.BookingNumber;
+        Guid? exportOperationId = command.ExportOperationId;
 
+        if (string.IsNullOrWhiteSpace(bookingNumber))
+        {
+            var exportContainers = await fclRepository.GetAllExportContainersForMatchingAsync(ct);
+            var (matchedExportContainer, _) = FclMatchingEngine.FindBestExportMatch(importContainer, exportContainers);
+
+            if (matchedExportContainer is not null)
+            {
+                bookingNumber = matchedExportContainer.Operation.ExportDetails?.BookingNumber;
+                exportOperationId ??= matchedExportContainer.Operation.Id;
+            }
+        }
+
+        bookingNumber = !string.IsNullOrWhiteSpace(bookingNumber)
+            ? bookingNumber
+            : "APPROVED";
+
+        // 4. Create and validate approval key
+        string approvalKey;
         try
         {
             approvalKey = FclApprovalKey.Create(
                 importContainer.ContainerNumber,
                 import.ImportDetails.MBLNumber,
-                suggestion.BookingNumber);
+                bookingNumber);
         }
         catch (ArgumentException ex)
         {
@@ -91,103 +91,17 @@ public sealed class ApproveFclSuggestionCommandHandler(
                 "This container, M/BL and booking combination has already been approved.");
         }
 
-        Operation newExport;
-
-        try
-        {
-            var sourceDetails = sourceExport.ExportDetails;
-
-            newExport = new Operation(
-                sourceExport.ClientId,
-                sourceExport.ShippingLineId,
-                OperationType.Export,
-                sourceExport.ShipmentNumber,
-                sourceExport.CertificateNumber,
-                sourceExport.InvoicesReceivedDate);
-
-            newExport.MarkAsFcl();
-
-            newExport.SetExportDetails(new ExportDetails(
-                sourceDetails.ClearanceType,
-                sourceDetails.BookingNumber,
-                sourceDetails.POLId,
-                sourceDetails.POWId,
-                sourceDetails.CutOffDate));
-
-            var duplicateCheckKey = OperationDuplicateCheckKey.Create(
-                newExport.ShipmentNumber,
-                newExport.ExportDetails.BookingNumber,
-                newExport.ExportDetails.ClearanceType == ClearanceType.Bosla
-                    ? null
-                    : newExport.CertificateNumber);
-
-            if (duplicateCheckKey is not null &&
-                await operationRepository.DuplicateCheckKeyExistsAsync(
-                    OperationType.Export,
-                    duplicateCheckKey,
-                    newExport.Id,
-                    ct))
-            {
-                return Result.Failure<Guid>(
-                    "This Export Shipment Number, Booking Number and Certificate Number combination already exists.");
-            }
-
-            newExport.UpdateDuplicateCheckKey(duplicateCheckKey);
-
-            // Create exactly one container in the new Export operation.
-            var newContainer = new OperationContainer(
-                newExport.Id,
-                1,
-                importContainer.ContainerNumber,
-                importContainer.ContainerType.Value,
-                suggestion.RequiredLoadingDate,
-                suggestion.RequiredLoadingTime);
-
-            newContainer.UpdateExportData(
-                importContainer.ContainerType,
-                importContainer.ContainerNumber,
-                suggestion.RequiredLoadingDate,
-                suggestion.RequiredLoadingTime,
-                sourceExportContainer.Destination);
-
-            newExport.Containers.Add(newContainer);
-
-            suggestion.MarkApproved();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Result.Failure<Guid>(ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            return Result.Failure<Guid>(ex.Message);
-        }
-
+        // 5. Persist approval only without creating Export or any other entity
         var approval = new FclApproval(
-            suggestion.Id,
-            newExport.Id,
+            importContainer.Id,
             approvalKey,
             currentUser.UserId.ToString(),
-            DateTime.UtcNow);
+            DateTime.UtcNow,
+            exportOperationId);
 
-        try
-        {
-            await unitOfWork.BeginTransactionAsync(ct);
+        await fclRepository.AddApprovalAsync(approval, ct);
+        await unitOfWork.SaveChangesAsync(ct);
 
-            await operationRepository.AddAsync(newExport, ct);
-            await fclRepository.AddApprovalAsync(approval, ct);
-
-            // Persist the new Export, approval, and suggestion status together.
-            await unitOfWork.SaveChangesAsync(ct);
-
-            await unitOfWork.CommitTransactionAsync(ct);
-
-            return Result.Success(approval.Id);
-        }
-        catch
-        {
-            await unitOfWork.RollbackTransactionAsync(ct);
-            throw;
-        }
+        return Result.Success(approval.Id);
     }
 }

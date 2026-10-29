@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application;
+using BuildingBlocks.Application;
 using MediatR;
 using Operations.Application.Abstractions;
 
@@ -21,7 +21,7 @@ public sealed class GetAllFclApprovalsQueryHandler(
             .OrderByDescending(x => x.ApprovedAtUtc)
             .Select(x => new FclApprovalDto(
                 x.Id,
-                x.SuggestionId,
+                x.ImportContainerId,
                 x.ExportOperationId,
                 x.ApprovalKey,
                 x.ApprovedByUserId,

@@ -1,4 +1,3 @@
-
 using BuildingBlocks.Application;
 using MediatR;
 using Operations.Domain.Enums;
@@ -10,7 +9,13 @@ public sealed record UpdateExportCommand(
     string? ShipmentNumber,
     string? CertificateNumber,
     string? Customs,
-    IReadOnlyCollection<UpdateExportContainerItem> Containers
+    IReadOnlyCollection<UpdateExportContainerItem> Containers,
+    Guid? POLId = null,
+    Guid? PODId = null,
+    Guid? POWId = null,
+    DateTime? InvoicesReceivedDate = null,
+    bool ClearPOD = false,
+    bool ClearPOW = false
 ) : IRequest<Result<bool>>;
 
 public sealed record UpdateExportContainerItem(
@@ -19,5 +24,15 @@ public sealed record UpdateExportContainerItem(
     string? ContainerNumber,
     DateOnly? RequiredLoadingDate,
     TimeOnly? RequiredLoadingTime,
-    string? Destination
+    string? Destination,
+    DateOnly? ActualArrivalDate = null,
+    TimeOnly? ActualArrivalTime = null,
+    DateOnly? GateOutDate = null,
+    TimeOnly? GateOutTime = null,
+    Guid? TransporterId = null,
+    Guid? VehicleId = null,
+    Guid? DriverId = null,
+    string? MissingDocs = null,
+    DateOnly? MissingDocsReceivedDate = null,
+    string? CarNumber = null
 );

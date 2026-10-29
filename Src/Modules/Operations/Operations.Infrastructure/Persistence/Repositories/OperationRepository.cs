@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Operations.Application.Abstractions;
 using Operations.Domain.Entities;
 using Operations.Domain.Enums;
@@ -15,6 +15,59 @@ public sealed class OperationRepository(
         CancellationToken cancellationToken = default)
     {
         await dbContext.Operations.AddAsync(operation, cancellationToken);
+    }
+
+    public Task<bool> ShipmentNumberExistsAsync(
+        string shipmentNumber,
+        Guid? excludeOperationId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(shipmentNumber))
+            return Task.FromResult(false);
+
+        var clean = shipmentNumber.Trim();
+        return dbContext.Operations.AnyAsync(
+            x => !x.IsDeleted &&
+                 x.ShipmentNumber != null &&
+                 x.ShipmentNumber.Trim().ToLower() == clean.ToLower() &&
+                 (!excludeOperationId.HasValue || x.Id != excludeOperationId.Value),
+            cancellationToken);
+    }
+
+    public Task<bool> MblNumberExistsAsync(
+        string mblNumber,
+        Guid? excludeOperationId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(mblNumber))
+            return Task.FromResult(false);
+
+        var clean = mblNumber.Trim();
+        return dbContext.Operations.AnyAsync(
+            x => !x.IsDeleted &&
+                 x.OperationType == OperationType.Import &&
+                 x.ImportDetails != null &&
+                 x.ImportDetails.MBLNumber.Trim().ToLower() == clean.ToLower() &&
+                 (!excludeOperationId.HasValue || x.Id != excludeOperationId.Value),
+            cancellationToken);
+    }
+
+    public Task<bool> BookingNumberExistsAsync(
+        string bookingNumber,
+        Guid? excludeOperationId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(bookingNumber))
+            return Task.FromResult(false);
+
+        var clean = bookingNumber.Trim();
+        return dbContext.Operations.AnyAsync(
+            x => !x.IsDeleted &&
+                 x.OperationType == OperationType.Export &&
+                 x.ExportDetails != null &&
+                 x.ExportDetails.BookingNumber.Trim().ToLower() == clean.ToLower() &&
+                 (!excludeOperationId.HasValue || x.Id != excludeOperationId.Value),
+            cancellationToken);
     }
 
     public Task<bool> DuplicateCheckKeyExistsAsync(
@@ -55,6 +108,8 @@ public sealed class OperationRepository(
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POL)
             .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POD)
+            .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POW)
             .Include(x => x.Containers)
                 .ThenInclude(x => x.Transporter)
@@ -87,6 +142,8 @@ public sealed class OperationRepository(
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POL)
             .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POD)
+            .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POW)
             .Include(x => x.Containers)
                 .ThenInclude(x => x.Transporter)
@@ -97,6 +154,35 @@ public sealed class OperationRepository(
             .Include(x => x.Containers)
                 .ThenInclude(x => x.Updates)
             .OrderByDescending(x => x.DeliveredAtUtc)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Operation>> GetDeletedWithDetailsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Operations
+            .IgnoreQueryFilters()
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Where(x => x.IsDeleted)
+            .OrderByDescending(x => x.DeletedAtUtc)
+            .Include(x => x.ShippingLine)
+            .Include(x => x.ImportDetails)
+                .ThenInclude(x => x!.POD)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POD)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POW)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Transporter)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Driver)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Vehicle)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Updates)
             .ToListAsync(cancellationToken);
     }
 
@@ -141,6 +227,8 @@ public sealed class OperationRepository(
                 .ThenInclude(x => x!.POD)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POD)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POW)
             .Include(x => x.Containers)
@@ -198,7 +286,7 @@ public sealed class OperationRepository(
             .Include(x => x.ShippingLine)
             .Include(x => x.ImportDetails).ThenInclude(x => x!.POD)
             .Include(x => x.ExportDetails).ThenInclude(x => x!.POL)
-            .Include(x => x.ExportDetails).ThenInclude(x => x!.POW)
+            .Include(x => x.ExportDetails).ThenInclude(x => x!.POD).Include(x => x.ExportDetails).ThenInclude(x => x!.POW)
             .Include(x => x.Containers).ThenInclude(x => x.Transporter)
             .Include(x => x.Containers).ThenInclude(x => x.Driver)
             .Include(x => x.Containers).ThenInclude(x => x.Vehicle)
@@ -217,6 +305,8 @@ public sealed class OperationRepository(
                 .ThenInclude(x => x!.POD)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POD)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POW)
             .Include(x => x.Containers)
@@ -282,6 +372,49 @@ public sealed class OperationRepository(
             .ToListAsync(cancellationToken);
     }
 
+    public Task<Vehicle?> GetVehicleByCarNumberAsync(
+        string carNumber,
+        CancellationToken cancellationToken = default)
+    {
+        var normalized = carNumber.Trim().ToLower();
+        return dbContext.Vehicles
+            .FirstOrDefaultAsync(x => x.CarNumber.ToLower() == normalized && x.IsActive, cancellationToken);
+    }
+
+    public async Task AddVehicleAsync(
+        Vehicle vehicle,
+        CancellationToken cancellationToken = default)
+    {
+        await dbContext.Vehicles.AddAsync(vehicle, cancellationToken);
+    }
+
+
+    public async Task<IReadOnlyList<Destination>> GetActiveDestinationsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Destinations
+            .AsNoTracking()
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.Name)
+            .ToListAsync(cancellationToken);
+    }
+
+    public Task<bool> ActiveDestinationNameExistsAsync(
+        string name,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.Destinations.AnyAsync(
+            x => x.Name.ToLower() == name.ToLower() && x.IsActive,
+            cancellationToken);
+    }
+
+    public async Task AddDestinationAsync(
+        Destination destination,
+        CancellationToken cancellationToken = default)
+    {
+        await dbContext.Destinations.AddAsync(destination, cancellationToken);
+    }
+
     public Task<bool> ActiveShippingLineExistsAsync(
         Guid shippingLineId,
         CancellationToken cancellationToken = default)
@@ -324,5 +457,21 @@ public sealed class OperationRepository(
         return dbContext.Vehicles.AnyAsync(
             x => x.Id == id && x.IsActive,
             cancellationToken);
+    }
+
+    public Task<OperationContainer?> GetContainerByIdAsync(
+        Guid containerId,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.OperationContainers
+            .Include(x => x.Updates)
+            .FirstOrDefaultAsync(x => x.Id == containerId, cancellationToken);
+    }
+
+    public async Task AddContainerUpdateAsync(
+        ContainerUpdate update,
+        CancellationToken cancellationToken = default)
+    {
+        await dbContext.ContainerUpdates.AddAsync(update, cancellationToken);
     }
 }

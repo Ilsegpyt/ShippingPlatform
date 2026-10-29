@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Contracts.IntegrationEvents.Customers;
+using BuildingBlocks.Contracts.IntegrationEvents.Customers;
 using Customers.Domain.Events;
 using Customers.Infrastructure.Persistence;
 using MediatR;
@@ -220,9 +220,16 @@ public sealed class CustomersOutboxProcessorWorker : BackgroundService
                     "Error while processing customer outbox messages.");
             }
 
-            await Task.Delay(
-                TimeSpan.FromSeconds(10),
-                stoppingToken);
+            try
+            {
+                await Task.Delay(
+                    TimeSpan.FromSeconds(10),
+                    stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
         }
 
         _logger.LogInformation(

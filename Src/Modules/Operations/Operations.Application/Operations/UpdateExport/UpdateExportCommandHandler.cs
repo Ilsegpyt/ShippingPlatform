@@ -10,8 +10,7 @@ namespace Operations.Application.Operations.UpdateExport;
 
 public sealed class UpdateExportCommandHandler(
     IOperationRepository operationRepository,
-    IOperationsUnitOfWork unitOfWork,
-    ICurrentUser currentUser)
+    IOperationsUnitOfWork unitOfWork)
     : IRequestHandler<UpdateExportCommand, Result<bool>>
 {
     public async Task<Result<bool>> Handle(
@@ -104,47 +103,132 @@ public sealed class UpdateExportCommandHandler(
                         : command.CertificateNumber.Trim())
                     : operation.CertificateNumber;
 
-        var duplicateKey = OperationDuplicateCheckKey.Create(
-            effectiveShipmentNumber,
-            operation.ExportDetails.BookingNumber,
-            effectiveCertificateNumber);
-
-        if (duplicateKey is not null &&
-            await operationRepository.DuplicateCheckKeyExistsAsync(
-                OperationType.Export,
-                duplicateKey,
-                operation.Id,
-                ct))
+        if (!string.IsNullOrWhiteSpace(effectiveShipmentNumber) &&
+            await operationRepository.ShipmentNumberExistsAsync(effectiveShipmentNumber, operation.Id, ct))
         {
             return Result.Failure<bool>(
-                "This Export Shipment Number, Booking Number and Certificate Number combination already exists.");
+                $"رقم الشحنة (Shipment #) '{effectiveShipmentNumber}' مسجل بالفعل لعملية أخرى.");
+        }
+
+        if (operation.ExportDetails is not null &&
+            !string.IsNullOrWhiteSpace(operation.ExportDetails.BookingNumber) &&
+            await operationRepository.BookingNumberExistsAsync(operation.ExportDetails.BookingNumber, operation.Id, ct))
+        {
+            return Result.Failure<bool>(
+                $"رقم البوكينج (Booking #) '{operation.ExportDetails.BookingNumber.Trim()}' مسجل بالفعل لشحنة صادر أخرى.");
+        }
+
+        operation.UpdateDuplicateCheckKey(null);
+
+        var newlyAddedVehicles = new Dictionary<string, Vehicle>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var item in command.Containers)
+        {
+            if (item.TransporterId.HasValue &&
+                !await operationRepository.ActiveTransporterExistsAsync(
+                    item.TransporterId.Value, ct))
+            {
+                return Result.Failure<bool>(
+                    $"Transporter '{item.TransporterId}' does not exist or is inactive.");
+            }
+
+            if (item.DriverId.HasValue &&
+                !await operationRepository.ActiveDriverExistsAsync(
+                    item.DriverId.Value, ct))
+            {
+                return Result.Failure<bool>(
+                    $"Driver '{item.DriverId}' does not exist or is inactive.");
+            }
+
+            if (item.VehicleId.HasValue && string.IsNullOrWhiteSpace(item.CarNumber) &&
+                !await operationRepository.ActiveVehicleExistsAsync(
+                    item.VehicleId.Value, ct))
+            {
+                return Result.Failure<bool>(
+                    $"Vehicle '{item.VehicleId}' does not exist or is inactive.");
+            }
         }
 
         operation.UpdateExportShipmentNumber(command.ShipmentNumber);
-        operation.UpdateDuplicateCheckKey(duplicateKey);
+        operation.UpdateDuplicateCheckKey(null);
 
-        var userName = await currentUser.GetUserNameAsync(ct);
-        var userId = currentUser.UserId.ToString();
-        var utcNow = DateTime.UtcNow;
+        if (command.POLId.HasValue)
+        {
+            if (!await operationRepository.ActivePortExistsAsync(command.POLId.Value, ct))
+                return Result.Failure<bool>($"POL '{command.POLId}' does not exist or is inactive.");
+            operation.ExportDetails.UpdatePOL(command.POLId.Value);
+        }
+
+        if (command.PODId.HasValue)
+        {
+            if (!await operationRepository.ActivePortExistsAsync(command.PODId.Value, ct))
+                return Result.Failure<bool>($"POD '{command.PODId}' does not exist or is inactive.");
+            operation.ExportDetails.UpdatePOD(command.PODId.Value);
+        }
+        else if (command.ClearPOD)
+        {
+            operation.ExportDetails.UpdatePOD(null);
+        }
+
+        if (command.POWId.HasValue)
+        {
+            if (!await operationRepository.ActivePortExistsAsync(command.POWId.Value, ct))
+                return Result.Failure<bool>($"POW '{command.POWId}' does not exist or is inactive.");
+            operation.ExportDetails.UpdatePOW(command.POWId.Value);
+        }
+        else if (command.ClearPOW)
+        {
+            operation.ExportDetails.UpdatePOW(null);
+        }
+
+        operation.UpdateInvoicesReceivedDate(command.InvoicesReceivedDate);
 
         foreach (var item in command.Containers)
         {
             var container = operation.Containers
                 .First(x => x.Id == item.ContainerId);
 
+            Guid? resolvedVehicleId = item.VehicleId;
+
+            if (!string.IsNullOrWhiteSpace(item.CarNumber))
+            {
+                var cleanCar = item.CarNumber.Trim();
+                if (newlyAddedVehicles.TryGetValue(cleanCar, out var tracked))
+                {
+                    resolvedVehicleId = tracked.Id;
+                }
+                else
+                {
+                    var existingVehicle = await operationRepository.GetVehicleByCarNumberAsync(cleanCar, ct);
+                    if (existingVehicle is not null)
+                    {
+                        resolvedVehicleId = existingVehicle.Id;
+                    }
+                    else
+                    {
+                        var newVehicle = Vehicle.Create(cleanCar);
+                        await operationRepository.AddVehicleAsync(newVehicle, ct);
+                        newlyAddedVehicles[cleanCar] = newVehicle;
+                        resolvedVehicleId = newVehicle.Id;
+                    }
+                }
+            }
+
             container.UpdateExportData(
                 item.ContainerType,
                 item.ContainerNumber,
                 item.RequiredLoadingDate,
                 item.RequiredLoadingTime,
-                item.Destination);
-
-            container.Updates.Add(ContainerUpdate.Create(
-                container.Id,
-                $"Export container updated. Container Number: {item.ContainerNumber ?? container.ContainerNumber ?? "N/A"}",
-                userId,
-                userName,
-                utcNow));
+                item.Destination,
+                item.ActualArrivalDate,
+                item.ActualArrivalTime,
+                item.GateOutDate,
+                item.GateOutTime,
+                item.TransporterId,
+                resolvedVehicleId,
+                item.DriverId,
+                item.MissingDocs,
+                item.MissingDocsReceivedDate);
         }
 
         operation.UpdateNumberOfContainers(

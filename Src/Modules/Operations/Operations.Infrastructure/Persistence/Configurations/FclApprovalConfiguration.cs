@@ -15,11 +15,14 @@ public sealed class FclApprovalConfiguration : IEntityTypeConfiguration<FclAppro
         builder.Property(x => x.ApprovedByUserId).IsRequired().HasMaxLength(128);
         builder.Property(x => x.ApprovedAtUtc).IsRequired();
 
+        builder.Property(x => x.ImportContainerId).IsRequired();
+        builder.Property(x => x.ExportOperationId).IsRequired(false);
+
         builder.HasIndex(x => x.ApprovalKey).IsUnique().HasDatabaseName("UX_FclApprovals_ApprovalKey");
-        builder.HasIndex(x => x.SuggestionId).IsUnique();
+        builder.HasIndex(x => x.ImportContainerId).IsUnique().HasDatabaseName("UX_FclApprovals_ImportContainerId");
         builder.HasIndex(x => x.ExportOperationId);
 
-        builder.HasOne(x => x.Suggestion).WithOne().HasForeignKey<FclApproval>(x => x.SuggestionId).OnDelete(DeleteBehavior.Restrict);
-        builder.HasOne(x => x.ExportOperation).WithMany().HasForeignKey(x => x.ExportOperationId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(x => x.ImportContainer).WithMany().HasForeignKey(x => x.ImportContainerId).OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(x => x.ExportOperation).WithMany().HasForeignKey(x => x.ExportOperationId).IsRequired(false).OnDelete(DeleteBehavior.Restrict);
     }
 }

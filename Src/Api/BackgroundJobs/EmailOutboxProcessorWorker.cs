@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Notifications.Application.Abstractions;
 using Notifications.Infrastructure.Persistence;
 
@@ -56,7 +56,14 @@ public sealed class EmailOutboxProcessorWorker(
                 logger.LogError(ex, "Error occurred while processing email outbox");
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿
+
 using BuildingBlocks.Application;
 using MediatR;
 using Operations.Application.Abstractions;
@@ -31,6 +31,13 @@ public sealed class CreateOperationCommandHandler(
 
         if (command.OperationType == OperationType.Import)
         {
+            if (!string.IsNullOrWhiteSpace(command.MBLNumber) &&
+                await operationRepository.MblNumberExistsAsync(command.MBLNumber, null, ct))
+            {
+                return Result.Failure<Guid>(
+                    $"رقم بوليصة الشحن (M/BL) '{command.MBLNumber.Trim()}' مسجل بالفعل لشحنة وارد أخرى.");
+            }
+
             if (string.IsNullOrWhiteSpace(command.Destination))
             {
                 return Result.Failure<Guid>(
@@ -54,6 +61,13 @@ public sealed class CreateOperationCommandHandler(
 
         if (command.OperationType == OperationType.Export)
         {
+            if (!string.IsNullOrWhiteSpace(command.BookingNumber) &&
+                await operationRepository.BookingNumberExistsAsync(command.BookingNumber, null, ct))
+            {
+                return Result.Failure<Guid>(
+                    $"رقم البوكينج (Booking #) '{command.BookingNumber.Trim()}' مسجل بالفعل لشحنة صادر أخرى.");
+            }
+
             if (!command.POLId.HasValue ||
                 !await operationRepository.ActivePortExistsAsync(
                     command.POLId.Value, ct))

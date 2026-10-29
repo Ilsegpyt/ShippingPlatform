@@ -42,23 +42,14 @@ public sealed class UpdateExportContainerItemValidator
             .WithMessage("Container is required.");
 
         RuleFor(x => x.ContainerType)
-            .NotNull()
-            .WithMessage("Container type is required.")
             .IsInEnum()
+            .When(x => x.ContainerType.HasValue)
             .WithMessage("Invalid container type.");
 
         RuleFor(x => x.ContainerNumber)
             .MaximumLength(11)
             .When(x => !string.IsNullOrWhiteSpace(x.ContainerNumber))
             .WithMessage("Container number cannot exceed 11 characters.");
-
-        RuleFor(x => x.RequiredLoadingDate)
-            .NotNull()
-            .WithMessage("Required loading date is required.");
-
-        RuleFor(x => x.RequiredLoadingTime)
-            .NotNull()
-            .WithMessage("Required loading time is required.");
 
         RuleFor(x => x.Destination)
             .Must(value => !string.IsNullOrWhiteSpace(value))

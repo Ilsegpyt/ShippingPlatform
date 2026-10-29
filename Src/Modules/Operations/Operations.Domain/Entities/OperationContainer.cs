@@ -1,4 +1,4 @@
-﻿
+
 using BuildingBlocks.Domain;
 using Operations.Domain.Enums;
 
@@ -103,7 +103,16 @@ public class OperationContainer : Entity<Guid>
         string? containerNumber,
         DateOnly? requiredLoadingDate,
         TimeOnly? requiredLoadingTime,
-        string? destination)
+        string? destination,
+        DateOnly? actualArrivalDate = null,
+        TimeOnly? actualArrivalTime = null,
+        DateOnly? gateOutDate = null,
+        TimeOnly? gateOutTime = null,
+        Guid? transporterId = null,
+        Guid? vehicleId = null,
+        Guid? driverId = null,
+        string? missingDocs = null,
+        DateOnly? missingDocsReceivedDate = null)
     {
         if (containerType.HasValue)
             ContainerType = containerType.Value;
@@ -113,16 +122,18 @@ public class OperationContainer : Entity<Guid>
             var normalized = containerNumber.Trim();
 
             if (normalized.Length == 0)
-                throw new ArgumentException(
-                    "Container number cannot be empty.",
-                    nameof(containerNumber));
+            {
+                ContainerNumber = null;
+            }
+            else
+            {
+                if (normalized.Length > 11)
+                    throw new ArgumentException(
+                        "Container number cannot exceed 11 characters.",
+                        nameof(containerNumber));
 
-            if (normalized.Length > 11)
-                throw new ArgumentException(
-                    "Container number cannot exceed 11 characters.",
-                    nameof(containerNumber));
-
-            ContainerNumber = normalized;
+                ContainerNumber = normalized;
+            }
         }
 
         if (requiredLoadingDate.HasValue)
@@ -132,7 +143,35 @@ public class OperationContainer : Entity<Guid>
             RequiredLoadingTime = requiredLoadingTime.Value;
 
         UpdateDestination(destination);
+
+        if (actualArrivalDate.HasValue)
+            ActualArrivalDate = actualArrivalDate.Value;
+
+        if (actualArrivalTime.HasValue)
+            ActualArrivalTime = actualArrivalTime.Value;
+
+        if (gateOutDate.HasValue)
+            GateOutDate = gateOutDate.Value;
+
+        if (gateOutTime.HasValue)
+            GateOutTime = gateOutTime.Value;
+
+        if (transporterId.HasValue)
+            TransporterId = transporterId.Value;
+
+        if (vehicleId.HasValue)
+            VehicleId = vehicleId.Value;
+
+        if (driverId.HasValue)
+            DriverId = driverId.Value;
+
+        if (missingDocs is not null)
+            MissingDocs = missingDocs;
+
+        if (missingDocsReceivedDate.HasValue)
+            MissingDocsReceivedDate = missingDocsReceivedDate.Value;
     }
+
 
     public void UpdateImportData(
         DateOnly? actualArrivalDate,

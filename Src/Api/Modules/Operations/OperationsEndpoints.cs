@@ -1,4 +1,5 @@
-﻿using Api.Modules.Operations.ExportOperationsExcel;
+using Api.Modules.Operations.AddContainerUpdate;
+using Api.Modules.Operations.ExportOperationsExcel;
 using Api.Modules.Operations.ApproveFclSuggestion;
 using Api.Modules.Operations.CreateOperation;
 using Api.Modules.Operations.DeliverOperation;
@@ -20,6 +21,10 @@ using Api.Modules.Operations.GetOperationPorts;
 using Api.Modules.Operations.GetOperationTransporters;
 using Api.Modules.Operations.GetOperationDrivers;
 using Api.Modules.Operations.GetOperationVehicles;
+using Api.Modules.Operations.GetOperationDestinations;
+using Api.Modules.Operations.CreateDestination;
+using Api.Modules.Operations.DeleteOperation;
+using Api.Modules.Operations.GetDeletedOperations;
 
 namespace Api.Modules.Operations;
 
@@ -43,11 +48,16 @@ public static class OperationsEndpoints
         UpdateImportEndpoint.Map(app);
         DeliverOperationEndpoint.Map(app);
         ReopenOperationEndpoint.Map(app);
+        DeleteOperationEndpoint.Map(app);
+        GetDeletedOperationsEndpoint.Map(app);
         GenerateFclSuggestionsEndpoint.Map(app);
         GetFclSuggestionsEndpoint.Map(app);
         ApproveFclSuggestionEndpoint.Map(app);
         UpdateExportEndpoint.Map(app);
         GetAllFclSuggestionsEndpoint.Map(app);
         GetAllFclApprovalsEndpoint.Map(app);
+        AddContainerUpdateEndpoint.Map(app);
+        GetOperationDestinationsEndpoint.Map(app);
+        CreateDestinationEndpoint.Map(app);
     }
 }

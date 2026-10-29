@@ -1,4 +1,4 @@
-﻿
+
 using BuildingBlocks.Domain;
 using Operations.Domain.Common;
 using Operations.Domain.Enums;
@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace Operations.Domain.Entities;
 
-public class Operation : Entity<Guid>, IAggregateRoot
+public class Operation : Entity<Guid>, IAggregateRoot, ISoftDeletable
 {
     private readonly List<IDomainEvent> _domainEvents = new();
 
@@ -31,13 +31,14 @@ public class Operation : Entity<Guid>, IAggregateRoot
 
     public int NumberOfContainers { get; private set; }
 
-
-
     public DateTime CreatedAtUtc { get; private set; }
-
     public string CreatedByUserId { get; private set; } = null!;
-
     public string CreatedByName { get; private set; } = null!;
+
+    public bool IsDeleted { get; private set; }
+    public DateTime? DeletedAtUtc { get; private set; }
+    public Guid? DeletedByUserId { get; private set; }
+    public string? DeletedByName { get; private set; }
 
 
 
@@ -146,6 +147,11 @@ public class Operation : Entity<Guid>, IAggregateRoot
             return;
 
         ShipmentNumber = NormalizeOptionalIdentifier(shipmentNumber);
+    }
+
+    public void UpdateInvoicesReceivedDate(DateTime? invoicesReceivedDate)
+    {
+        InvoicesReceivedDate = invoicesReceivedDate;
     }
 
     public void UpdateExportCertificateNumber(string? certificateNumber)
@@ -275,5 +281,30 @@ public class Operation : Entity<Guid>, IAggregateRoot
     public void ClearDomainEvents()
     {
         _domainEvents.Clear();
+    }
+
+    public void MarkAsDeleted(
+        Guid deletedByUserId,
+        string deletedByName,
+        DateTime utcNow)
+    {
+        if (IsDeleted)
+            throw new InvalidOperationException("Operation is already deleted.");
+
+        IsDeleted = true;
+        DeletedByUserId = deletedByUserId;
+        DeletedByName = string.IsNullOrWhiteSpace(deletedByName) ? "System" : deletedByName.Trim();
+        DeletedAtUtc = utcNow.Kind == DateTimeKind.Utc ? utcNow : DateTime.SpecifyKind(utcNow, DateTimeKind.Utc);
+    }
+
+    public void Restore()
+    {
+        if (!IsDeleted)
+            throw new InvalidOperationException("Operation is not deleted.");
+
+        IsDeleted = false;
+        DeletedByUserId = null;
+        DeletedByName = null;
+        DeletedAtUtc = null;
     }
 }

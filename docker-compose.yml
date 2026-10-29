@@ -4,6 +4,9 @@ services:
     build:
       context: .
       dockerfile: Src/Api/Dockerfile
+    
+    volumes:
+       - ./Src/Api/wwwroot/uploads:/app/wwwroot/uploads
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2025-latest

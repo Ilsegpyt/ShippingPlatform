@@ -1,4 +1,3 @@
-
 using BuildingBlocks.Application;
 using MediatR;
 
@@ -6,7 +5,6 @@ namespace Operations.Application.Operations.GetFclSuggestions;
 
 public sealed record GetFclSuggestionsQuery(Guid ExportContainerId)
     : IRequest<Result<IReadOnlyList<FclSuggestionDto>>>;
-
 
 public sealed record FclSuggestionDto(
     Guid Id,
@@ -30,4 +28,21 @@ public sealed record FclSuggestionDto(
     string Status,
     DateTime CreatedAtUtc,
     string MatchStatus,
-    IReadOnlyList<string> FailedCriteria);
+    IReadOnlyList<string> FailedCriteria,
+    string? ImportContainerNumber,
+    string? ImportContainerType,
+    string? ImportMbl,
+    string? ImportClientId,
+    string? ImportShippingLine,
+    string? ImportPod,
+    string? ImportSite,
+    DateOnly? RequiredOffloadingDate,
+    TimeOnly? RequiredOffloadingTime,
+    DateOnly? FreeTimeTill,
+    string? ExportClientId,
+    string? ExportShippingLine,
+    string? ExportPol,
+    string? ExportSite,
+    DateOnly? CutOffDate,
+    double? LeadTimeHours,
+    double? FreeTimeBufferHours);

@@ -54,6 +54,7 @@ internal static class AdvancedOperationQueryBuilder
             ["Booking Number"] = new("ExportDetails.BookingNumber", typeof(string)),
             ["BookingNumber"] = new("ExportDetails.BookingNumber", typeof(string)),
             ["POL"] = new("ExportDetails.POL.Name", typeof(string)),
+            ["POD"] = new("ExportDetails.POD.Name", typeof(string)),
             ["POW"] = new("ExportDetails.POW.Name", typeof(string)),
             ["Cut Off Date"] = new("ExportDetails.CutOffDate", typeof(DateOnly)),
             ["Customs"] = new("ExportDetails.Customs", typeof(string)),

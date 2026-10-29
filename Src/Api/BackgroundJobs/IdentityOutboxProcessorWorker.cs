@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Contracts.IntegrationEvents.Identity;
+using BuildingBlocks.Contracts.IntegrationEvents.Identity;
 using Identity.Domain.Events;
 using Identity.Infrastructure.Persistence;
 using MediatR;
@@ -169,9 +169,16 @@ public sealed class IdentityOutboxProcessorWorker : BackgroundService
                     "Error while processing identity outbox messages.");
             }
 
-            await Task.Delay(
-                TimeSpan.FromSeconds(10),
-                stoppingToken);
+            try
+            {
+                await Task.Delay(
+                    TimeSpan.FromSeconds(10),
+                    stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
         }
 
         _logger.LogInformation(

@@ -1,5 +1,4 @@
-﻿
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace Operations.Application.Operations.GenerateFclSuggestions;
 
@@ -8,7 +7,10 @@ public sealed class GenerateFclSuggestionsValidator
 {
     public GenerateFclSuggestionsValidator()
     {
-        RuleFor(x => x.ExportContainerId)
-            .NotEmpty();
+        When(x => x.ExportContainerId.HasValue, () =>
+        {
+            RuleFor(x => x.ExportContainerId)
+                .NotEmpty();
+        });
     }
 }

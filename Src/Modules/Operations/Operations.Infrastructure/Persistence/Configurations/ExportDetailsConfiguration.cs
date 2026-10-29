@@ -27,6 +27,9 @@ public sealed class ExportDetailsConfiguration
         builder.Property(x => x.POLId)
             .IsRequired();
 
+        builder.Property(x => x.PODId)
+            .IsRequired(false);
+
         builder.Property(x => x.POWId)
             .IsRequired(false);
 
@@ -55,6 +58,11 @@ public sealed class ExportDetailsConfiguration
         builder.HasOne(x => x.POL)
             .WithMany()
             .HasForeignKey(x => x.POLId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.POD)
+            .WithMany()
+            .HasForeignKey(x => x.PODId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.POW)

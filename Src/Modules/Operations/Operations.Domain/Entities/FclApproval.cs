@@ -9,11 +9,11 @@ public sealed class FclApproval
 {
     public Guid Id { get; private set; } = Guid.NewGuid();
 
-    public Guid SuggestionId { get; private set; }
-    public FclSuggestion Suggestion { get; private set; } = null!;
+    public Guid ImportContainerId { get; private set; }
+    public OperationContainer ImportContainer { get; private set; } = null!;
 
-    public Guid ExportOperationId { get; private set; }
-    public Operation ExportOperation { get; private set; } = null!;
+    public Guid? ExportOperationId { get; private set; }
+    public Operation? ExportOperation { get; private set; }
 
     /// <summary>
     /// Normalized CNTR|M/BL|BOOKING.
@@ -30,21 +30,16 @@ public sealed class FclApproval
     }
 
     public FclApproval(
-        Guid suggestionId,
-        Guid exportOperationId,
+        Guid importContainerId,
         string approvalKey,
         string approvedByUserId,
-        DateTime approvedAtUtc)
+        DateTime approvedAtUtc,
+        Guid? exportOperationId = null)
     {
-        if (suggestionId == Guid.Empty)
+        if (importContainerId == Guid.Empty)
             throw new ArgumentException(
-                "Suggestion is required.",
-                nameof(suggestionId));
-
-        if (exportOperationId == Guid.Empty)
-            throw new ArgumentException(
-                "New Export operation is required.",
-                nameof(exportOperationId));
+                "Import container is required.",
+                nameof(importContainerId));
 
         if (string.IsNullOrWhiteSpace(approvalKey))
             throw new ArgumentException(
@@ -61,10 +56,10 @@ public sealed class FclApproval
                 "Approval timestamp must be UTC.",
                 nameof(approvedAtUtc));
 
-        SuggestionId = suggestionId;
-        ExportOperationId = exportOperationId;
+        ImportContainerId = importContainerId;
         ApprovalKey = approvalKey.Trim();
         ApprovedByUserId = approvedByUserId.Trim();
         ApprovedAtUtc = approvedAtUtc;
+        ExportOperationId = exportOperationId;
     }
 }

@@ -1,4 +1,4 @@
-﻿
+
 using BuildingBlocks.Application;
 using MediatR;
 using Operations.Domain.Enums;
@@ -41,5 +41,6 @@ public sealed record UpdateImportContainerItem(
 
     // Editable per container
     string? Destination,
-    DateOnly? FreeTimeTill
+    DateOnly? FreeTimeTill,
+    string? CarNumber = null
 );

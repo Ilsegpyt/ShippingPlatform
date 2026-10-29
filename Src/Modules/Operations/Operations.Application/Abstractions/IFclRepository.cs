@@ -1,12 +1,18 @@
-
 using Operations.Domain.Entities;
 
 namespace Operations.Application.Abstractions;
 
 public interface IFclRepository
 {
-    Task<FclSuggestion?> GetSuggestionForApprovalAsync(
-        Guid suggestionId,
+    Task<OperationContainer?> GetImportContainerForApprovalAsync(
+        Guid containerId,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> IsImportContainerApprovedAsync(
+        Guid importContainerId,
+        CancellationToken cancellationToken = default);
+
+    Task<HashSet<Guid>> GetApprovedImportContainerIdsAsync(
         CancellationToken cancellationToken = default);
 
     Task<bool> ApprovalKeyExistsAsync(
@@ -21,23 +27,16 @@ public interface IFclRepository
         Guid exportContainerId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<OperationContainer>> GetAllExportContainersForMatchingAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<Operation>> GetAllImportCandidatesAsync(
+        CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<Operation>> GetImportCandidatesAsync(
         Guid clientId,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<FclSuggestion>> GetSuggestionsForExportContainerAsync(
-        Guid exportContainerId,
-        CancellationToken cancellationToken = default);
-
-    Task AddSuggestionsAsync(
-        IEnumerable<FclSuggestion> suggestions,
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<FclSuggestion>> GetAllSuggestionsAsync(
-        CancellationToken cancellationToken = default);
-
     Task<IReadOnlyList<FclApproval>> GetAllApprovalsAsync(
-    CancellationToken cancellationToken = default);
-
-    void RemoveSuggestions(IEnumerable<FclSuggestion> suggestions);
+        CancellationToken cancellationToken = default);
 }
