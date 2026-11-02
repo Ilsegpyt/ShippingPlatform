@@ -317,7 +317,7 @@ public sealed class OperationRepository(
                 .ThenInclude(x => x.Vehicle)
             .Include(x => x.Containers)
                 .ThenInclude(x => x.Updates)
-            .OrderByDescending(x => x.Id)
+            .OrderByDescending(x => x.CreatedAtUtc)
             .ToListAsync(cancellationToken);
     }
 
