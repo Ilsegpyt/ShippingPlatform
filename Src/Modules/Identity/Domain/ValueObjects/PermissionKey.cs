@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Domain;
+using BuildingBlocks.Domain;
 
 namespace Identity.Domain.ValueObjects;
 
@@ -206,6 +206,30 @@ public static class PermissionCatalog
 
 
 
+
+    // Permissions available to Ocean Operations Specialist
+    public static readonly IReadOnlyCollection<PermissionKey> OceanOperationsSpecialistPermissions =
+    [
+        OperationsView,
+        OperationsCreate,
+        OperationsEdit,
+        OperationsDelete,
+        OperationsDeliver
+    ];
+
+    // Permissions available to Ocean Operations Manager
+    public static readonly IReadOnlyCollection<PermissionKey> OceanOperationsManagerPermissions =
+    [
+        OperationsView,
+        OperationsCreate,
+        OperationsEdit,
+        OperationsDelete,
+        OperationsDeliver,
+        OperationsReopen,
+        ReportsView,
+        ReportsUpload,
+        ReportsDownload
+    ];
 
     // Permissions available to SubAccounts
     public static readonly IReadOnlyCollection<PermissionKey> SubAccountPermissions =

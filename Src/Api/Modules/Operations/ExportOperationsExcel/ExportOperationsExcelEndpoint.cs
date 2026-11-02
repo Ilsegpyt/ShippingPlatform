@@ -424,7 +424,7 @@ public static class ExportOperationsExcelEndpoint
 
             })
 
-            .RequirePermission(PermissionCatalog.OperationsView);
+            .RequirePermission(PermissionCatalog.ReportsDownload);
 
     }
 

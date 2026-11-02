@@ -16,6 +16,8 @@ public sealed class IdentitySeeder
         ("Super Admin", "Full system access with all permissions"),
         ("Account Manager", "Manage assigned customers, shipments, and related operations"),
         ("Operations", "Manage scheduling, shipments, locations, and ports"),
+        ("Ocean Operations Specialist", "Ocean Transport data entry and shipment processing"),
+        ("Ocean Operations Manager", "Manage ocean transport operations, dashboards, reopen shipments and reports"),
         ("Sales", "Manage leads, quotations, and customer inquiries"),
         ("Viewer", "Read-only access to view data"),
         ("Finance Manager", "Oversees Financial functions")

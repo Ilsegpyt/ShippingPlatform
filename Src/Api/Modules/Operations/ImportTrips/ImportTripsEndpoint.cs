@@ -197,7 +197,7 @@ public static class ImportTripsEndpoint
                 var message = ex is ImportRejectedException ? ex.Message : "TPT upload failed. No operations were saved.";
                 return Results.BadRequest(new { message, errors = new[] { message } });
             }
-        }).RequirePermission(PermissionCatalog.OperationsCreate);
+        }).RequirePermission(PermissionCatalog.ReportsUpload);
     }
 
     private static OperationType? ParseDirection(string? value) => value?.Trim().ToLowerInvariant() switch
