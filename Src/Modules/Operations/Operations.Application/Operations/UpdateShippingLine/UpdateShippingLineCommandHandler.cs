@@ -20,7 +20,7 @@ public sealed class UpdateShippingLineCommandHandler(
         if (await shippingLineRepository.ShippingLineNameExistsAsync(name, command.Id, ct))
             return Result.Failure<bool>($"Shipping line '{name}' already exists.");
 
-        line.Update(name, command.IsActive);
+        line.Update(name, command.Abbreviation, command.IsActive);
         await unitOfWork.SaveChangesAsync(ct);
         return Result.Success(true);
     }

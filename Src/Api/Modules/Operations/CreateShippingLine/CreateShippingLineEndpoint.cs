@@ -8,7 +8,7 @@ namespace Api.Modules.Operations.CreateShippingLine;
 
 public static class CreateShippingLineEndpoint
 {
-    public sealed record CreateShippingLineRequest(string Name);
+    public sealed record CreateShippingLineRequest(string Name, string? Abbreviation = null);
 
     public static void Map(IEndpointRouteBuilder app)
     {
@@ -17,7 +17,7 @@ public static class CreateShippingLineEndpoint
             ISender sender,
             CancellationToken ct) =>
         {
-            var command = new CreateShippingLineCommand(request.Name);
+            var command = new CreateShippingLineCommand(request.Name, request.Abbreviation);
             var result = await sender.Send(command, ct);
             return result.IsSuccess
                 ? Results.Ok(new { id = result.Value })

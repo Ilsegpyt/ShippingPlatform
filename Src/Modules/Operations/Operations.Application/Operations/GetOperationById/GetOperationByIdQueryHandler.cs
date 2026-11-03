@@ -35,6 +35,7 @@ public sealed class GetOperationByIdQueryHandler(
             clientName,
             operation.ShippingLineId,
             operation.ShippingLine.Name,
+                operation.ShippingLine.Abbreviation,
             operation.OperationType.ToString(),
             operation.Status.ToString(),
             operation.Source.ToString(),

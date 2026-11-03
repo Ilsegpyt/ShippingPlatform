@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Operations.Domain.Entities;
 
@@ -15,6 +15,9 @@ public sealed class ShippingLineConfiguration
             .IsRequired()
             .HasMaxLength(160);
 
+        builder.Property(x => x.Abbreviation)
+            .HasMaxLength(50);
+
         builder.Property(x => x.IsActive)
             .IsRequired();
 
@@ -30,5 +33,5 @@ public sealed class ShippingLineConfiguration
 
         builder.Property(x => x.DeletedByName)
             .HasMaxLength(200);
-}
+    }
 }

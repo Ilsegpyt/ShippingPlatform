@@ -19,7 +19,7 @@ public sealed class CreateShippingLineCommandHandler(
         if (await shippingLineRepository.ShippingLineNameExistsAsync(name, null, ct))
             return Result.Failure<Guid>($"Shipping line '{name}' already exists.");
 
-        var line = ShippingLine.Create(name);
+        var line = ShippingLine.Create(name, command.Abbreviation);
         await shippingLineRepository.AddAsync(line, ct);
         await unitOfWork.SaveChangesAsync(ct);
 

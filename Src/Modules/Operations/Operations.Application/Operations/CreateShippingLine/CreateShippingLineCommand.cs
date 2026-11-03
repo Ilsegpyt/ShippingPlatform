@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Operations.Application.Operations.CreateShippingLine;
 
-public sealed record CreateShippingLineCommand(string Name) : IRequest<Result<Guid>>;
+public sealed record CreateShippingLineCommand(string Name, string? Abbreviation = null) : IRequest<Result<Guid>>;

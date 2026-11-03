@@ -14,6 +14,7 @@ public sealed record OperationDto(
     string? ClientName,
     Guid ShippingLineId,
     string ShippingLineName,
+    string? ShippingLineAbbreviation,
     string OperationType,
     string Status,
     string Source,

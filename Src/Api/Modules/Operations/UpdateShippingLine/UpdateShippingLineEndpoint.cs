@@ -8,7 +8,7 @@ namespace Api.Modules.Operations.UpdateShippingLine;
 
 public static class UpdateShippingLineEndpoint
 {
-    public sealed record UpdateShippingLineRequest(string Name, bool IsActive);
+    public sealed record UpdateShippingLineRequest(string Name, string? Abbreviation, bool IsActive);
 
     public static void Map(IEndpointRouteBuilder app)
     {
@@ -18,7 +18,7 @@ public static class UpdateShippingLineEndpoint
             ISender sender,
             CancellationToken ct) =>
         {
-            var command = new UpdateShippingLineCommand(id, request.Name, request.IsActive);
+            var command = new UpdateShippingLineCommand(id, request.Name, request.Abbreviation, request.IsActive);
             var result = await sender.Send(command, ct);
             return result.IsSuccess
                 ? Results.Ok(new { success = true })

@@ -41,6 +41,7 @@ public sealed class SearchOperationsQueryHandler(
                 clientNames.GetValueOrDefault(operation.ClientId),
                 operation.ShippingLineId,
                 operation.ShippingLine.Name,
+                operation.ShippingLine.Abbreviation,
                 operation.OperationType.ToString(),
                 operation.Status.ToString(),
                 operation.Source.ToString(),

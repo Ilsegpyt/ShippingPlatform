@@ -18,6 +18,7 @@ public static class GetOperationShippingLinesEndpoint
             {
                 id = x.Id,
                 name = x.Name,
+                abbreviation = x.Abbreviation,
                 isActive = x.IsActive && !x.IsDeleted,
                 isDeleted = x.IsDeleted
             }));
@@ -31,7 +32,14 @@ public static class GetOperationShippingLinesEndpoint
         {
             var item = await repository.GetByIdAsync(id, ct);
             return item is not null
-                ? Results.Ok(new { id = item.Id, name = item.Name, isActive = item.IsActive && !item.IsDeleted, isDeleted = item.IsDeleted })
+                ? Results.Ok(new
+                {
+                    id = item.Id,
+                    name = item.Name,
+                    abbreviation = item.Abbreviation,
+                    isActive = item.IsActive && !item.IsDeleted,
+                    isDeleted = item.IsDeleted
+                })
                 : Results.NotFound();
         })
         .RequirePermission(PermissionCatalog.OperationsCreate);

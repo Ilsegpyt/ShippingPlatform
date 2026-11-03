@@ -5,6 +5,7 @@ namespace Operations.Domain.Entities;
 public class ShippingLine : Entity<Guid>, ISoftDeletable
 {
     public string Name { get; private set; } = null!;
+    public string? Abbreviation { get; private set; }
     public bool IsActive { get; private set; } = true;
 
     public bool IsDeleted { get; private set; }
@@ -14,7 +15,7 @@ public class ShippingLine : Entity<Guid>, ISoftDeletable
 
     private ShippingLine() { }
 
-    public static ShippingLine Create(string name)
+    public static ShippingLine Create(string name, string? abbreviation = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Shipping line name cannot be empty.", nameof(name));
@@ -23,16 +24,18 @@ public class ShippingLine : Entity<Guid>, ISoftDeletable
         {
             Id = Guid.NewGuid(),
             Name = name.Trim(),
+            Abbreviation = string.IsNullOrWhiteSpace(abbreviation) ? null : abbreviation.Trim(),
             IsActive = true
         };
     }
 
-    public void Update(string name, bool isActive)
+    public void Update(string name, string? abbreviation, bool isActive)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Shipping line name cannot be empty.", nameof(name));
 
         Name = name.Trim();
+        Abbreviation = string.IsNullOrWhiteSpace(abbreviation) ? null : abbreviation.Trim();
         IsActive = isActive;
         if (isActive)
         {
