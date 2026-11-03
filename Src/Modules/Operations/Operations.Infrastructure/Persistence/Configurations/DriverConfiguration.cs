@@ -27,5 +27,15 @@ public sealed class DriverConfiguration
 
         builder.HasIndex(x => x.DriverNumber)
             .IsUnique();
-    }
+    
+        builder.Property(x => x.IsDeleted)
+            .IsRequired();
+
+        builder.Property(x => x.DeletedAtUtc);
+
+        builder.Property(x => x.DeletedByUserId);
+
+        builder.Property(x => x.DeletedByName)
+            .HasMaxLength(200);
+}
 }

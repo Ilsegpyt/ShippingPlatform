@@ -6,7 +6,7 @@ using Operations.Domain.Entities;
 namespace Operations.Application.Operations.CreateDestination;
 
 public sealed class CreateDestinationCommandHandler(
-    IOperationRepository operationRepository,
+    IDestinationRepository destinationRepository,
     IOperationsUnitOfWork unitOfWork)
     : IRequestHandler<CreateDestinationCommand, Result<Guid>>
 {
@@ -18,13 +18,13 @@ public sealed class CreateDestinationCommandHandler(
         if (string.IsNullOrWhiteSpace(trimmed))
             return Result.Failure<Guid>("Destination name is required.");
 
-        var exists = await operationRepository.ActiveDestinationNameExistsAsync(trimmed, ct);
+        var exists = await destinationRepository.DestinationNameExistsAsync(trimmed, null, ct);
         if (exists)
             return Result.Failure<Guid>($"Destination '{trimmed}' already exists.");
 
         var destination = Destination.Create(trimmed);
 
-        await operationRepository.AddDestinationAsync(destination, ct);
+        await destinationRepository.AddAsync(destination, ct);
         await unitOfWork.SaveChangesAsync(ct);
 
         return Result.Success(destination.Id);

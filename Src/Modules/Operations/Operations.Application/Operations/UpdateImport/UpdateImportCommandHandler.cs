@@ -11,6 +11,7 @@ namespace Operations.Application.Operations.UpdateImport;
 
 public sealed class UpdateImportCommandHandler(
     IOperationRepository operationRepository,
+    IVehicleRepository vehicleRepository,
     IOperationsUnitOfWork unitOfWork)
     : IRequestHandler<UpdateImportCommand, Result<bool>>
 {
@@ -122,7 +123,7 @@ public sealed class UpdateImportCommandHandler(
                 }
                 else
                 {
-                    var existingVehicle = await operationRepository.GetVehicleByCarNumberAsync(cleanCar, ct);
+                    var existingVehicle = await vehicleRepository.GetByCarNumberAsync(cleanCar, ct);
                     if (existingVehicle is not null)
                     {
                         resolvedVehicleId = existingVehicle.Id;
@@ -130,7 +131,7 @@ public sealed class UpdateImportCommandHandler(
                     else
                     {
                         var newVehicle = Vehicle.Create(cleanCar);
-                        await operationRepository.AddVehicleAsync(newVehicle, ct);
+                        await vehicleRepository.AddAsync(newVehicle, ct);
                         newlyAddedVehicles[cleanCar] = newVehicle;
                         resolvedVehicleId = newVehicle.Id;
                     }

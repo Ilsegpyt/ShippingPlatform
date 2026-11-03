@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Operations.Application.Abstractions;
@@ -22,6 +22,12 @@ public static class OperationsModuleServiceCollectionExtensions
 
         services.AddScoped<IOperationRepository, OperationRepository>();
         services.AddScoped<IFclRepository, FclRepository>();
+        services.AddScoped<IPortRepository, PortRepository>();
+        services.AddScoped<IDestinationRepository, DestinationRepository>();
+        services.AddScoped<IDriverRepository, DriverRepository>();
+        services.AddScoped<IShippingLineRepository, ShippingLineRepository>();
+        services.AddScoped<ITransporterRepository, TransporterRepository>();
+        services.AddScoped<IVehicleRepository, VehicleRepository>();
 
         return services;
     }

@@ -1,4 +1,3 @@
-
 using Operations.Domain.Entities;
 using Operations.Domain.Enums;
 using Operations.Application.Operations.SearchOperations;
@@ -61,41 +60,7 @@ public interface IOperationRepository
         DateTime? createdToUtc,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<ShippingLine>> GetActiveShippingLinesAsync(
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<Port>> GetActivePortsAsync(
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<Transporter>> GetActiveTransportersAsync(
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<Driver>> GetActiveDriversAsync(
-        CancellationToken cancellationToken = default);
-
-    Task<IReadOnlyList<Vehicle>> GetActiveVehiclesAsync(
-        CancellationToken cancellationToken = default);
-
-    Task<Vehicle?> GetVehicleByCarNumberAsync(
-        string carNumber,
-        CancellationToken cancellationToken = default);
-
-    Task AddVehicleAsync(
-        Vehicle vehicle,
-        CancellationToken cancellationToken = default);
-
-
-    Task<IReadOnlyList<Destination>> GetActiveDestinationsAsync(
-        CancellationToken cancellationToken = default);
-
-    Task<bool> ActiveDestinationNameExistsAsync(
-        string name,
-        CancellationToken cancellationToken = default);
-
-    Task AddDestinationAsync(
-        Destination destination,
-        CancellationToken cancellationToken = default);
-
+    // Foreign-Key existence validations for Operation Creation & Updates
     Task<bool> ActiveShippingLineExistsAsync(
         Guid shippingLineId,
         CancellationToken cancellationToken = default);
@@ -105,8 +70,8 @@ public interface IOperationRepository
         CancellationToken cancellationToken = default);
 
     Task<bool> ActiveTransporterExistsAsync(
-    Guid id,
-    CancellationToken cancellationToken = default);
+        Guid id,
+        CancellationToken cancellationToken = default);
 
     Task<bool> ActiveDriverExistsAsync(
         Guid id,

@@ -26,6 +26,27 @@ using Api.Modules.Operations.CreateDestination;
 using Api.Modules.Operations.DeleteOperation;
 using Api.Modules.Operations.GetDeletedOperations;
 
+// Lookups Master Data Endpoints
+using Api.Modules.Operations.CreatePort;
+using Api.Modules.Operations.CreateDriver;
+using Api.Modules.Operations.CreateShippingLine;
+using Api.Modules.Operations.CreateTransporter;
+using Api.Modules.Operations.CreateVehicle;
+
+using Api.Modules.Operations.UpdatePort;
+using Api.Modules.Operations.UpdateDestination;
+using Api.Modules.Operations.UpdateDriver;
+using Api.Modules.Operations.UpdateShippingLine;
+using Api.Modules.Operations.UpdateTransporter;
+using Api.Modules.Operations.UpdateVehicle;
+
+using Api.Modules.Operations.DeactivatePort;
+using Api.Modules.Operations.DeactivateDestination;
+using Api.Modules.Operations.DeactivateDriver;
+using Api.Modules.Operations.DeactivateShippingLine;
+using Api.Modules.Operations.DeactivateTransporter;
+using Api.Modules.Operations.DeactivateVehicle;
+
 namespace Api.Modules.Operations;
 
 public static class OperationsEndpoints
@@ -59,5 +80,26 @@ public static class OperationsEndpoints
         AddContainerUpdateEndpoint.Map(app);
         GetOperationDestinationsEndpoint.Map(app);
         CreateDestinationEndpoint.Map(app);
+
+        // Lookups Master Data (Add, Edit, Inactive)
+        CreatePortEndpoint.Map(app);
+        CreateDriverEndpoint.Map(app);
+        CreateShippingLineEndpoint.Map(app);
+        CreateTransporterEndpoint.Map(app);
+        CreateVehicleEndpoint.Map(app);
+
+        UpdatePortEndpoint.Map(app);
+        UpdateDestinationEndpoint.Map(app);
+        UpdateDriverEndpoint.Map(app);
+        UpdateShippingLineEndpoint.Map(app);
+        UpdateTransporterEndpoint.Map(app);
+        UpdateVehicleEndpoint.Map(app);
+
+        DeactivatePortEndpoint.Map(app);
+        DeactivateDestinationEndpoint.Map(app);
+        DeactivateDriverEndpoint.Map(app);
+        DeactivateShippingLineEndpoint.Map(app);
+        DeactivateTransporterEndpoint.Map(app);
+        DeactivateVehicleEndpoint.Map(app);
     }
 }

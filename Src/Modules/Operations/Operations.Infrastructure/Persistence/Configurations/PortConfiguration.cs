@@ -23,5 +23,15 @@ public sealed class PortConfiguration
 
         builder.HasIndex(x => x.Code)
             .IsUnique();
-    }
+    
+        builder.Property(x => x.IsDeleted)
+            .IsRequired();
+
+        builder.Property(x => x.DeletedAtUtc);
+
+        builder.Property(x => x.DeletedByUserId);
+
+        builder.Property(x => x.DeletedByName)
+            .HasMaxLength(200);
+}
 }

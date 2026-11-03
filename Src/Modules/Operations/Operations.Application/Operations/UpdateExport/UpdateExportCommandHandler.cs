@@ -10,6 +10,7 @@ namespace Operations.Application.Operations.UpdateExport;
 
 public sealed class UpdateExportCommandHandler(
     IOperationRepository operationRepository,
+    IVehicleRepository vehicleRepository,
     IOperationsUnitOfWork unitOfWork)
     : IRequestHandler<UpdateExportCommand, Result<bool>>
 {
@@ -199,7 +200,7 @@ public sealed class UpdateExportCommandHandler(
                 }
                 else
                 {
-                    var existingVehicle = await operationRepository.GetVehicleByCarNumberAsync(cleanCar, ct);
+                    var existingVehicle = await vehicleRepository.GetByCarNumberAsync(cleanCar, ct);
                     if (existingVehicle is not null)
                     {
                         resolvedVehicleId = existingVehicle.Id;
@@ -207,7 +208,7 @@ public sealed class UpdateExportCommandHandler(
                     else
                     {
                         var newVehicle = Vehicle.Create(cleanCar);
-                        await operationRepository.AddVehicleAsync(newVehicle, ct);
+                        await vehicleRepository.AddAsync(newVehicle, ct);
                         newlyAddedVehicles[cleanCar] = newVehicle;
                         resolvedVehicleId = newVehicle.Id;
                     }

@@ -23,6 +23,11 @@ public static class ImportTripsEndpoint
             IOperationRepository repository,
             IOperationsUnitOfWork unitOfWork,
             ICustomerQueries customerQueries,
+            IShippingLineRepository shippingLineRepo,
+            IPortRepository portRepo,
+            ITransporterRepository transporterRepo,
+            IDriverRepository driverRepo,
+            IVehicleRepository vehicleRepo,
             CancellationToken ct) =>
         {
             if (request.Trips is null || request.Trips.Count == 0)
@@ -30,11 +35,11 @@ public static class ImportTripsEndpoint
 
             var errors = new List<string>();
             var customers = await customerQueries.GetAllForOperationsAsync(ct);
-            var shippingLines = await repository.GetActiveShippingLinesAsync(ct);
-            var ports = await repository.GetActivePortsAsync(ct);
-            var transporters = await repository.GetActiveTransportersAsync(ct);
-            var drivers = await repository.GetActiveDriversAsync(ct);
-            var vehicles = await repository.GetActiveVehiclesAsync(ct);
+            var shippingLines = await shippingLineRepo.GetAllAsync(false, ct);
+            var ports = await portRepo.GetAllAsync(false, ct);
+            var transporters = await transporterRepo.GetAllAsync(false, ct);
+            var drivers = await driverRepo.GetAllAsync(false, ct);
+            var vehicles = await vehicleRepo.GetAllAsync(false, ct);
 
             var groups = request.Trips
                 .Select((trip, index) => new { Trip = trip, Index = index })
