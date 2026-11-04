@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Operations.Application.Operations.GetAllOperations;
 
-public sealed record GetAllOperationsQuery
+public sealed record GetAllOperationsQuery(bool OnlyActive = false)
     : IRequest<Result<IReadOnlyList<OperationDto>>>;
 
 public sealed record OperationDto(

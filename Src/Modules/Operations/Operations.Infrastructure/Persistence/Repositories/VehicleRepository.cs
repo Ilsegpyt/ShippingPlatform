@@ -13,6 +13,40 @@ public sealed class VehicleRepository(OperationsDbContext dbContext) : IVehicleR
         return await query.OrderBy(x => x.CarNumber).ToListAsync(cancellationToken);
     }
 
+    public async Task<LookupPagedResult<Vehicle>> GetPagedAsync(
+        string? search,
+        string? status,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var baseQuery = dbContext.Vehicles.AsNoTracking().Where(x => !x.IsDeleted);
+
+        var activeCount = await baseQuery.CountAsync(x => x.IsActive, cancellationToken);
+        var inactiveCount = await baseQuery.CountAsync(x => !x.IsActive, cancellationToken);
+
+        var query = baseQuery;
+
+        if (string.Equals(status, "active", StringComparison.OrdinalIgnoreCase))
+            query = query.Where(x => x.IsActive);
+        else if (string.Equals(status, "inactive", StringComparison.OrdinalIgnoreCase))
+            query = query.Where(x => !x.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLower();
+            query = query.Where(x => x.CarNumber.ToLower().Contains(term));
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query.OrderBy(x => x.CarNumber)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new LookupPagedResult<Vehicle>(items, totalCount, activeCount, inactiveCount);
+    }
+
     public Task<Vehicle?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         dbContext.Vehicles.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 

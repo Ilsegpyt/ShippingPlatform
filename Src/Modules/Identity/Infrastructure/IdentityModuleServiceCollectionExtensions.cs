@@ -1,4 +1,4 @@
-﻿using Identity.Application;
+using Identity.Application;
 using Identity.Application.Abstractions;
 using Identity.Application.AccountManagerAssignments;
 using Identity.Application.SubAccounts.GetSubAccounts;
@@ -46,6 +46,8 @@ public static class IdentityModuleServiceCollectionExtensions
         services.AddDbContext<IdentityDbContext>(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("IdentityDb")));
+
+        services.AddMemoryCache();
 
         services.AddScoped<ISubAccountQueries, SubAccountQueries>();
         services.AddScoped<IUserAccessQueries, UserAccessQueries>();

@@ -16,6 +16,7 @@ public sealed class GetAllOperationsQueryHandler(
         CancellationToken cancellationToken)
     {
         var operations = await repository.GetAllWithDetailsAsync(
+            query.OnlyActive,
             cancellationToken);
 
         var customerIds = operations

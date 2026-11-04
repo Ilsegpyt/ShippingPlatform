@@ -13,6 +13,42 @@ public sealed class DriverRepository(OperationsDbContext dbContext) : IDriverRep
         return await query.OrderBy(x => x.Name).ToListAsync(cancellationToken);
     }
 
+    public async Task<LookupPagedResult<Driver>> GetPagedAsync(
+        string? search,
+        string? status,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var baseQuery = dbContext.Drivers.AsNoTracking().Where(x => !x.IsDeleted);
+
+        var activeCount = await baseQuery.CountAsync(x => x.IsActive, cancellationToken);
+        var inactiveCount = await baseQuery.CountAsync(x => !x.IsActive, cancellationToken);
+
+        var query = baseQuery;
+
+        if (string.Equals(status, "active", StringComparison.OrdinalIgnoreCase))
+            query = query.Where(x => x.IsActive);
+        else if (string.Equals(status, "inactive", StringComparison.OrdinalIgnoreCase))
+            query = query.Where(x => !x.IsActive);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLower();
+            query = query.Where(x => x.Name.ToLower().Contains(term) ||
+                                     x.DriverNumber.ToLower().Contains(term) ||
+                                     (x.MobileNumber != null && x.MobileNumber.ToLower().Contains(term)));
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query.OrderBy(x => x.Name)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new LookupPagedResult<Driver>(items, totalCount, activeCount, inactiveCount);
+    }
+
     public Task<Driver?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         dbContext.Drivers.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
@@ -25,4 +61,3 @@ public sealed class DriverRepository(OperationsDbContext dbContext) : IDriverRep
     public async Task AddAsync(Driver driver, CancellationToken cancellationToken = default) =>
         await dbContext.Drivers.AddAsync(driver, cancellationToken);
 }
-

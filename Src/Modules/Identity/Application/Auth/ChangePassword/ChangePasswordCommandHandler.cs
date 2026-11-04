@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application;
+using BuildingBlocks.Application;
 using Identity.Application.Abstractions;
 using MediatR;
 
@@ -22,6 +22,13 @@ public sealed class ChangePasswordHandler
         ChangePasswordCommand request,
         CancellationToken ct)
     {
+        var isActive = await _identityUsers.IsActiveAsync(request.UserId, ct);
+        if (!isActive)
+        {
+            return Result.Failure<ChangePasswordResponse>(
+                "This account has been deactivated.");
+        }
+
         var result = await _identityUsers.UpdatePasswordAsync(
             request.UserId,
             request.CurrentPassword,

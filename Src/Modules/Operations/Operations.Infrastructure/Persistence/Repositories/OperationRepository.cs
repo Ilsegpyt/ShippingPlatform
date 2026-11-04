@@ -295,11 +295,20 @@ public sealed class OperationRepository(
     }
 
     public async Task<IReadOnlyList<Operation>> GetAllWithDetailsAsync(
+        bool onlyActive = false,
         CancellationToken cancellationToken = default)
     {
-        return await dbContext.Operations
+        var query = dbContext.Operations
             .AsNoTracking()
             .AsSplitQuery()
+            .AsQueryable();
+
+        if (onlyActive)
+        {
+            query = query.Where(x => x.Status != OperationStatus.Delivered);
+        }
+
+        return await query
             .Include(x => x.ShippingLine)
             .Include(x => x.ImportDetails)
                 .ThenInclude(x => x!.POD)
@@ -319,6 +328,282 @@ public sealed class OperationRepository(
                 .ThenInclude(x => x.Updates)
             .OrderByDescending(x => x.CreatedAtUtc)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<OperationsCountsDto> GetCountsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var activeImport = await dbContext.Operations.CountAsync(
+            x => !x.IsDeleted && x.Status != OperationStatus.Delivered && x.OperationType == OperationType.Import,
+            cancellationToken);
+
+        var activeExport = await dbContext.Operations.CountAsync(
+            x => !x.IsDeleted && x.Status != OperationStatus.Delivered && x.OperationType == OperationType.Export,
+            cancellationToken);
+
+        var delivered = await dbContext.Operations.CountAsync(
+            x => !x.IsDeleted && x.Status == OperationStatus.Delivered,
+            cancellationToken);
+
+        var inactive = await dbContext.Operations.IgnoreQueryFilters().CountAsync(
+            x => x.IsDeleted,
+            cancellationToken);
+
+        return new OperationsCountsDto(activeImport, activeExport, delivered, inactive);
+    }
+
+    public async Task<PagedOperationsResult> GetPagedOperationsAsync(
+        OperationQueryParams queryParams,
+        CancellationToken cancellationToken = default)
+    {
+        var query = queryParams.IsDeleted
+            ? dbContext.Operations.IgnoreQueryFilters().AsNoTracking().AsSplitQuery().Where(x => x.IsDeleted)
+            : dbContext.Operations.AsNoTracking().AsSplitQuery().Where(x => !x.IsDeleted);
+
+        if (queryParams.OnlyActive)
+        {
+            query = query.Where(x => x.Status != OperationStatus.Delivered);
+        }
+
+        if (!string.IsNullOrWhiteSpace(queryParams.OperationType) &&
+            Enum.TryParse<OperationType>(queryParams.OperationType, true, out var opType))
+        {
+            query = query.Where(x => x.OperationType == opType);
+        }
+
+        if (!string.IsNullOrWhiteSpace(queryParams.Status) &&
+            Enum.TryParse<OperationStatus>(queryParams.Status, true, out var st))
+        {
+            query = query.Where(x => x.Status == st);
+        }
+
+        // 1. Client filter (by GUID or name)
+        if (!string.IsNullOrWhiteSpace(queryParams.Client))
+        {
+            var cVal = queryParams.Client.Trim();
+            if (Guid.TryParse(cVal, out var cGuid))
+            {
+                query = query.Where(x => x.ClientId == cGuid);
+            }
+            else if (queryParams.MatchingFilterClientIds is { Count: > 0 } cIds)
+            {
+                query = query.Where(x => cIds.Contains(x.ClientId));
+            }
+            else
+            {
+                query = query.Where(x => false);
+            }
+        }
+
+        // 2. Shipping Line filter (by GUID or name/abbreviation)
+        if (!string.IsNullOrWhiteSpace(queryParams.Line))
+        {
+            var lVal = queryParams.Line.Trim();
+            if (Guid.TryParse(lVal, out var lGuid))
+            {
+                query = query.Where(x => x.ShippingLineId == lGuid);
+            }
+            else
+            {
+                query = query.Where(x =>
+                    (x.ShippingLine != null && EF.Functions.Like(x.ShippingLine.Name, $"%{lVal}%")) ||
+                    (x.ShippingLine != null && x.ShippingLine.Abbreviation != null && EF.Functions.Like(x.ShippingLine.Abbreviation, $"%{lVal}%"))
+                );
+            }
+        }
+
+        // 3. Port filter (by GUID or name)
+        if (!string.IsNullOrWhiteSpace(queryParams.Port))
+        {
+            var pVal = queryParams.Port.Trim();
+            if (Guid.TryParse(pVal, out var pGuid))
+            {
+                query = query.Where(x =>
+                    (x.ImportDetails != null && x.ImportDetails.PODId == pGuid) ||
+                    (x.ExportDetails != null && (x.ExportDetails.POLId == pGuid || x.ExportDetails.PODId == pGuid || x.ExportDetails.POWId == pGuid))
+                );
+            }
+            else
+            {
+                query = query.Where(x =>
+                    (x.ImportDetails != null && x.ImportDetails.POD != null && EF.Functions.Like(x.ImportDetails.POD.Name, $"%{pVal}%")) ||
+                    (x.ExportDetails != null && x.ExportDetails.POL != null && EF.Functions.Like(x.ExportDetails.POL.Name, $"%{pVal}%")) ||
+                    (x.ExportDetails != null && x.ExportDetails.POD != null && EF.Functions.Like(x.ExportDetails.POD.Name, $"%{pVal}%")) ||
+                    (x.ExportDetails != null && x.ExportDetails.POW != null && EF.Functions.Like(x.ExportDetails.POW.Name, $"%{pVal}%"))
+                );
+            }
+        }
+
+        // 4. Transporter filter (by GUID or name)
+        if (!string.IsNullOrWhiteSpace(queryParams.Transporter))
+        {
+            var tVal = queryParams.Transporter.Trim();
+            if (Guid.TryParse(tVal, out var tGuid))
+            {
+                query = query.Where(x => x.Containers.Any(c => c.TransporterId == tGuid));
+            }
+            else
+            {
+                query = query.Where(x => x.Containers.Any(c => c.Transporter != null && EF.Functions.Like(c.Transporter.Name, $"%{tVal}%")));
+            }
+        }
+
+        // 5. Container Type filter
+        if (!string.IsNullOrWhiteSpace(queryParams.ContainerType) &&
+            Enum.TryParse<ContainerType>(queryParams.ContainerType.Trim(), ignoreCase: true, out var cntrEnum))
+        {
+            query = query.Where(x => x.Containers.Any(c => c.ContainerType == cntrEnum));
+        }
+
+        // 6. Destination filter
+        if (!string.IsNullOrWhiteSpace(queryParams.Destination))
+        {
+            var dest = queryParams.Destination.Trim();
+            query = query.Where(x => x.Containers.Any(c => c.Destination != null && EF.Functions.Like(c.Destination, $"%{dest}%")));
+        }
+
+        // 7. Clearance Type filter (CERT / BOSLA)
+        if (!string.IsNullOrWhiteSpace(queryParams.ClearanceType) &&
+            Enum.TryParse<ClearanceType>(queryParams.ClearanceType.Trim(), ignoreCase: true, out var clrEnum))
+        {
+            query = query.Where(x => x.ExportDetails != null && x.ExportDetails.ClearanceType == clrEnum);
+        }
+
+        // 8. Missing Docs filter ("yes" / "no")
+        if (!string.IsNullOrWhiteSpace(queryParams.MissingDocs))
+        {
+            var md = queryParams.MissingDocs.Trim().ToLowerInvariant();
+            if (md == "yes")
+            {
+                query = query.Where(x => x.Containers.Any(c => c.MissingDocs != null && c.MissingDocs.Trim() != ""));
+            }
+            else if (md == "no")
+            {
+                query = query.Where(x => x.Containers.All(c => c.MissingDocs == null || c.MissingDocs.Trim() == ""));
+            }
+        }
+
+        // 9. Created By filter
+        if (!string.IsNullOrWhiteSpace(queryParams.CreatedBy))
+        {
+            var cb = queryParams.CreatedBy.Trim();
+            query = query.Where(x => x.CreatedByName != null && EF.Functions.Like(x.CreatedByName, $"%{cb}%"));
+        }
+
+        // 10. Customs filter
+        if (!string.IsNullOrWhiteSpace(queryParams.Customs))
+        {
+            var cust = queryParams.Customs.Trim();
+            query = query.Where(x => x.ExportDetails != null && x.ExportDetails.Customs != null && EF.Functions.Like(x.ExportDetails.Customs, $"%{cust}%"));
+        }
+
+        // 11. Date range filter
+        if (!string.IsNullOrWhiteSpace(queryParams.DateFrom) || !string.IsNullOrWhiteSpace(queryParams.DateTo))
+        {
+            var hasFrom = DateOnly.TryParse(queryParams.DateFrom, out var dFrom);
+            var hasTo = DateOnly.TryParse(queryParams.DateTo, out var dTo);
+            var dtFromUtc = hasFrom ? dFrom.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc) : DateTime.MinValue;
+            var dtToUtc = hasTo ? dTo.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc) : DateTime.MaxValue;
+
+            var dType = queryParams.DateType?.Trim().ToLowerInvariant() ?? "created";
+            switch (dType)
+            {
+                case "created":
+                    if (hasFrom) query = query.Where(x => x.CreatedAtUtc >= dtFromUtc);
+                    if (hasTo) query = query.Where(x => x.CreatedAtUtc <= dtToUtc);
+                    break;
+                case "reqdate":
+                    if (hasFrom) query = query.Where(x => (x.ImportDetails != null && x.ImportDetails.RequiredOffloadingDate >= dFrom) || x.Containers.Any(c => c.RequiredLoadingDate >= dFrom));
+                    if (hasTo) query = query.Where(x => (x.ImportDetails != null && x.ImportDetails.RequiredOffloadingDate <= dTo) || x.Containers.Any(c => c.RequiredLoadingDate <= dTo));
+                    break;
+                case "arrdate":
+                    if (hasFrom) query = query.Where(x => x.Containers.Any(c => c.ActualArrivalDate >= dFrom));
+                    if (hasTo) query = query.Where(x => x.Containers.Any(c => c.ActualArrivalDate <= dTo));
+                    break;
+                case "gateout":
+                    if (hasFrom) query = query.Where(x => x.Containers.Any(c => c.GateOutDate >= dFrom));
+                    if (hasTo) query = query.Where(x => x.Containers.Any(c => c.GateOutDate <= dTo));
+                    break;
+                case "freeorcut":
+                    if (hasFrom) query = query.Where(x => (x.ExportDetails != null && x.ExportDetails.CutOffDate >= dFrom) || x.Containers.Any(c => c.FreeTimeTill >= dFrom));
+                    if (hasTo) query = query.Where(x => (x.ExportDetails != null && x.ExportDetails.CutOffDate <= dTo) || x.Containers.Any(c => c.FreeTimeTill <= dTo));
+                    break;
+                case "delivered":
+                    if (hasFrom) query = query.Where(x => x.DeliveredAtUtc >= dtFromUtc);
+                    if (hasTo) query = query.Where(x => x.DeliveredAtUtc <= dtToUtc);
+                    break;
+                case "checkout":
+                    if (hasFrom) query = query.Where(x => x.Containers.Any(c => c.CheckOutFromThePort >= dtFromUtc));
+                    if (hasTo) query = query.Where(x => x.Containers.Any(c => c.CheckOutFromThePort <= dtToUtc));
+                    break;
+                case "invrcv":
+                    if (hasFrom) query = query.Where(x => x.InvoicesReceivedDate >= dtFromUtc);
+                    if (hasTo) query = query.Where(x => x.InvoicesReceivedDate <= dtToUtc);
+                    break;
+                case "missrcv":
+                    if (hasFrom) query = query.Where(x => x.Containers.Any(c => c.MissingDocsReceivedDate >= dFrom));
+                    if (hasTo) query = query.Where(x => x.Containers.Any(c => c.MissingDocsReceivedDate <= dTo));
+                    break;
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(queryParams.Search))
+        {
+            var term = queryParams.Search.Trim();
+            var clientIds = queryParams.MatchingClientIds ?? [];
+
+            query = query.Where(x =>
+                (clientIds.Count > 0 && clientIds.Contains(x.ClientId)) ||
+                (x.ShipmentNumber != null && EF.Functions.Like(x.ShipmentNumber, $"%{term}%")) ||
+                (x.CertificateNumber != null && EF.Functions.Like(x.CertificateNumber, $"%{term}%")) ||
+                (x.CreatedByName != null && EF.Functions.Like(x.CreatedByName, $"%{term}%")) ||
+                (x.ShippingLine != null && EF.Functions.Like(x.ShippingLine.Name, $"%{term}%")) ||
+                (x.ShippingLine != null && x.ShippingLine.Abbreviation != null && EF.Functions.Like(x.ShippingLine.Abbreviation, $"%{term}%")) ||
+                (x.ImportDetails != null && EF.Functions.Like(x.ImportDetails.MBLNumber, $"%{term}%")) ||
+                (x.ExportDetails != null && EF.Functions.Like(x.ExportDetails.BookingNumber, $"%{term}%")) ||
+                (x.ExportDetails != null && x.ExportDetails.Customs != null && EF.Functions.Like(x.ExportDetails.Customs, $"%{term}%")) ||
+                x.Containers.Any(c =>
+                    (c.ContainerNumber != null && EF.Functions.Like(c.ContainerNumber, $"%{term}%")) ||
+                    (c.Destination != null && EF.Functions.Like(c.Destination, $"%{term}%")) ||
+                    (c.Driver != null && EF.Functions.Like(c.Driver.Name, $"%{term}%")) ||
+                    (c.Driver != null && c.Driver.MobileNumber != null && EF.Functions.Like(c.Driver.MobileNumber, $"%{term}%")) ||
+                    (c.Vehicle != null && c.Vehicle.CarNumber != null && EF.Functions.Like(c.Vehicle.CarNumber, $"%{term}%")) ||
+                    (c.Transporter != null && EF.Functions.Like(c.Transporter.Name, $"%{term}%"))
+                )
+            );
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var totalContainers = await query.SelectMany(x => x.Containers).CountAsync(cancellationToken);
+
+        var page = Math.Max(1, queryParams.Page);
+        var pageSize = Math.Clamp(queryParams.PageSize, 1, 200);
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var items = await query
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Include(x => x.ShippingLine)
+            .Include(x => x.ImportDetails)
+                .ThenInclude(x => x!.POD)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POD)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.POW)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Transporter)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Driver)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Vehicle)
+            .Include(x => x.Containers)
+                .ThenInclude(x => x.Updates)
+            .ToListAsync(cancellationToken);
+
+        return new PagedOperationsResult(items, totalCount, totalContainers, page, pageSize, totalPages);
     }
 
 

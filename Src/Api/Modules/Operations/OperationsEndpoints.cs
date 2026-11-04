@@ -25,6 +25,7 @@ using Api.Modules.Operations.GetOperationDestinations;
 using Api.Modules.Operations.CreateDestination;
 using Api.Modules.Operations.DeleteOperation;
 using Api.Modules.Operations.GetDeletedOperations;
+using Api.Modules.Operations.GetOperationsCounts;
 
 // Lookups Master Data Endpoints
 using Api.Modules.Operations.CreatePort;
@@ -71,6 +72,7 @@ public static class OperationsEndpoints
         ReopenOperationEndpoint.Map(app);
         DeleteOperationEndpoint.Map(app);
         GetDeletedOperationsEndpoint.Map(app);
+        GetOperationsCountsEndpoint.Map(app);
         GenerateFclSuggestionsEndpoint.Map(app);
         GetFclSuggestionsEndpoint.Map(app);
         ApproveFclSuggestionEndpoint.Map(app);

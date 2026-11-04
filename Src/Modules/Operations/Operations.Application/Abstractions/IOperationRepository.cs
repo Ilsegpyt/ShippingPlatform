@@ -40,6 +40,14 @@ public interface IOperationRepository
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Operation>> GetAllWithDetailsAsync(
+        bool onlyActive = false,
+        CancellationToken cancellationToken = default);
+
+    Task<OperationsCountsDto> GetCountsAsync(
+        CancellationToken cancellationToken = default);
+
+    Task<PagedOperationsResult> GetPagedOperationsAsync(
+        OperationQueryParams queryParams,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<Operation>> GetDeliveredWithDetailsAsync(

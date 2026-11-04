@@ -1,8 +1,10 @@
-﻿using Identity.Domain.Entities;
+using Customers.Contracts;
+using Identity.Domain.Entities;
 using Identity.Domain.Enums;
 using Identity.Domain.Repositories;
 using Identity.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 using System.Security.Claims;
 
 namespace Identity.Infrastructure.Authorization;
@@ -13,15 +15,21 @@ public sealed class PermissionAuthorizationHandler
     private readonly ISubAccountRepository _subAccounts;
     private readonly IInternalUserRepository _internalUsers;
     private readonly IRoleRepository _roles;
+    private readonly ICustomerQueries _customerQueries;
+    private readonly IMemoryCache _cache;
 
     public PermissionAuthorizationHandler(
         ISubAccountRepository subAccounts,
         IInternalUserRepository internalUsers,
-        IRoleRepository roles)
+        IRoleRepository roles,
+        ICustomerQueries customerQueries,
+        IMemoryCache cache)
     {
         _subAccounts = subAccounts;
         _internalUsers = internalUsers;
         _roles = roles;
+        _customerQueries = customerQueries;
+        _cache = cache;
     }
 
     protected override async Task HandleRequirementAsync(
@@ -34,8 +42,6 @@ public sealed class PermissionAuthorizationHandler
 
         var tokenType = context.User.FindFirstValue("token_type");
 
-
-
         if (userIdClaim is null ||
             !Guid.TryParse(userIdClaim, out var userId))
         {
@@ -45,11 +51,13 @@ public sealed class PermissionAuthorizationHandler
         var granted = tokenType switch
         {
             // Customer owner permissions.
-            "customer" => HasCustomerPermission(
+            "customer" => await HasCustomerPermissionAsync(
+                userId,
                 requirement.Permission),
 
             // Impersonation permissions.
-            "impersonation" => HasImpersonationPermission(
+            "impersonation" => await HasImpersonationPermissionAsync(
+                context.User,
                 requirement.Permission),
 
             // SubAccount permissions.
@@ -70,28 +78,61 @@ public sealed class PermissionAuthorizationHandler
     }
 
     /// <summary>
-    /// Checks whether the customer owner has the required permission.
+    /// Checks whether the customer owner has the required permission and is active.
+    /// Uses memory caching (60 seconds) to avoid database pressure on every request.
     /// </summary>
-    private static bool HasCustomerPermission(
+    private async Task<bool> HasCustomerPermissionAsync(
+        Guid userId,
         PermissionKey permission)
     {
-        return PermissionCatalog.CustomerOwnerPermissions.Contains(permission);
+        if (!PermissionCatalog.CustomerOwnerPermissions.Contains(permission))
+            return false;
+
+        var cacheKey = $"customer_active_user_{userId}";
+        if (!_cache.TryGetValue(cacheKey, out bool isActive))
+        {
+            var customer = await _customerQueries.GetByUserIdAsync(userId, default);
+            isActive = customer is not null && customer.IsActive && !customer.IsDeleted;
+            _cache.Set(cacheKey, isActive, TimeSpan.FromMinutes(5));
+        }
+
+        return isActive;
     }
 
     /// <summary>
     /// Checks permissions available specifically during impersonation.
     /// Impersonation keeps the customer's normal permissions and adds
-    /// impersonation-specific permissions.
+    /// impersonation-specific permissions, while verifying the customer is active.
     /// </summary>
-    private static bool HasImpersonationPermission(
+    private async Task<bool> HasImpersonationPermissionAsync(
+        ClaimsPrincipal user,
         PermissionKey permission)
     {
-        return PermissionCatalog.CustomerOwnerPermissions.Contains(permission)
+        var hasBasePermission =
+            PermissionCatalog.CustomerOwnerPermissions.Contains(permission)
             || permission == PermissionCatalog.ImpersonatedCustomerView;
+
+        if (!hasBasePermission)
+            return false;
+
+        var orgIdClaim = user.FindFirstValue("org_id");
+        if (!Guid.TryParse(orgIdClaim, out var customerId))
+            return false;
+
+        var cacheKey = $"customer_active_id_{customerId}";
+        if (!_cache.TryGetValue(cacheKey, out bool isActive))
+        {
+            var customer = await _customerQueries.GetByIdAsync(customerId, default);
+            isActive = customer is not null && customer.IsActive && !customer.IsDeleted;
+            _cache.Set(cacheKey, isActive, TimeSpan.FromMinutes(5));
+        }
+
+        return isActive;
     }
 
     /// <summary>
-    /// Checks whether an active SubAccount has the required permission.
+    /// Checks whether an active SubAccount has the required permission,
+    /// and ensures the parent customer is also active.
     /// </summary>
     private async Task<bool> HasSubAccountPermissionAsync(
         Guid userId,
@@ -101,6 +142,20 @@ public sealed class PermissionAuthorizationHandler
 
         if (subAccount is null ||
             subAccount.Status != SubAccountStatus.Active)
+        {
+            return false;
+        }
+
+        // Check whether parent customer is active
+        var cacheKey = $"customer_active_id_{subAccount.CustomerId}";
+        if (!_cache.TryGetValue(cacheKey, out bool isParentActive))
+        {
+            var parentCustomer = await _customerQueries.GetByIdAsync(subAccount.CustomerId, default);
+            isParentActive = parentCustomer is not null && parentCustomer.IsActive && !parentCustomer.IsDeleted;
+            _cache.Set(cacheKey, isParentActive, TimeSpan.FromMinutes(5));
+        }
+
+        if (!isParentActive)
         {
             return false;
         }
