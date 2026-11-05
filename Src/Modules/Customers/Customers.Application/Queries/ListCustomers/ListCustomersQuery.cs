@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application;
+using BuildingBlocks.Application;
 using Customers.Application.Abstractions;
 using Customers.Application.Queries.GetCustomerById;
 using Identity.Contracts;
@@ -23,6 +23,7 @@ public sealed class ListCustomersQueryHandler(
     {
         var page = query.Pagination.PageNumber;
         var pageSize = query.Pagination.PageSize;
+        var search = query.Pagination.Search;
         var skip = (page - 1) * pageSize;
 
         var userAccess =
@@ -46,6 +47,7 @@ public sealed class ListCustomersQueryHandler(
             var totalCount =
                 await repository.CountByIdsAsync(
                     assignedCustomerIds,
+                    search,
                     ct);
 
             var customers =
@@ -53,6 +55,7 @@ public sealed class ListCustomersQueryHandler(
                     assignedCustomerIds,
                     skip,
                     pageSize,
+                    search,
                     ct);
 
             var items = customers
@@ -78,10 +81,11 @@ public sealed class ListCustomersQueryHandler(
             await repository.ListAsync(
                 skip,
                 pageSize,
+                search,
                 ct);
 
         var allTotalCount =
-            await repository.CountAsync(ct);
+            await repository.CountAsync(search, ct);
 
         var allItems = allCustomers
             .Select(c => new CustomerResponse(

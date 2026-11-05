@@ -59,6 +59,9 @@ public sealed class OperationConfiguration : IEntityTypeConfiguration<Operation>
             .HasDatabaseName("UX_Operations_OperationType_DuplicateCheckKey")
             .HasFilter("[DuplicateCheckKey] IS NOT NULL");
 
+        builder.HasIndex(x => new { x.OperationType, x.IsDeleted, x.Status, x.CreatedAtUtc })
+            .HasDatabaseName("IX_Operations_Type_Deleted_Status_Created");
+
         builder.Property(x => x.DeliveredByUserId)
             .HasMaxLength(128);
 

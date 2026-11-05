@@ -1,4 +1,4 @@
-﻿using Identity.Domain.Entities;
+using Identity.Domain.Entities;
 using Identity.Domain.Repositories;
 using Identity.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -24,24 +24,45 @@ public sealed class InternalUserRepository : IInternalUserRepository
         _db.InternalUsers.Update(internalUser);
 
     public void Delete(InternalUser internalUser) =>
-    _db.InternalUsers.Remove(internalUser);
-    public async Task<IReadOnlyList<InternalUser>> GetAllAsync(int skip , int take, CancellationToken ct = default)
+        _db.InternalUsers.Remove(internalUser);
+
+    public async Task<IReadOnlyList<InternalUser>> GetAllAsync(int skip, int take, string? search = null, CancellationToken ct = default)
     {
-        return await _db.InternalUsers
-            .AsNoTracking()
+        var query = _db.InternalUsers.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(x =>
+                EF.Functions.Like(x.Name, $"%{s}%") ||
+                EF.Functions.Like(x.Email, $"%{s}%") ||
+                EF.Functions.Like(x.Phone, $"%{s}%"));
+        }
+
+        return await query
             .OrderBy(x => x.Name)
             .Skip(skip)
             .Take(take)
             .ToListAsync(ct);
     }
-    public async Task<int> CountAsync(CancellationToken ct = default)
-    {
-        return await _db.InternalUsers.CountAsync(ct);
 
+    public async Task<int> CountAsync(string? search = null, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(search))
+            return await _db.InternalUsers.CountAsync(ct);
+
+        var s = search.Trim();
+        return await _db.InternalUsers
+            .Where(x =>
+                EF.Functions.Like(x.Name, $"%{s}%") ||
+                EF.Functions.Like(x.Email, $"%{s}%") ||
+                EF.Functions.Like(x.Phone, $"%{s}%"))
+            .CountAsync(ct);
     }
+
     public async Task<IReadOnlyList<InternalUser>> GetByIdsAsync(
-    IReadOnlyCollection<Guid> ids,
-    CancellationToken ct = default)
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken ct = default)
     {
         if (ids.Count == 0)
             return [];
@@ -52,9 +73,10 @@ public sealed class InternalUserRepository : IInternalUserRepository
             .OrderBy(x => x.Name)
             .ToListAsync(ct);
     }
+
     public async Task<IReadOnlyList<InternalUser>> GetByRoleIdAsync(
-    Guid roleId,
-    CancellationToken ct = default)
+        Guid roleId,
+        CancellationToken ct = default)
     {
         return await _db.InternalUsers
             .AsNoTracking()

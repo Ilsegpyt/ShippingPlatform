@@ -112,7 +112,11 @@ public sealed class GetOperationByIdQueryHandler(
                             update.CreatedByUserId,
                             update.CreatedByName))
                         .ToList()))
-                .ToList());
+                .ToList(),
+            operation.IsDeleted,
+            operation.DeletedAtUtc,
+            operation.DeletedByUserId,
+            operation.DeletedByName);
 
         return Result.Success(response);
     }

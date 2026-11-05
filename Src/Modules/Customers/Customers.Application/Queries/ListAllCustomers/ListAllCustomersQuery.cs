@@ -1,4 +1,3 @@
-﻿
 using BuildingBlocks.Application;
 using Customers.Application.Abstractions;
 using Customers.Application.Queries.GetCustomerById;
@@ -11,7 +10,7 @@ namespace Customers.Application.Queries.ListAllCustomers;
 /// DeletedOnly = true  → deleted customers only
 /// DeletedOnly = false → all customers (active + deleted)
 /// </summary>
-public sealed record ListAllCustomersQuery(bool DeletedOnly , PaginationRequest Pagination) : IRequest<Result<PagedResult<CustomerResponse>>>;
+public sealed record ListAllCustomersQuery(bool DeletedOnly, PaginationRequest Pagination) : IRequest<Result<PagedResult<CustomerResponse>>>;
 
 public sealed class ListAllCustomersQueryHandler(ICustomerRepository repository)
     : IRequestHandler<ListAllCustomersQuery, Result<PagedResult<CustomerResponse>>>
@@ -22,6 +21,7 @@ public sealed class ListAllCustomersQueryHandler(ICustomerRepository repository)
     {
         var page = query.Pagination.PageNumber;
         var pageSize = query.Pagination.PageSize;
+        var search = query.Pagination.Search;
 
         var skip = (page - 1) * pageSize;
 
@@ -29,10 +29,12 @@ public sealed class ListAllCustomersQueryHandler(ICustomerRepository repository)
             query.DeletedOnly,
             skip,
             pageSize,
+            search,
             ct);
 
         var totalCount = await repository.CountIgnoringDeletedFilterAsync(
             query.DeletedOnly,
+            search,
             ct);
 
         var items = customers

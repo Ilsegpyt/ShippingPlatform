@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Website.Application.Abstractions.Repositories;
 using Website.Domain.Entities;
 
@@ -16,11 +16,27 @@ public sealed class AgentApplicationRepository(
     public async Task<(IReadOnlyList<AgentApplication> Items, int TotalCount)> GetPagedAsync(
         int pageNumber,
         int pageSize,
-        CancellationToken ct)
+        string? search = null,
+        CancellationToken ct = default)
     {
         var query = dbContext.AgentApplications
             .AsNoTracking()
-            .OrderByDescending(x => x.CreatedAtUtc);
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(x =>
+                EF.Functions.Like(x.FirstName, $"%{s}%") ||
+                EF.Functions.Like(x.LastName, $"%{s}%") ||
+                EF.Functions.Like(x.Email, $"%{s}%") ||
+                EF.Functions.Like(x.Phone, $"%{s}%") ||
+                EF.Functions.Like(x.Country, $"%{s}%") ||
+                EF.Functions.Like(x.City, $"%{s}%") ||
+                EF.Functions.Like(x.MainIndustry, $"%{s}%"));
+        }
+
+        query = query.OrderByDescending(x => x.CreatedAtUtc);
 
         var totalCount = await query.CountAsync(ct);
 
@@ -31,9 +47,10 @@ public sealed class AgentApplicationRepository(
 
         return (items, totalCount);
     }
+
     public async Task<AgentApplication?> GetByIdAsync(
-    int id,
-    CancellationToken ct)
+        int id,
+        CancellationToken ct = default)
     {
         return await dbContext.AgentApplications
             .AsNoTracking()

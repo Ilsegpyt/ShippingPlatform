@@ -100,6 +100,7 @@ public sealed class OperationRepository(
         CancellationToken cancellationToken = default)
     {
         return dbContext.Operations
+            .IgnoreQueryFilters()
             .AsNoTracking()
             .AsSplitQuery()
             .Include(x => x.ShippingLine)
@@ -176,13 +177,6 @@ public sealed class OperationRepository(
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POW)
             .Include(x => x.Containers)
-                .ThenInclude(x => x.Transporter)
-            .Include(x => x.Containers)
-                .ThenInclude(x => x.Driver)
-            .Include(x => x.Containers)
-                .ThenInclude(x => x.Vehicle)
-            .Include(x => x.Containers)
-                .ThenInclude(x => x.Updates)
             .ToListAsync(cancellationToken);
     }
 

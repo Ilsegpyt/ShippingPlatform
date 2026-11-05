@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Website.Application.Abstractions.Repositories;
 using Website.Domain.Entities;
 
@@ -16,11 +16,23 @@ public sealed class RecruitmentApplicationRepository(
     public async Task<(IReadOnlyList<RecruitmentApplication> Items, int TotalCount)> GetPagedAsync(
         int pageNumber,
         int pageSize,
-        CancellationToken ct)
+        string? search = null,
+        CancellationToken ct = default)
     {
         var query = dbContext.RecruitmentApplications
             .AsNoTracking()
-            .OrderByDescending(x => x.CreatedAtUtc);
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(x =>
+                EF.Functions.Like(x.Department, $"%{s}%") ||
+                EF.Functions.Like(x.CvFileName, $"%{s}%") ||
+                EF.Functions.Like(x.Message, $"%{s}%"));
+        }
+
+        query = query.OrderByDescending(x => x.CreatedAtUtc);
 
         var totalCount = await query.CountAsync(ct);
 
@@ -34,7 +46,7 @@ public sealed class RecruitmentApplicationRepository(
 
     public async Task<RecruitmentApplication?> GetByIdAsync(
         int id,
-        CancellationToken ct)
+        CancellationToken ct = default)
     {
         return await dbContext.RecruitmentApplications
             .AsNoTracking()

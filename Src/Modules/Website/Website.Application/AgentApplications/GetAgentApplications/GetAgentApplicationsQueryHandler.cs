@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application;
+using BuildingBlocks.Application;
 using MediatR;
 using Website.Application.Abstractions.Repositories;
 
@@ -16,11 +16,13 @@ public sealed class GetAgentApplicationsQueryHandler(
     {
         var pageNumber = query.Pagination.PageNumber;
         var pageSize = query.Pagination.PageSize;
+        var search = query.Pagination.Search;
 
         var (items, totalCount) =
             await agentApplicationRepository.GetPagedAsync(
                 pageNumber,
                 pageSize,
+                search,
                 ct);
 
         var result = new PagedResult<Domain.Entities.AgentApplication>(

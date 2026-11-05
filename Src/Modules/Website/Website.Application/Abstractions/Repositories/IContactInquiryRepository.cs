@@ -1,4 +1,4 @@
-﻿using Website.Domain.Entities;
+using Website.Domain.Entities;
 
 namespace Website.Application.Abstractions.Repositories;
 
@@ -9,9 +9,10 @@ public interface IContactInquiryRepository
     Task<(IReadOnlyList<ContactInquiry> Items, int TotalCount)> GetPagedAsync(
         int pageNumber,
         int pageSize,
-        CancellationToken ct);
+        string? search = null,
+        CancellationToken ct = default);
 
     Task<ContactInquiry?> GetByIdAsync(
         int id,
-        CancellationToken ct);
+        CancellationToken ct = default);
 }

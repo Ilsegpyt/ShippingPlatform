@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application;
+using BuildingBlocks.Application;
 using MediatR;
 using Website.Application.Abstractions.Repositories;
 
@@ -16,11 +16,13 @@ public sealed class GetQuoteRequestsQueryHandler(
     {
         var pageNumber = query.Pagination.PageNumber;
         var pageSize = query.Pagination.PageSize;
+        var search = query.Pagination.Search;
 
         var (items, totalCount) =
             await quoteRequestRepository.GetPagedAsync(
                 pageNumber,
                 pageSize,
+                search,
                 ct);
 
         var result =

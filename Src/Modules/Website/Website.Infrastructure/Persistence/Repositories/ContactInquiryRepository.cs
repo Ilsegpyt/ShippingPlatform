@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Website.Application.Abstractions.Repositories;
 using Website.Domain.Entities;
 
@@ -16,11 +16,25 @@ public sealed class ContactInquiryRepository(
     public async Task<(IReadOnlyList<ContactInquiry> Items, int TotalCount)> GetPagedAsync(
         int pageNumber,
         int pageSize,
-        CancellationToken ct)
+        string? search = null,
+        CancellationToken ct = default)
     {
         var query = dbContext.ContactInquiries
             .AsNoTracking()
-            .OrderByDescending(x => x.CreatedAtUtc);
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var s = search.Trim();
+            query = query.Where(x =>
+                EF.Functions.Like(x.FullName, $"%{s}%") ||
+                EF.Functions.Like(x.Company, $"%{s}%") ||
+                EF.Functions.Like(x.Email, $"%{s}%") ||
+                EF.Functions.Like(x.Phone, $"%{s}%") ||
+                EF.Functions.Like(x.Service, $"%{s}%"));
+        }
+
+        query = query.OrderByDescending(x => x.CreatedAtUtc);
 
         var totalCount = await query.CountAsync(ct);
 
@@ -34,7 +48,7 @@ public sealed class ContactInquiryRepository(
 
     public async Task<ContactInquiry?> GetByIdAsync(
         int id,
-        CancellationToken ct)
+        CancellationToken ct = default)
     {
         return await dbContext.ContactInquiries
             .AsNoTracking()

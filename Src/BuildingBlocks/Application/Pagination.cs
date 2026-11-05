@@ -1,4 +1,4 @@
-﻿namespace BuildingBlocks.Application;
+namespace BuildingBlocks.Application;
 
 public class PaginationRequest
 {
@@ -12,6 +12,8 @@ public class PaginationRequest
         get => _pageSize;
         init => _pageSize = value > MaxPageSize ? MaxPageSize : value;
     }
+
+    public string? Search { get; init; }
 }
 
 public class PagedResult<T>

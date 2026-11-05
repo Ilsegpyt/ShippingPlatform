@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application;
+using BuildingBlocks.Application;
 using Identity.Domain.Repositories;
 using MediatR;
 
@@ -17,16 +17,18 @@ public sealed class GetInternalUsersQueryHandler(
     {
         var page = request.Pagination.PageNumber;
         var pageSize = request.Pagination.PageSize;
+        var search = request.Pagination.Search;
 
         var skip = (page - 1) * pageSize;
 
         var totalCount =
-            await internalUserRepository.CountAsync(ct);
+            await internalUserRepository.CountAsync(search, ct);
 
         var users =
             await internalUserRepository.GetAllAsync(
                 skip,
                 pageSize,
+                search,
                 ct);
 
         var roleIds = users
