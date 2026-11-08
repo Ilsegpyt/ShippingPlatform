@@ -40,6 +40,10 @@ public class Operation : Entity<Guid>, IAggregateRoot, ISoftDeletable
     public Guid? DeletedByUserId { get; private set; }
     public string? DeletedByName { get; private set; }
 
+    public Guid? LockedByUserId { get; private set; }
+    public string? LockedByName { get; private set; }
+    public DateTime? LockedAtUtc { get; private set; }
+
 
 
 
@@ -306,5 +310,27 @@ public class Operation : Entity<Guid>, IAggregateRoot, ISoftDeletable
         DeletedByUserId = null;
         DeletedByName = null;
         DeletedAtUtc = null;
+    }
+
+    public bool IsLockActive(DateTime utcNow, int timeoutMinutes = 10)
+    {
+        if (!LockedByUserId.HasValue || !LockedAtUtc.HasValue)
+            return false;
+
+        return LockedAtUtc.Value.AddMinutes(timeoutMinutes) > utcNow;
+    }
+
+    public void AcquireLock(Guid userId, string userName, DateTime utcNow)
+    {
+        LockedByUserId = userId;
+        LockedByName = string.IsNullOrWhiteSpace(userName) ? "User" : userName.Trim();
+        LockedAtUtc = utcNow.Kind == DateTimeKind.Utc ? utcNow : DateTime.SpecifyKind(utcNow, DateTimeKind.Utc);
+    }
+
+    public void ReleaseLock()
+    {
+        LockedByUserId = null;
+        LockedByName = null;
+        LockedAtUtc = null;
     }
 }

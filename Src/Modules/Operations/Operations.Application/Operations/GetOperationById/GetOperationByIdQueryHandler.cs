@@ -116,7 +116,10 @@ public sealed class GetOperationByIdQueryHandler(
             operation.IsDeleted,
             operation.DeletedAtUtc,
             operation.DeletedByUserId,
-            operation.DeletedByName);
+            operation.DeletedByName,
+            operation.LockedByUserId,
+            operation.LockedByName,
+            operation.LockedAtUtc);
 
         return Result.Success(response);
     }

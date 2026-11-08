@@ -11,7 +11,8 @@ namespace Operations.Application.Operations.UpdateExport;
 public sealed class UpdateExportCommandHandler(
     IOperationRepository operationRepository,
     IVehicleRepository vehicleRepository,
-    IOperationsUnitOfWork unitOfWork)
+    IOperationsUnitOfWork unitOfWork,
+    ICurrentUser currentUser)
     : IRequestHandler<UpdateExportCommand, Result<bool>>
 {
     public async Task<Result<bool>> Handle(
@@ -35,6 +36,14 @@ public sealed class UpdateExportCommandHandler(
         {
             return Result.Failure<bool>(
                 "Delivered operations cannot be edited. Reopen the operation first.");
+        }
+
+        var now = DateTime.UtcNow;
+        var userId = currentUser.UserId;
+        if (operation.IsLockActive(now, 10) && operation.LockedByUserId.HasValue && operation.LockedByUserId.Value != userId)
+        {
+            var locker = string.IsNullOrWhiteSpace(operation.LockedByName) ? "another user" : operation.LockedByName;
+            return Result.Failure<bool>($"Cannot save: operation is currently locked by {locker}.");
         }
 
         var duplicateContainer = command.Containers
@@ -234,6 +243,11 @@ public sealed class UpdateExportCommandHandler(
 
         operation.UpdateNumberOfContainers(
             operation.Containers.Count);
+
+        if (operation.LockedByUserId == userId)
+        {
+            operation.ReleaseLock();
+        }
 
         await unitOfWork.SaveChangesAsync(ct);
 

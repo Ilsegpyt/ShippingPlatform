@@ -26,6 +26,9 @@ using Api.Modules.Operations.CreateDestination;
 using Api.Modules.Operations.DeleteOperation;
 using Api.Modules.Operations.GetDeletedOperations;
 using Api.Modules.Operations.GetOperationsCounts;
+using Api.Modules.Operations.LockOperation;
+using Api.Modules.Operations.UnlockOperation;
+using Api.Modules.Operations.TakeOverOperation;
 
 // Lookups Master Data Endpoints
 using Api.Modules.Operations.CreatePort;
@@ -82,6 +85,9 @@ public static class OperationsEndpoints
         AddContainerUpdateEndpoint.Map(app);
         GetOperationDestinationsEndpoint.Map(app);
         CreateDestinationEndpoint.Map(app);
+        LockOperationEndpoint.Map(app);
+        UnlockOperationEndpoint.Map(app);
+        TakeOverOperationEndpoint.Map(app);
 
         // Lookups Master Data (Add, Edit, Inactive)
         CreatePortEndpoint.Map(app);

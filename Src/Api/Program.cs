@@ -293,6 +293,31 @@ using (var scope = app.Services.CreateScope())
         scope.ServiceProvider.GetRequiredService<IdentitySeeder>();
 
     await seeder.SeedAsync();
+
+    // Ensure Operations table lock columns exist
+    try
+    {
+        var operationsDb = scope.ServiceProvider.GetRequiredService<Operations.Infrastructure.Persistence.OperationsDbContext>();
+        await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(
+            operationsDb.Database,
+            @"IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Operations') AND name = 'LockedByUserId')
+              BEGIN
+                  ALTER TABLE [Operations] ADD [LockedByUserId] UNIQUEIDENTIFIER NULL;
+              END
+              IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Operations') AND name = 'LockedByName')
+              BEGIN
+                  ALTER TABLE [Operations] ADD [LockedByName] NVARCHAR(200) NULL;
+              END
+              IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Operations') AND name = 'LockedAtUtc')
+              BEGIN
+                  ALTER TABLE [Operations] ADD [LockedAtUtc] DATETIME2 NULL;
+              END");
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseInit");
+        logger.LogError(ex, "Failed to verify Operations lock columns.");
+    }
 }
 
 // ==================================================

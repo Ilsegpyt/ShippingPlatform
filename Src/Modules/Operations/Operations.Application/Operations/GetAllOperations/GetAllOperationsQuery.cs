@@ -33,7 +33,10 @@ public sealed record OperationDto(
     bool IsDeleted = false,
     DateTime? DeletedAtUtc = null,
     Guid? DeletedByUserId = null,
-    string? DeletedByName = null);
+    string? DeletedByName = null,
+    Guid? LockedByUserId = null,
+    string? LockedByName = null,
+    DateTime? LockedAtUtc = null);
 
 public sealed record ImportDetailsDto(
     Guid Id,

@@ -114,6 +114,18 @@ public sealed class OperationConfiguration : IEntityTypeConfiguration<Operation>
         builder.Property(x => x.DeletedByName)
             .HasMaxLength(200);
 
+        // -------------------------
+        // Concurrency / Soft Lock
+        // -------------------------
+
+        builder.Property(x => x.LockedByUserId);
+
+        builder.Property(x => x.LockedByName)
+            .HasMaxLength(200);
+
+        builder.Property(x => x.LockedAtUtc)
+            .HasColumnType("datetime2");
+
         builder.HasQueryFilter(x => !x.IsDeleted);
 
         // -------------------------

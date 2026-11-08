@@ -117,7 +117,14 @@ public sealed class GetAllOperationsQueryHandler(
                                 update.CreatedByName))
                             .ToList()
                     ))
-                    .ToList()
+                    .ToList(),
+                operation.IsDeleted,
+                operation.DeletedAtUtc,
+                operation.DeletedByUserId,
+                operation.DeletedByName,
+                operation.LockedByUserId,
+                operation.LockedByName,
+                operation.LockedAtUtc
             ))
             .ToList();
 

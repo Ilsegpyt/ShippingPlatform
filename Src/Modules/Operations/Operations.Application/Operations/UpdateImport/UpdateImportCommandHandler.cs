@@ -12,7 +12,8 @@ namespace Operations.Application.Operations.UpdateImport;
 public sealed class UpdateImportCommandHandler(
     IOperationRepository operationRepository,
     IVehicleRepository vehicleRepository,
-    IOperationsUnitOfWork unitOfWork)
+    IOperationsUnitOfWork unitOfWork,
+    ICurrentUser currentUser)
     : IRequestHandler<UpdateImportCommand, Result<bool>>
 {
     public async Task<Result<bool>> Handle(
@@ -34,6 +35,14 @@ public sealed class UpdateImportCommandHandler(
         if (operation.Status == OperationStatus.Delivered)
             return Result.Failure<bool>(
                 "Delivered operations cannot be edited. Reopen the operation first.");
+
+        var now = DateTime.UtcNow;
+        var userId = currentUser.UserId;
+        if (operation.IsLockActive(now, 10) && operation.LockedByUserId.HasValue && operation.LockedByUserId.Value != userId)
+        {
+            var locker = string.IsNullOrWhiteSpace(operation.LockedByName) ? "another user" : operation.LockedByName;
+            return Result.Failure<bool>($"Cannot save: operation is currently locked by {locker}.");
+        }
 
         var duplicateContainer = command.Containers
             .GroupBy(x => x.ContainerId)
@@ -153,6 +162,11 @@ public sealed class UpdateImportCommandHandler(
                 item.MissingDocsReceivedDate,
                 item.Destination,
                 item.FreeTimeTill);
+        }
+
+        if (operation.LockedByUserId == userId)
+        {
+            operation.ReleaseLock();
         }
 
         await unitOfWork.SaveChangesAsync(ct);
