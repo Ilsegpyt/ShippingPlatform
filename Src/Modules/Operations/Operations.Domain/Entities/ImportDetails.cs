@@ -1,4 +1,4 @@
-﻿
+
 using BuildingBlocks.Domain;
 using Operations.Domain.Common;
 
@@ -19,6 +19,12 @@ public class ImportDetails : Entity<Guid>
     public DateOnly RequiredOffloadingDate { get; private set; }
 
     public TimeOnly RequiredOffloadingTime { get; private set; }
+
+    public void UpdateRequiredOffloading(DateOnly requiredOffloadingDate, TimeOnly requiredOffloadingTime)
+    {
+        RequiredOffloadingDate = requiredOffloadingDate;
+        RequiredOffloadingTime = requiredOffloadingTime;
+    }
 
     private ImportDetails()
     {

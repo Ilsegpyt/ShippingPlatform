@@ -42,7 +42,9 @@ public static class UpdateImportEndpoint
                             x.Destination,
                             x.FreeTimeTill,
                             x.CarNumber))
-                        .ToList());
+                        .ToList(),
+                    request.RequiredOffloadingDate,
+                    request.RequiredOffloadingTime);
 
                 var result = await sender.Send(command, ct);
 
@@ -58,7 +60,9 @@ public sealed record UpdateImportRequest(
     string? ShipmentNumber,
     string? CertificateNumber,
     DateTime? InvoicesReceivedDate,
-    IReadOnlyCollection<UpdateImportContainerRequest> Containers);
+    IReadOnlyCollection<UpdateImportContainerRequest> Containers,
+    DateOnly? RequiredOffloadingDate = null,
+    TimeOnly? RequiredOffloadingTime = null);
 
 public sealed record UpdateImportContainerRequest(
     Guid ContainerId,

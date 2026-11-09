@@ -170,7 +170,9 @@ public class Operation : Entity<Guid>, IAggregateRoot, ISoftDeletable
     public void UpdateImportData(
         string? shipmentNumber,
         string? certificateNumber,
-        DateTime? invoicesReceivedDate)
+        DateTime? invoicesReceivedDate,
+        DateOnly? requiredOffloadingDate = null,
+        TimeOnly? requiredOffloadingTime = null)
     {
         if (shipmentNumber is not null)
             ShipmentNumber = NormalizeOptionalIdentifier(shipmentNumber);
@@ -180,6 +182,13 @@ public class Operation : Entity<Guid>, IAggregateRoot, ISoftDeletable
 
         if (invoicesReceivedDate.HasValue)
             InvoicesReceivedDate = invoicesReceivedDate.Value;
+
+        if (ImportDetails is not null && (requiredOffloadingDate.HasValue || requiredOffloadingTime.HasValue))
+        {
+            var date = requiredOffloadingDate ?? ImportDetails.RequiredOffloadingDate;
+            var time = requiredOffloadingTime ?? ImportDetails.RequiredOffloadingTime;
+            ImportDetails.UpdateRequiredOffloading(date, time);
+        }
     }
 
     public void MarkDelivered(

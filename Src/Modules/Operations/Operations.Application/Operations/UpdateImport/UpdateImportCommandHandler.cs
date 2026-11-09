@@ -97,7 +97,9 @@ public sealed class UpdateImportCommandHandler(
         operation.UpdateImportData(
             command.ShipmentNumber,
             command.CertificateNumber,
-            command.InvoicesReceivedDate);
+            command.InvoicesReceivedDate,
+            command.RequiredOffloadingDate,
+            command.RequiredOffloadingTime);
 
         if (!string.IsNullOrWhiteSpace(command.ShipmentNumber) &&
             await operationRepository.ShipmentNumberExistsAsync(command.ShipmentNumber, operation.Id, ct))

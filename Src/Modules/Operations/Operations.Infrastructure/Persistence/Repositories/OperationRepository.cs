@@ -464,16 +464,23 @@ public sealed class OperationRepository(
         }
 
         // 8. Missing Docs filter ("yes" / "no")
+        // An active missing doc requires: MissingDocs has actual text (not just dashes/empty) AND MissingDocsReceivedDate is null
         if (!string.IsNullOrWhiteSpace(queryParams.MissingDocs))
         {
             var md = queryParams.MissingDocs.Trim().ToLowerInvariant();
             if (md == "yes")
             {
-                query = query.Where(x => x.Containers.Any(c => c.MissingDocs != null && c.MissingDocs.Trim() != ""));
+                query = query.Where(x => x.Containers.Any(c =>
+                    c.MissingDocs != null &&
+                    c.MissingDocs.Replace("-", "").Replace("—", "").Trim() != "" &&
+                    c.MissingDocsReceivedDate == null));
             }
             else if (md == "no")
             {
-                query = query.Where(x => x.Containers.All(c => c.MissingDocs == null || c.MissingDocs.Trim() == ""));
+                query = query.Where(x => x.Containers.All(c =>
+                    c.MissingDocs == null ||
+                    c.MissingDocs.Replace("-", "").Replace("—", "").Trim() == "" ||
+                    c.MissingDocsReceivedDate != null));
             }
         }
 
@@ -497,46 +504,44 @@ public sealed class OperationRepository(
             var hasFrom = DateOnly.TryParse(queryParams.DateFrom, out var dFrom);
             var hasTo = DateOnly.TryParse(queryParams.DateTo, out var dTo);
             var dtFromUtc = hasFrom ? dFrom.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc) : DateTime.MinValue;
-            var dtToUtc = hasTo ? dTo.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc) : DateTime.MaxValue;
+            var dtToUtcExclusive = hasTo ? dTo.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc) : DateTime.MaxValue;
 
             var dType = queryParams.DateType?.Trim().ToLowerInvariant() ?? "created";
             switch (dType)
             {
                 case "created":
                     if (hasFrom) query = query.Where(x => x.CreatedAtUtc >= dtFromUtc);
-                    if (hasTo) query = query.Where(x => x.CreatedAtUtc <= dtToUtc);
+                    if (hasTo) query = query.Where(x => x.CreatedAtUtc < dtToUtcExclusive);
                     break;
                 case "reqdate":
-                    if (hasFrom) query = query.Where(x => (x.ImportDetails != null && x.ImportDetails.RequiredOffloadingDate >= dFrom) || x.Containers.Any(c => c.RequiredLoadingDate >= dFrom));
-                    if (hasTo) query = query.Where(x => (x.ImportDetails != null && x.ImportDetails.RequiredOffloadingDate <= dTo) || x.Containers.Any(c => c.RequiredLoadingDate <= dTo));
+                    query = query.Where(x =>
+                        (x.ImportDetails != null && (!hasFrom || x.ImportDetails.RequiredOffloadingDate >= dFrom) && (!hasTo || x.ImportDetails.RequiredOffloadingDate <= dTo)) ||
+                        x.Containers.Any(c => (!hasFrom || c.RequiredLoadingDate >= dFrom) && (!hasTo || c.RequiredLoadingDate <= dTo)));
                     break;
                 case "arrdate":
-                    if (hasFrom) query = query.Where(x => x.Containers.Any(c => c.ActualArrivalDate >= dFrom));
-                    if (hasTo) query = query.Where(x => x.Containers.Any(c => c.ActualArrivalDate <= dTo));
+                    query = query.Where(x => x.Containers.Any(c => (!hasFrom || c.ActualArrivalDate >= dFrom) && (!hasTo || c.ActualArrivalDate <= dTo)));
                     break;
                 case "gateout":
-                    if (hasFrom) query = query.Where(x => x.Containers.Any(c => c.GateOutDate >= dFrom));
-                    if (hasTo) query = query.Where(x => x.Containers.Any(c => c.GateOutDate <= dTo));
+                    query = query.Where(x => x.Containers.Any(c => (!hasFrom || c.GateOutDate >= dFrom) && (!hasTo || c.GateOutDate <= dTo)));
                     break;
                 case "freeorcut":
-                    if (hasFrom) query = query.Where(x => (x.ExportDetails != null && x.ExportDetails.CutOffDate >= dFrom) || x.Containers.Any(c => c.FreeTimeTill >= dFrom));
-                    if (hasTo) query = query.Where(x => (x.ExportDetails != null && x.ExportDetails.CutOffDate <= dTo) || x.Containers.Any(c => c.FreeTimeTill <= dTo));
+                    query = query.Where(x =>
+                        (x.ExportDetails != null && (!hasFrom || x.ExportDetails.CutOffDate >= dFrom) && (!hasTo || x.ExportDetails.CutOffDate <= dTo)) ||
+                        x.Containers.Any(c => (!hasFrom || c.FreeTimeTill >= dFrom) && (!hasTo || c.FreeTimeTill <= dTo)));
                     break;
                 case "delivered":
                     if (hasFrom) query = query.Where(x => x.DeliveredAtUtc >= dtFromUtc);
-                    if (hasTo) query = query.Where(x => x.DeliveredAtUtc <= dtToUtc);
+                    if (hasTo) query = query.Where(x => x.DeliveredAtUtc < dtToUtcExclusive);
                     break;
                 case "checkout":
-                    if (hasFrom) query = query.Where(x => x.Containers.Any(c => c.CheckOutFromThePort >= dtFromUtc));
-                    if (hasTo) query = query.Where(x => x.Containers.Any(c => c.CheckOutFromThePort <= dtToUtc));
+                    query = query.Where(x => x.Containers.Any(c => (!hasFrom || c.CheckOutFromThePort >= dtFromUtc) && (!hasTo || c.CheckOutFromThePort < dtToUtcExclusive)));
                     break;
                 case "invrcv":
                     if (hasFrom) query = query.Where(x => x.InvoicesReceivedDate >= dtFromUtc);
-                    if (hasTo) query = query.Where(x => x.InvoicesReceivedDate <= dtToUtc);
+                    if (hasTo) query = query.Where(x => x.InvoicesReceivedDate < dtToUtcExclusive);
                     break;
                 case "missrcv":
-                    if (hasFrom) query = query.Where(x => x.Containers.Any(c => c.MissingDocsReceivedDate >= dFrom));
-                    if (hasTo) query = query.Where(x => x.Containers.Any(c => c.MissingDocsReceivedDate <= dTo));
+                    query = query.Where(x => x.Containers.Any(c => (!hasFrom || c.MissingDocsReceivedDate >= dFrom) && (!hasTo || c.MissingDocsReceivedDate <= dTo)));
                     break;
             }
         }

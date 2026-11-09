@@ -14,8 +14,10 @@ public sealed record UpdateImportCommand(
     DateTime? InvoicesReceivedDate,
 
     // Containers
-    IReadOnlyCollection<UpdateImportContainerItem> Containers
+    IReadOnlyCollection<UpdateImportContainerItem> Containers,
 
+    DateOnly? RequiredOffloadingDate = null,
+    TimeOnly? RequiredOffloadingTime = null
 ) : IRequest<Result<bool>>;
 
 public sealed record UpdateImportContainerItem(
