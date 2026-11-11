@@ -29,6 +29,14 @@ public static class OperationsModuleServiceCollectionExtensions
         services.AddScoped<ITransporterRepository, TransporterRepository>();
         services.AddScoped<IVehicleRepository, VehicleRepository>();
 
+        // FTL Airport
+        services.AddScoped<IFtlAirportRepository, FtlAirportRepository>();
+        services.AddScoped<IFtlTerminalRepository, FtlTerminalRepository>();
+        services.AddScoped<IFtlTransporterRepository, FtlTransporterRepository>();
+        services.AddScoped<IFtlDriverRepository, FtlDriverRepository>();
+        services.AddScoped<IFtlVehicleRepository, FtlVehicleRepository>();
+        services.AddScoped<IFtlOperationRepository, FtlOperationRepository>();
+
         return services;
     }
 }

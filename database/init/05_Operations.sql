@@ -1479,3 +1479,654 @@ BEGIN
 END;
 COMMIT;
 GO
+
+
+/* Added AddFtlAirportModule */
+
+BEGIN TRANSACTION;
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    DECLARE @var nvarchar(max);
+    SELECT @var = QUOTENAME([d].[name])
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Transporters]') AND [c].[name] = N'Abbreviation');
+    IF @var IS NOT NULL EXEC(N'ALTER TABLE [Transporters] DROP CONSTRAINT ' + @var + ';');
+    ALTER TABLE [Transporters] DROP COLUMN [Abbreviation];
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    DECLARE @var1 nvarchar(max);
+    SELECT @var1 = QUOTENAME([d].[name])
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Ports]') AND [c].[name] = N'Abbreviation');
+    IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Ports] DROP CONSTRAINT ' + @var1 + ';');
+    ALTER TABLE [Ports] DROP COLUMN [Abbreviation];
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    DECLARE @var2 nvarchar(max);
+    SELECT @var2 = QUOTENAME([d].[name])
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Destinations]') AND [c].[name] = N'Abbreviation');
+    IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Destinations] DROP CONSTRAINT ' + @var2 + ';');
+    ALTER TABLE [Destinations] DROP COLUMN [Abbreviation];
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Vehicles] ADD [DeletedAtUtc] datetime2 NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Vehicles] ADD [DeletedByName] nvarchar(200) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Vehicles] ADD [DeletedByUserId] uniqueidentifier NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Vehicles] ADD [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Transporters] ADD [DeletedAtUtc] datetime2 NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Transporters] ADD [DeletedByName] nvarchar(200) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Transporters] ADD [DeletedByUserId] uniqueidentifier NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Transporters] ADD [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [ShippingLines] ADD [DeletedAtUtc] datetime2 NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [ShippingLines] ADD [DeletedByName] nvarchar(200) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [ShippingLines] ADD [DeletedByUserId] uniqueidentifier NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [ShippingLines] ADD [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Ports] ADD [DeletedAtUtc] datetime2 NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Ports] ADD [DeletedByName] nvarchar(200) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Ports] ADD [DeletedByUserId] uniqueidentifier NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Ports] ADD [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [ExportDetails] ADD [PODId] uniqueidentifier NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Drivers] ADD [DeletedAtUtc] datetime2 NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Drivers] ADD [DeletedByName] nvarchar(200) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Drivers] ADD [DeletedByUserId] uniqueidentifier NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Drivers] ADD [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Destinations] ADD [DeletedAtUtc] datetime2 NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Destinations] ADD [DeletedByName] nvarchar(200) NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Destinations] ADD [DeletedByUserId] uniqueidentifier NULL;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [Destinations] ADD [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE TABLE [FtlAirports] (
+        [Id] uniqueidentifier NOT NULL,
+        [Name] nvarchar(200) NOT NULL,
+        [Code] nvarchar(50) NULL,
+        [IsActive] bit NOT NULL DEFAULT CAST(1 AS bit),
+        [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit),
+        [DeletedAtUtc] datetime2 NULL,
+        [DeletedByUserId] uniqueidentifier NULL,
+        [DeletedByName] nvarchar(200) NULL,
+        CONSTRAINT [PK_FtlAirports] PRIMARY KEY ([Id])
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE TABLE [FtlDrivers] (
+        [Id] uniqueidentifier NOT NULL,
+        [Name] nvarchar(200) NOT NULL,
+        [DriverNumber] nvarchar(80) NULL,
+        [MobileNumber] nvarchar(50) NULL,
+        [IsActive] bit NOT NULL DEFAULT CAST(1 AS bit),
+        [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit),
+        [DeletedAtUtc] datetime2 NULL,
+        [DeletedByUserId] uniqueidentifier NULL,
+        [DeletedByName] nvarchar(200) NULL,
+        CONSTRAINT [PK_FtlDrivers] PRIMARY KEY ([Id])
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE TABLE [FtlOperations] (
+        [Id] uniqueidentifier NOT NULL,
+        [Ref] nvarchar(50) NOT NULL,
+        [Year] int NOT NULL,
+        [Sequence] int NOT NULL,
+        [OperationType] nvarchar(20) NOT NULL,
+        [Status] nvarchar(20) NOT NULL,
+        [ClientId] uniqueidentifier NULL,
+        [ClientName] nvarchar(200) NULL,
+        [BL] nvarchar(120) NULL,
+        [BookingNumber] nvarchar(120) NULL,
+        [ClearanceType] nvarchar(20) NULL,
+        [CertificateNumber] nvarchar(80) NULL,
+        [Packages] int NULL,
+        [GrossWeight] decimal(18,3) NULL,
+        [Cbm] decimal(10,3) NULL,
+        [Commodity] nvarchar(300) NULL,
+        [Terminal] nvarchar(200) NULL,
+        [Destination] nvarchar(200) NULL,
+        [AOD] nvarchar(50) NULL,
+        [ArrivalDate] date NULL,
+        [ArrivalTime] time NULL,
+        [RequiredArrivalDate] date NULL,
+        [RequiredArrivalTime] time NULL,
+        [CustomsArea] nvarchar(200) NULL,
+        [InvoicesReceivedDate] date NULL,
+        [LayoutJson] nvarchar(max) NULL,
+        [Version] int NOT NULL DEFAULT 1,
+        [Day] date NOT NULL,
+        [Time] time NOT NULL,
+        [EnteredByUserId] nvarchar(128) NULL,
+        [EnteredByName] nvarchar(200) NULL,
+        [LockedByUserId] uniqueidentifier NULL,
+        [LockedByName] nvarchar(200) NULL,
+        [LockedAtUtc] datetime2 NULL,
+        [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit),
+        [DeletedAtUtc] datetime2 NULL,
+        [DeletedByUserId] uniqueidentifier NULL,
+        [DeletedByName] nvarchar(200) NULL,
+        [CreatedAtUtc] datetime2 NOT NULL,
+        [CreatedByUserId] nvarchar(128) NOT NULL,
+        [CreatedByName] nvarchar(200) NOT NULL,
+        CONSTRAINT [PK_FtlOperations] PRIMARY KEY ([Id])
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE TABLE [FtlTerminals] (
+        [Id] uniqueidentifier NOT NULL,
+        [Name] nvarchar(200) NOT NULL,
+        [IsActive] bit NOT NULL DEFAULT CAST(1 AS bit),
+        [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit),
+        [DeletedAtUtc] datetime2 NULL,
+        [DeletedByUserId] uniqueidentifier NULL,
+        [DeletedByName] nvarchar(200) NULL,
+        CONSTRAINT [PK_FtlTerminals] PRIMARY KEY ([Id])
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE TABLE [FtlTransporters] (
+        [Id] uniqueidentifier NOT NULL,
+        [Name] nvarchar(200) NOT NULL,
+        [IsActive] bit NOT NULL DEFAULT CAST(1 AS bit),
+        [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit),
+        [DeletedAtUtc] datetime2 NULL,
+        [DeletedByUserId] uniqueidentifier NULL,
+        [DeletedByName] nvarchar(200) NULL,
+        CONSTRAINT [PK_FtlTransporters] PRIMARY KEY ([Id])
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE TABLE [FtlShipments] (
+        [Id] uniqueidentifier NOT NULL,
+        [FtlOperationId] uniqueidentifier NOT NULL,
+        [Ordinal] smallint NOT NULL,
+        [ShipmentNumber] nvarchar(120) NULL,
+        [ClientId] uniqueidentifier NULL,
+        [ClientName] nvarchar(200) NULL,
+        [HAWB] nvarchar(120) NULL,
+        [CertificateNumber] nvarchar(80) NULL,
+        [Packages] int NULL,
+        [GrossWeight] decimal(18,3) NULL,
+        [Cbm] decimal(10,3) NULL,
+        [Commodity] nvarchar(300) NULL,
+        [CustomsArea] nvarchar(200) NULL,
+        [InvoicesReceivedDate] date NULL,
+        [TransporterInvoiceNo] nvarchar(100) NULL,
+        [MissingDocs] nvarchar(1000) NULL,
+        [MissingDocsReceivedDate] date NULL,
+        CONSTRAINT [PK_FtlShipments] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_FtlShipments_FtlOperations_FtlOperationId] FOREIGN KEY ([FtlOperationId]) REFERENCES [FtlOperations] ([Id]) ON DELETE CASCADE
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE TABLE [FtlStatusAudits] (
+        [Id] bigint NOT NULL IDENTITY,
+        [FtlOperationId] uniqueidentifier NOT NULL,
+        [BeforeStatus] nvarchar(20) NOT NULL,
+        [AfterStatus] nvarchar(20) NOT NULL,
+        [UserId] nvarchar(128) NOT NULL,
+        [AtUtc] datetime2 NOT NULL DEFAULT (GETUTCDATE()),
+        CONSTRAINT [PK_FtlStatusAudits] PRIMARY KEY ([Id]),
+        CONSTRAINT [CK_FtlStatusAudits_StatusChanged] CHECK ([BeforeStatus] <> [AfterStatus]),
+        CONSTRAINT [FK_FtlStatusAudits_FtlOperations_FtlOperationId] FOREIGN KEY ([FtlOperationId]) REFERENCES [FtlOperations] ([Id]) ON DELETE CASCADE
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE TABLE [FtlTrucks] (
+        [Id] uniqueidentifier NOT NULL,
+        [FtlOperationId] uniqueidentifier NOT NULL,
+        [Ordinal] smallint NOT NULL,
+        [TransporterId] uniqueidentifier NULL,
+        [TransporterName] nvarchar(200) NULL,
+        [TruckType] nvarchar(30) NULL,
+        [TruckPlateNumber] nvarchar(100) NULL,
+        [DriverId] uniqueidentifier NULL,
+        [DriverName] nvarchar(200) NULL,
+        [DriverMobile] nvarchar(50) NULL,
+        [GateInDate] date NULL,
+        [GateInTime] time NULL,
+        [GateOutDate] date NULL,
+        [GateOutTime] time NULL,
+        CONSTRAINT [PK_FtlTrucks] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_FtlTrucks_FtlOperations_FtlOperationId] FOREIGN KEY ([FtlOperationId]) REFERENCES [FtlOperations] ([Id]) ON DELETE CASCADE
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE TABLE [FtlVehicles] (
+        [Id] uniqueidentifier NOT NULL,
+        [PlateNumber] nvarchar(100) NOT NULL,
+        [TruckType] nvarchar(30) NOT NULL,
+        [FtlTransporterId] uniqueidentifier NULL,
+        [IsActive] bit NOT NULL DEFAULT CAST(1 AS bit),
+        [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit),
+        [DeletedAtUtc] datetime2 NULL,
+        [DeletedByUserId] uniqueidentifier NULL,
+        [DeletedByName] nvarchar(200) NULL,
+        CONSTRAINT [PK_FtlVehicles] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_FtlVehicles_FtlTransporters_FtlTransporterId] FOREIGN KEY ([FtlTransporterId]) REFERENCES [FtlTransporters] ([Id]) ON DELETE NO ACTION
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE TABLE [FtlOperationTrips] (
+        [Id] uniqueidentifier NOT NULL,
+        [FtlOperationId] uniqueidentifier NOT NULL,
+        [Ordinal] smallint NOT NULL,
+        [ExternalId] nvarchar(100) NULL,
+        [FtlShipmentId] uniqueidentifier NULL,
+        [FtlTruckId] uniqueidentifier NULL,
+        [LoadStatus] nvarchar(30) NOT NULL,
+        [LoadedPackages] int NULL,
+        [LoadedWeight] decimal(18,3) NULL,
+        [LoadedCbm] decimal(10,3) NULL,
+        [FieldsJson] nvarchar(max) NULL,
+        CONSTRAINT [PK_FtlOperationTrips] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_FtlOperationTrips_FtlOperations_FtlOperationId] FOREIGN KEY ([FtlOperationId]) REFERENCES [FtlOperations] ([Id]) ON DELETE CASCADE,
+        CONSTRAINT [FK_FtlOperationTrips_FtlShipments_FtlShipmentId] FOREIGN KEY ([FtlShipmentId]) REFERENCES [FtlShipments] ([Id]) ON DELETE NO ACTION,
+        CONSTRAINT [FK_FtlOperationTrips_FtlTrucks_FtlTruckId] FOREIGN KEY ([FtlTruckId]) REFERENCES [FtlTrucks] ([Id]) ON DELETE NO ACTION
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE TABLE [FtlTruckUpdates] (
+        [Id] uniqueidentifier NOT NULL,
+        [FtlTruckId] uniqueidentifier NOT NULL,
+        [TripId] nvarchar(100) NULL,
+        [Note] nvarchar(2000) NOT NULL,
+        [CreatedAtUtc] datetime2 NOT NULL,
+        [CreatedByUserId] nvarchar(128) NOT NULL,
+        [CreatedByName] nvarchar(200) NOT NULL,
+        CONSTRAINT [PK_FtlTruckUpdates] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_FtlTruckUpdates_FtlTrucks_FtlTruckId] FOREIGN KEY ([FtlTruckId]) REFERENCES [FtlTrucks] ([Id]) ON DELETE CASCADE
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE INDEX [IX_ExportDetails_PODId] ON [ExportDetails] ([PODId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    EXEC(N'CREATE UNIQUE INDEX [IX_FtlAirports_Name] ON [FtlAirports] ([Name]) WHERE [IsDeleted] = 0');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    EXEC(N'CREATE UNIQUE INDEX [IX_FtlDrivers_DriverNumber] ON [FtlDrivers] ([DriverNumber]) WHERE [DriverNumber] IS NOT NULL AND [IsDeleted] = 0');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE INDEX [IX_FtlOperations_Type_Deleted_Status_Created] ON [FtlOperations] ([OperationType], [IsDeleted], [Status], [CreatedAtUtc]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    EXEC(N'CREATE UNIQUE INDEX [UX_FtlOperations_Ref] ON [FtlOperations] ([Ref]) WHERE [IsDeleted] = 0');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE INDEX [IX_FtlOperationTrips_FtlShipmentId] ON [FtlOperationTrips] ([FtlShipmentId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE INDEX [IX_FtlOperationTrips_FtlTruckId] ON [FtlOperationTrips] ([FtlTruckId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE UNIQUE INDEX [UX_FtlOperationTrips_Operation_Ordinal] ON [FtlOperationTrips] ([FtlOperationId], [Ordinal]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE UNIQUE INDEX [UX_FtlShipments_Operation_Ordinal] ON [FtlShipments] ([FtlOperationId], [Ordinal]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE INDEX [IX_FtlStatusAudits_FtlOperationId_AtUtc] ON [FtlStatusAudits] ([FtlOperationId], [AtUtc]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    EXEC(N'CREATE UNIQUE INDEX [IX_FtlTerminals_Name] ON [FtlTerminals] ([Name]) WHERE [IsDeleted] = 0');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    EXEC(N'CREATE UNIQUE INDEX [IX_FtlTransporters_Name] ON [FtlTransporters] ([Name]) WHERE [IsDeleted] = 0');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE UNIQUE INDEX [UX_FtlTrucks_Operation_Ordinal] ON [FtlTrucks] ([FtlOperationId], [Ordinal]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE INDEX [IX_FtlTruckUpdates_FtlTruckId] ON [FtlTruckUpdates] ([FtlTruckId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    CREATE INDEX [IX_FtlVehicles_FtlTransporterId] ON [FtlVehicles] ([FtlTransporterId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    EXEC(N'CREATE UNIQUE INDEX [IX_FtlVehicles_PlateNumber] ON [FtlVehicles] ([PlateNumber]) WHERE [IsDeleted] = 0');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    ALTER TABLE [ExportDetails] ADD CONSTRAINT [FK_ExportDetails_Ports_PODId] FOREIGN KEY ([PODId]) REFERENCES [Ports] ([Id]) ON DELETE NO ACTION;
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261111084008_AddFtlAirportModule', N'10.0.12');
+END;
+
+COMMIT;
+GO
+
+

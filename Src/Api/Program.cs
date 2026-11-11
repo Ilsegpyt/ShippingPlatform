@@ -294,7 +294,7 @@ using (var scope = app.Services.CreateScope())
 
     await seeder.SeedAsync();
 
-    // Ensure Operations table lock columns exist
+    // Ensure Operations table lock columns exist and migrations are applied
     try
     {
         var operationsDb = scope.ServiceProvider.GetRequiredService<Operations.Infrastructure.Persistence.OperationsDbContext>();
@@ -311,12 +311,61 @@ using (var scope = app.Services.CreateScope())
               IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Operations') AND name = 'LockedAtUtc')
               BEGIN
                   ALTER TABLE [Operations] ADD [LockedAtUtc] DATETIME2 NULL;
+              END
+              IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'FtlAirports')
+              BEGIN
+                  CREATE TABLE [FtlAirports] (
+                      [Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+                      [Name] NVARCHAR(200) NOT NULL,
+                      [Code] NVARCHAR(10) NOT NULL,
+                      [City] NVARCHAR(100) NULL,
+                      [Country] NVARCHAR(100) NULL,
+                      [IsActive] BIT NOT NULL DEFAULT 1,
+                      [CreatedAtUtc] DATETIME2 NOT NULL,
+                      [CreatedByUserId] UNIQUEIDENTIFIER NOT NULL,
+                      [CreatedByName] NVARCHAR(200) NOT NULL,
+                      [UpdatedAtUtc] DATETIME2 NULL,
+                      [UpdatedByUserId] UNIQUEIDENTIFIER NULL,
+                      [UpdatedByName] NVARCHAR(200) NULL
+                  );
+              END
+              IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'FtlTerminals')
+              BEGIN
+                  CREATE TABLE [FtlTerminals] (
+                      [Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+                      [AirportId] UNIQUEIDENTIFIER NULL,
+                      [Name] NVARCHAR(200) NOT NULL,
+                      [Code] NVARCHAR(50) NULL,
+                      [IsActive] BIT NOT NULL DEFAULT 1,
+                      [CreatedAtUtc] DATETIME2 NOT NULL,
+                      [CreatedByUserId] UNIQUEIDENTIFIER NOT NULL,
+                      [CreatedByName] NVARCHAR(200) NOT NULL,
+                      [UpdatedAtUtc] DATETIME2 NULL,
+                      [UpdatedByUserId] UNIQUEIDENTIFIER NULL,
+                      [UpdatedByName] NVARCHAR(200) NULL
+                  );
+              END
+              IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'FtlVehicles')
+              BEGIN
+                  CREATE TABLE [FtlVehicles] (
+                      [Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+                      [TransporterId] UNIQUEIDENTIFIER NULL,
+                      [PlateNumber] NVARCHAR(50) NOT NULL,
+                      [TruckType] NVARCHAR(50) NOT NULL,
+                      [IsActive] BIT NOT NULL DEFAULT 1,
+                      [CreatedAtUtc] DATETIME2 NOT NULL,
+                      [CreatedByUserId] UNIQUEIDENTIFIER NOT NULL,
+                      [CreatedByName] NVARCHAR(200) NOT NULL,
+                      [UpdatedAtUtc] DATETIME2 NULL,
+                      [UpdatedByUserId] UNIQUEIDENTIFIER NULL,
+                      [UpdatedByName] NVARCHAR(200) NULL
+                  );
               END");
     }
     catch (Exception ex)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseInit");
-        logger.LogError(ex, "Failed to verify Operations lock columns.");
+        logger.LogError(ex, "Failed to verify Operations lock columns and FTL tables.");
     }
 }
 

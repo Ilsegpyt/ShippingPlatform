@@ -51,6 +51,20 @@ using Api.Modules.Operations.DeactivateShippingLine;
 using Api.Modules.Operations.DeactivateTransporter;
 using Api.Modules.Operations.DeactivateVehicle;
 
+// FTL Airport Endpoints
+using Api.Modules.Operations.CreateFtlOperation;
+using Api.Modules.Operations.GetAllFtlOperations;
+using Api.Modules.Operations.UpdateFtlOperation;
+using Api.Modules.Operations.UpdateFtlStatus;
+using Api.Modules.Operations.DeleteFtlOperation;
+using Api.Modules.Operations.LockFtlOperation;
+using Api.Modules.Operations.UnlockFtlOperation;
+using Api.Modules.Operations.AddFtlTruckUpdate;
+using Api.Modules.Operations.ImportFtlTrips;
+using Api.Modules.Operations.GetFtlMaster;
+using Api.Modules.Operations.AddFtlMasterItem;
+using Api.Modules.Operations.GetFtlUserMe;
+
 namespace Api.Modules.Operations;
 
 public static class OperationsEndpoints
@@ -109,5 +123,19 @@ public static class OperationsEndpoints
         DeactivateShippingLineEndpoint.Map(app);
         DeactivateTransporterEndpoint.Map(app);
         DeactivateVehicleEndpoint.Map(app);
+
+        // FTL Airport
+        CreateFtlOperationEndpoint.Map(app);
+        GetAllFtlOperationsEndpoint.Map(app);
+        UpdateFtlOperationEndpoint.Map(app);
+        UpdateFtlStatusEndpoint.Map(app);
+        DeleteFtlOperationEndpoint.Map(app);
+        LockFtlOperationEndpoint.Map(app);
+        UnlockFtlOperationEndpoint.Map(app);
+        AddFtlTruckUpdateEndpoint.Map(app);
+        ImportFtlTripsEndpoint.Map(app);
+        GetFtlMasterEndpoint.Map(app);
+        AddFtlMasterItemEndpoint.Map(app);
+        GetFtlUserMeEndpoint.Map(app);
     }
 }

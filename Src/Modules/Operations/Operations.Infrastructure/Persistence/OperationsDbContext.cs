@@ -35,6 +35,19 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
     public DbSet<Destination> Destinations => Set<Destination>();
     public DbSet<OperationStatusAudit> OperationStatusAudits => Set<OperationStatusAudit>();
 
+    // FTL Airport
+    public DbSet<FtlOperation> FtlOperations => Set<FtlOperation>();
+    public DbSet<FtlShipment> FtlShipments => Set<FtlShipment>();
+    public DbSet<FtlTruck> FtlTrucks => Set<FtlTruck>();
+    public DbSet<FtlOperationTrip> FtlOperationTrips => Set<FtlOperationTrip>();
+    public DbSet<FtlTruckUpdate> FtlTruckUpdates => Set<FtlTruckUpdate>();
+    public DbSet<FtlStatusAudit> FtlStatusAudits => Set<FtlStatusAudit>();
+    public DbSet<FtlAirport> FtlAirports => Set<FtlAirport>();
+    public DbSet<FtlTerminal> FtlTerminals => Set<FtlTerminal>();
+    public DbSet<FtlTransporter> FtlTransporters => Set<FtlTransporter>();
+    public DbSet<FtlDriver> FtlDrivers => Set<FtlDriver>();
+    public DbSet<FtlVehicle> FtlVehicles => Set<FtlVehicle>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.ApplyConfigurationsFromAssembly(
