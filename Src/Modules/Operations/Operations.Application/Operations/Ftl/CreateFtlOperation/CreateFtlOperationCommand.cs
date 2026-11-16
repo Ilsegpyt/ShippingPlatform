@@ -1,4 +1,6 @@
+using System.Text.Json.Serialization;
 using BuildingBlocks.Application;
+using BuildingBlocks.Application.Serialization;
 using MediatR;
 
 namespace Operations.Application.Operations.Ftl.CreateFtlOperation;
@@ -6,6 +8,7 @@ namespace Operations.Application.Operations.Ftl.CreateFtlOperation;
 public sealed record CreateFtlTripInput(
     string? Id,
     int Ordinal,
+    [property: JsonConverter(typeof(SafeStringDictionaryConverter))]
     Dictionary<string, string> Fields,
     string? LoadStatus = null,
     int? LoadedPackages = null,
@@ -16,6 +19,7 @@ public sealed record CreateFtlOperationCommand(
     string Direction,
     int? RowCount,
     int? ContainerCount,
+    [property: JsonConverter(typeof(SafeStringDictionaryConverter))]
     Dictionary<string, string>? Shared,
     List<CreateFtlTripInput>? Trips,
     string? RequestId) : IRequest<Result<CreateFtlOperationResult>>;

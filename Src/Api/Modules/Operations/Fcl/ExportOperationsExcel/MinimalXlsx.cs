@@ -2,7 +2,7 @@ using System.IO.Compression;
 using System.Security;
 using System.Text;
 
-namespace Api.Modules.Operations.ExportOperationsExcel;
+namespace Api.Modules.Operations.Fcl.ExportOperationsExcel;
 
 internal static class MinimalXlsx
 {

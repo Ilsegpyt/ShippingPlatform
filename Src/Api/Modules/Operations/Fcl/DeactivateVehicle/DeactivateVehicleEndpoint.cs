@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.DeactivateVehicle;
 
-namespace Api.Modules.Operations.DeactivateVehicle;
+namespace Api.Modules.Operations.Fcl.DeactivateVehicle;
 
 public static class DeactivateVehicleEndpoint
 {

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Operations.Application.Operations.LockOperation;
 
-namespace Api.Modules.Operations.LockOperation;
+namespace Api.Modules.Operations.Fcl.LockOperation;
 
 public static class LockOperationEndpoint
 {

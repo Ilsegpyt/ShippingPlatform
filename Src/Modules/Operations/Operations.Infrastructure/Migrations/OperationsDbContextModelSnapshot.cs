@@ -502,9 +502,6 @@ namespace Operations.Infrastructure.Migrations
                     b.Property<Guid>("FtlOperationId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("FtlShipmentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("FtlTruckId")
                         .HasColumnType("uniqueidentifier");
 
@@ -529,8 +526,6 @@ namespace Operations.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FtlShipmentId");
-
                     b.HasIndex("FtlTruckId");
 
                     b.HasIndex("FtlOperationId", "Ordinal")
@@ -538,79 +533,6 @@ namespace Operations.Infrastructure.Migrations
                         .HasDatabaseName("UX_FtlOperationTrips_Operation_Ordinal");
 
                     b.ToTable("FtlOperationTrips", (string)null);
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlShipment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("Cbm")
-                        .HasPrecision(10, 3)
-                        .HasColumnType("decimal(10,3)");
-
-                    b.Property<string>("CertificateNumber")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<Guid?>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ClientName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Commodity")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<string>("CustomsArea")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid>("FtlOperationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal?>("GrossWeight")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<string>("HAWB")
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<DateOnly?>("InvoicesReceivedDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("MissingDocs")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateOnly?>("MissingDocsReceivedDate")
-                        .HasColumnType("date");
-
-                    b.Property<short>("Ordinal")
-                        .HasColumnType("smallint");
-
-                    b.Property<int?>("Packages")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ShipmentNumber")
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<string>("TransporterInvoiceNo")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FtlOperationId", "Ordinal")
-                        .IsUnique()
-                        .HasDatabaseName("UX_FtlShipments_Operation_Ordinal");
-
-                    b.ToTable("FtlShipments", (string)null);
                 });
 
             modelBuilder.Entity("Operations.Domain.Entities.FtlStatusAudit", b =>
@@ -1405,11 +1327,6 @@ namespace Operations.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Operations.Domain.Entities.FtlShipment", "Shipment")
-                        .WithMany()
-                        .HasForeignKey("FtlShipmentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Operations.Domain.Entities.FtlTruck", "Truck")
                         .WithMany()
                         .HasForeignKey("FtlTruckId")
@@ -1417,20 +1334,7 @@ namespace Operations.Infrastructure.Migrations
 
                     b.Navigation("Operation");
 
-                    b.Navigation("Shipment");
-
                     b.Navigation("Truck");
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlShipment", b =>
-                {
-                    b.HasOne("Operations.Domain.Entities.FtlOperation", "Operation")
-                        .WithMany("Shipments")
-                        .HasForeignKey("FtlOperationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Operation");
                 });
 
             modelBuilder.Entity("Operations.Domain.Entities.FtlStatusAudit", b =>
@@ -1551,8 +1455,6 @@ namespace Operations.Infrastructure.Migrations
 
             modelBuilder.Entity("Operations.Domain.Entities.FtlOperation", b =>
                 {
-                    b.Navigation("Shipments");
-
                     b.Navigation("StatusAudits");
 
                     b.Navigation("Trips");

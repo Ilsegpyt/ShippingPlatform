@@ -1,6 +1,6 @@
 using BuildingBlocks.Domain;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Fcl;
 
 public class Driver : Entity<Guid>, ISoftDeletable
 {

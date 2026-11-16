@@ -1,69 +1,68 @@
-using Api.Modules.Operations.AddContainerUpdate;
-using Api.Modules.Operations.ExportOperationsExcel;
-using Api.Modules.Operations.ApproveFclSuggestion;
-using Api.Modules.Operations.CreateOperation;
-using Api.Modules.Operations.DeliverOperation;
-using Api.Modules.Operations.GenerateFclSuggestions;
-using Api.Modules.Operations.GetAllFclApprovals;
-using Api.Modules.Operations.GetAllFclSuggestions;
-using Api.Modules.Operations.GetAllOperations;
-using Api.Modules.Operations.GetFclSuggestions;
-using Api.Modules.Operations.GetOperationById;
-using Api.Modules.Operations.GetDeliveredOperations;
-using Api.Modules.Operations.GetAdvancedOperationsSearch;
-using Api.Modules.Operations.ReopenOperation;
-using Api.Modules.Operations.UpdateExport;
-using Api.Modules.Operations.UpdateImport;
-using Api.Modules.Operations.ImportTrips;
-using Api.Modules.Operations.GetOperationCustomers;
-using Api.Modules.Operations.GetOperationShippingLines;
-using Api.Modules.Operations.GetOperationPorts;
-using Api.Modules.Operations.GetOperationTransporters;
-using Api.Modules.Operations.GetOperationDrivers;
-using Api.Modules.Operations.GetOperationVehicles;
-using Api.Modules.Operations.GetOperationDestinations;
-using Api.Modules.Operations.CreateDestination;
-using Api.Modules.Operations.DeleteOperation;
-using Api.Modules.Operations.GetDeletedOperations;
-using Api.Modules.Operations.GetOperationsCounts;
-using Api.Modules.Operations.LockOperation;
-using Api.Modules.Operations.UnlockOperation;
-using Api.Modules.Operations.TakeOverOperation;
+// Common Endpoints
+using Api.Modules.Operations.Common.CreateDestination;
+using Api.Modules.Operations.Common.CreateShippingLine;
+using Api.Modules.Operations.Common.DeactivateDestination;
+using Api.Modules.Operations.Common.DeactivateShippingLine;
+using Api.Modules.Operations.Common.GetOperationDestinations;
+using Api.Modules.Operations.Common.GetOperationShippingLines;
+using Api.Modules.Operations.Common.UpdateDestination;
+using Api.Modules.Operations.Common.UpdateShippingLine;
 
-// Lookups Master Data Endpoints
-using Api.Modules.Operations.CreatePort;
-using Api.Modules.Operations.CreateDriver;
-using Api.Modules.Operations.CreateShippingLine;
-using Api.Modules.Operations.CreateTransporter;
-using Api.Modules.Operations.CreateVehicle;
-
-using Api.Modules.Operations.UpdatePort;
-using Api.Modules.Operations.UpdateDestination;
-using Api.Modules.Operations.UpdateDriver;
-using Api.Modules.Operations.UpdateShippingLine;
-using Api.Modules.Operations.UpdateTransporter;
-using Api.Modules.Operations.UpdateVehicle;
-
-using Api.Modules.Operations.DeactivatePort;
-using Api.Modules.Operations.DeactivateDestination;
-using Api.Modules.Operations.DeactivateDriver;
-using Api.Modules.Operations.DeactivateShippingLine;
-using Api.Modules.Operations.DeactivateTransporter;
-using Api.Modules.Operations.DeactivateVehicle;
+// FCL Endpoints
+using Api.Modules.Operations.Fcl.AddContainerUpdate;
+using Api.Modules.Operations.Fcl.ApproveFclSuggestion;
+using Api.Modules.Operations.Fcl.CreateDriver;
+using Api.Modules.Operations.Fcl.CreateOperation;
+using Api.Modules.Operations.Fcl.CreatePort;
+using Api.Modules.Operations.Fcl.CreateTransporter;
+using Api.Modules.Operations.Fcl.CreateVehicle;
+using Api.Modules.Operations.Fcl.DeactivateDriver;
+using Api.Modules.Operations.Fcl.DeactivatePort;
+using Api.Modules.Operations.Fcl.DeactivateTransporter;
+using Api.Modules.Operations.Fcl.DeactivateVehicle;
+using Api.Modules.Operations.Fcl.DeleteOperation;
+using Api.Modules.Operations.Fcl.DeliverOperation;
+using Api.Modules.Operations.Fcl.ExportOperationsExcel;
+using Api.Modules.Operations.Fcl.GenerateFclSuggestions;
+using Api.Modules.Operations.Fcl.GetAdvancedOperationsSearch;
+using Api.Modules.Operations.Fcl.GetAllFclApprovals;
+using Api.Modules.Operations.Fcl.GetAllFclSuggestions;
+using Api.Modules.Operations.Fcl.GetAllOperations;
+using Api.Modules.Operations.Fcl.GetDeletedOperations;
+using Api.Modules.Operations.Fcl.GetDeliveredOperations;
+using Api.Modules.Operations.Fcl.GetFclSuggestions;
+using Api.Modules.Operations.Fcl.GetOperationById;
+using Api.Modules.Operations.Fcl.GetOperationCustomers;
+using Api.Modules.Operations.Fcl.GetOperationDrivers;
+using Api.Modules.Operations.Fcl.GetOperationPorts;
+using Api.Modules.Operations.Fcl.GetOperationsCounts;
+using Api.Modules.Operations.Fcl.GetOperationTransporters;
+using Api.Modules.Operations.Fcl.GetOperationVehicles;
+using Api.Modules.Operations.Fcl.ImportTrips;
+using Api.Modules.Operations.Fcl.LockOperation;
+using Api.Modules.Operations.Fcl.ReopenOperation;
+using Api.Modules.Operations.Fcl.TakeOverOperation;
+using Api.Modules.Operations.Fcl.UnlockOperation;
+using Api.Modules.Operations.Fcl.UpdateDriver;
+using Api.Modules.Operations.Fcl.UpdateExport;
+using Api.Modules.Operations.Fcl.UpdateImport;
+using Api.Modules.Operations.Fcl.UpdatePort;
+using Api.Modules.Operations.Fcl.UpdateTransporter;
+using Api.Modules.Operations.Fcl.UpdateVehicle;
 
 // FTL Airport Endpoints
-using Api.Modules.Operations.CreateFtlOperation;
-using Api.Modules.Operations.GetAllFtlOperations;
-using Api.Modules.Operations.UpdateFtlOperation;
-using Api.Modules.Operations.UpdateFtlStatus;
-using Api.Modules.Operations.DeleteFtlOperation;
-using Api.Modules.Operations.LockFtlOperation;
-using Api.Modules.Operations.UnlockFtlOperation;
-using Api.Modules.Operations.AddFtlTruckUpdate;
-using Api.Modules.Operations.ImportFtlTrips;
-using Api.Modules.Operations.GetFtlMaster;
-using Api.Modules.Operations.AddFtlMasterItem;
-using Api.Modules.Operations.GetFtlUserMe;
+using Api.Modules.Operations.Ftl.AddFtlMasterItem;
+using Api.Modules.Operations.Ftl.AddFtlTruckUpdate;
+using Api.Modules.Operations.Ftl.CreateFtlOperation;
+using Api.Modules.Operations.Ftl.DeleteFtlOperation;
+using Api.Modules.Operations.Ftl.GetAllFtlOperations;
+using Api.Modules.Operations.Ftl.GetFtlMaster;
+using Api.Modules.Operations.Ftl.GetFtlUserMe;
+using Api.Modules.Operations.Ftl.ImportFtlTrips;
+using Api.Modules.Operations.Ftl.LockFtlOperation;
+using Api.Modules.Operations.Ftl.UnlockFtlOperation;
+using Api.Modules.Operations.Ftl.UpdateFtlOperation;
+using Api.Modules.Operations.Ftl.UpdateFtlStatus;
 
 namespace Api.Modules.Operations;
 
@@ -71,14 +70,31 @@ public static class OperationsEndpoints
 {
     public static void MapOperationsEndpoints(this IEndpointRouteBuilder app)
     {
+        app.MapCommonOperationsEndpoints();
+        app.MapFclOperationsEndpoints();
+        app.MapFtlOperationsEndpoints();
+    }
+
+    public static void MapCommonOperationsEndpoints(this IEndpointRouteBuilder app)
+    {
+        // Destinations
+        CreateDestinationEndpoint.Map(app);
+        UpdateDestinationEndpoint.Map(app);
+        DeactivateDestinationEndpoint.Map(app);
+        GetOperationDestinationsEndpoint.Map(app);
+
+        // Shipping Lines
+        CreateShippingLineEndpoint.Map(app);
+        UpdateShippingLineEndpoint.Map(app);
+        DeactivateShippingLineEndpoint.Map(app);
+        GetOperationShippingLinesEndpoint.Map(app);
+    }
+
+    public static void MapFclOperationsEndpoints(this IEndpointRouteBuilder app)
+    {
         CreateOperationEndpoint.Map(app);
         ImportTripsEndpoint.Map(app);
         GetOperationCustomersEndpoint.Map(app);
-        GetOperationShippingLinesEndpoint.Map(app);
-        GetOperationPortsEndpoint.Map(app);
-        GetOperationTransportersEndpoint.Map(app);
-        GetOperationDriversEndpoint.Map(app);
-        GetOperationVehiclesEndpoint.Map(app);
         GetAllOperationsEndpoint.Map(app);
         GetOperationByIdEndpoint.Map(app);
         GetDeliveredOperationsEndpoint.Map(app);
@@ -97,34 +113,34 @@ public static class OperationsEndpoints
         GetAllFclSuggestionsEndpoint.Map(app);
         GetAllFclApprovalsEndpoint.Map(app);
         AddContainerUpdateEndpoint.Map(app);
-        GetOperationDestinationsEndpoint.Map(app);
-        CreateDestinationEndpoint.Map(app);
         LockOperationEndpoint.Map(app);
         UnlockOperationEndpoint.Map(app);
         TakeOverOperationEndpoint.Map(app);
 
-        // Lookups Master Data (Add, Edit, Inactive)
+        // FCL Master Data (Ports, Drivers, Transporters, Vehicles)
         CreatePortEndpoint.Map(app);
-        CreateDriverEndpoint.Map(app);
-        CreateShippingLineEndpoint.Map(app);
-        CreateTransporterEndpoint.Map(app);
-        CreateVehicleEndpoint.Map(app);
-
         UpdatePortEndpoint.Map(app);
-        UpdateDestinationEndpoint.Map(app);
-        UpdateDriverEndpoint.Map(app);
-        UpdateShippingLineEndpoint.Map(app);
-        UpdateTransporterEndpoint.Map(app);
-        UpdateVehicleEndpoint.Map(app);
-
         DeactivatePortEndpoint.Map(app);
-        DeactivateDestinationEndpoint.Map(app);
-        DeactivateDriverEndpoint.Map(app);
-        DeactivateShippingLineEndpoint.Map(app);
-        DeactivateTransporterEndpoint.Map(app);
-        DeactivateVehicleEndpoint.Map(app);
+        GetOperationPortsEndpoint.Map(app);
 
-        // FTL Airport
+        CreateDriverEndpoint.Map(app);
+        UpdateDriverEndpoint.Map(app);
+        DeactivateDriverEndpoint.Map(app);
+        GetOperationDriversEndpoint.Map(app);
+
+        CreateTransporterEndpoint.Map(app);
+        UpdateTransporterEndpoint.Map(app);
+        DeactivateTransporterEndpoint.Map(app);
+        GetOperationTransportersEndpoint.Map(app);
+
+        CreateVehicleEndpoint.Map(app);
+        UpdateVehicleEndpoint.Map(app);
+        DeactivateVehicleEndpoint.Map(app);
+        GetOperationVehiclesEndpoint.Map(app);
+    }
+
+    public static void MapFtlOperationsEndpoints(this IEndpointRouteBuilder app)
+    {
         CreateFtlOperationEndpoint.Map(app);
         GetAllFtlOperationsEndpoint.Map(app);
         UpdateFtlOperationEndpoint.Map(app);

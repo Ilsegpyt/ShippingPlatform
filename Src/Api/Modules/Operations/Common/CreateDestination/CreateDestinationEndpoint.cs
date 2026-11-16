@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.CreateDestination;
 
-namespace Api.Modules.Operations.CreateDestination;
+namespace Api.Modules.Operations.Common.CreateDestination;
 
 public static class CreateDestinationEndpoint
 {

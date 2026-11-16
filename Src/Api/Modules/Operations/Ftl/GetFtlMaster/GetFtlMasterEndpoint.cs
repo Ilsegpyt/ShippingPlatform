@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.Ftl.GetFtlMaster;
 
-namespace Api.Modules.Operations.GetFtlMaster;
+namespace Api.Modules.Operations.Ftl.GetFtlMaster;
 
 public static class GetFtlMasterEndpoint
 {

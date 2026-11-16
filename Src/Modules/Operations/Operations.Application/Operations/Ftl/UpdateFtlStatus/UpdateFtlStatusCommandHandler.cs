@@ -1,5 +1,6 @@
 using System.Text.Json;
 using BuildingBlocks.Application;
+using BuildingBlocks.Application.Serialization;
 using BuildingBlocks.Application.Abstractions;
 using MediatR;
 using Operations.Application.Abstractions;
@@ -43,14 +44,13 @@ public sealed class UpdateFtlStatusCommandHandler(
             {
                 try
                 {
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(trip.FieldsJson);
+                    var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(trip.FieldsJson, SafeStringDictionaryConverter.DefaultOptions);
                     if (dict is not null)
                     {
                         dict["status"] = targetStatus.ToString();
                         trip.Update(
                             trip.Ordinal,
                             trip.ExternalId,
-                            trip.FtlShipmentId,
                             trip.FtlTruckId,
                             trip.LoadStatus,
                             trip.LoadedPackages,

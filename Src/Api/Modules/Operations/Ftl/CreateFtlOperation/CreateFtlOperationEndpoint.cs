@@ -1,16 +1,19 @@
+using System.Text.Json.Serialization;
+using BuildingBlocks.Application.Serialization;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.Ftl.CreateFtlOperation;
 
-namespace Api.Modules.Operations.CreateFtlOperation;
+namespace Api.Modules.Operations.Ftl.CreateFtlOperation;
 
 public static class CreateFtlOperationEndpoint
 {
     public sealed record CreateFtlTripRequest(
         string? Id,
         int Ordinal,
+        [property: JsonConverter(typeof(SafeStringDictionaryConverter))]
         Dictionary<string, string> Fields,
         string? LoadStatus,
         int? LoadedPackages,
@@ -21,6 +24,7 @@ public static class CreateFtlOperationEndpoint
         string Direction,
         int? RowCount,
         int? ContainerCount,
+        [property: JsonConverter(typeof(SafeStringDictionaryConverter))]
         Dictionary<string, string>? Shared,
         List<CreateFtlTripRequest>? Trips,
         string? RequestId);

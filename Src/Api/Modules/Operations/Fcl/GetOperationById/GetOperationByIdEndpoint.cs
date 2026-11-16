@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.GetOperationById;
 
-namespace Api.Modules.Operations.GetOperationById;
+namespace Api.Modules.Operations.Fcl.GetOperationById;
 
 public static class GetOperationByIdEndpoint
 {

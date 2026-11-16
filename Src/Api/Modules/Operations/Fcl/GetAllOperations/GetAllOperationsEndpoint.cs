@@ -4,7 +4,7 @@ using MediatR;
 using Operations.Application.Operations.GetAllOperations;
 using Operations.Application.Operations.GetPagedOperations;
 
-namespace Api.Modules.Operations.GetAllOperations;
+namespace Api.Modules.Operations.Fcl.GetAllOperations;
 
 public static class GetAllOperationsEndpoint
 {

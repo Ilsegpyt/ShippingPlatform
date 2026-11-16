@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Operations.Domain.Entities;
+using Operations.Domain.Entities.Ftl;
 
 namespace Operations.Infrastructure.Persistence.Configurations;
 
@@ -11,6 +11,7 @@ public sealed class FtlOperationConfiguration : IEntityTypeConfiguration<FtlOper
         builder.ToTable("FtlOperations");
 
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedNever();
 
         builder.Property(x => x.Ref)
             .IsRequired()
@@ -122,11 +123,6 @@ public sealed class FtlOperationConfiguration : IEntityTypeConfiguration<FtlOper
         builder.HasQueryFilter(x => !x.IsDeleted);
 
         // Relationships
-        builder.HasMany(x => x.Shipments)
-            .WithOne(x => x.Operation)
-            .HasForeignKey(x => x.FtlOperationId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasMany(x => x.Trucks)
             .WithOne(x => x.Operation)
             .HasForeignKey(x => x.FtlOperationId)

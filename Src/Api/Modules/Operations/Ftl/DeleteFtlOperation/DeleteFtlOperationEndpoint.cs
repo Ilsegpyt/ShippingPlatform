@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.Ftl.DeleteFtlOperation;
 
-namespace Api.Modules.Operations.DeleteFtlOperation;
+namespace Api.Modules.Operations.Ftl.DeleteFtlOperation;
 
 public static class DeleteFtlOperationEndpoint
 {

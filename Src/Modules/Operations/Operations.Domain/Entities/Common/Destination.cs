@@ -1,6 +1,6 @@
 using BuildingBlocks.Domain;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Common;
 
 public class Destination : Entity<Guid>, ISoftDeletable
 {

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Operations.Application.Operations.TakeOverOperation;
 
-namespace Api.Modules.Operations.TakeOverOperation;
+namespace Api.Modules.Operations.Fcl.TakeOverOperation;
 
 public static class TakeOverOperationEndpoint
 {

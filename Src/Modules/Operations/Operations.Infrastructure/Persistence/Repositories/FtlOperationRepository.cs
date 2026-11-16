@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Operations.Application.Abstractions;
-using Operations.Domain.Entities;
+using Operations.Domain.Entities.Ftl;
 
 namespace Operations.Infrastructure.Persistence.Repositories;
 
@@ -9,7 +9,6 @@ public sealed class FtlOperationRepository(OperationsDbContext dbContext) : IFtl
     public async Task<IReadOnlyList<FtlOperation>> GetAllActiveWithDetailsAsync(CancellationToken ct = default)
     {
         return await dbContext.FtlOperations
-            .Include(x => x.Shipments)
             .Include(x => x.Trucks)
                 .ThenInclude(t => t.Updates)
             .Include(x => x.Trips)
@@ -25,7 +24,6 @@ public sealed class FtlOperationRepository(OperationsDbContext dbContext) : IFtl
         if (includeDetails)
         {
             query = query
-                .Include(x => x.Shipments)
                 .Include(x => x.Trucks)
                     .ThenInclude(t => t.Updates)
                 .Include(x => x.Trips)
@@ -42,7 +40,6 @@ public sealed class FtlOperationRepository(OperationsDbContext dbContext) : IFtl
         if (includeDetails)
         {
             query = query
-                .Include(x => x.Shipments)
                 .Include(x => x.Trucks)
                     .ThenInclude(t => t.Updates)
                 .Include(x => x.Trips)
@@ -75,6 +72,21 @@ public sealed class FtlOperationRepository(OperationsDbContext dbContext) : IFtl
         await dbContext.FtlOperations.AddAsync(operation, ct);
     }
 
+    public async Task AddTruckAsync(FtlTruck truck, CancellationToken ct = default)
+    {
+        await dbContext.FtlTrucks.AddAsync(truck, ct);
+    }
+
+    public async Task AddTruckUpdateAsync(FtlTruckUpdate update, CancellationToken ct = default)
+    {
+        await dbContext.FtlTruckUpdates.AddAsync(update, ct);
+    }
+
+    public async Task AddTripAsync(FtlOperationTrip trip, CancellationToken ct = default)
+    {
+        await dbContext.FtlOperationTrips.AddAsync(trip, ct);
+    }
+
     public Task DeleteTripsAsync(IEnumerable<FtlOperationTrip> trips, CancellationToken ct = default)
     {
         dbContext.FtlOperationTrips.RemoveRange(trips);
@@ -84,12 +96,6 @@ public sealed class FtlOperationRepository(OperationsDbContext dbContext) : IFtl
     public Task DeleteTrucksAsync(IEnumerable<FtlTruck> trucks, CancellationToken ct = default)
     {
         dbContext.FtlTrucks.RemoveRange(trucks);
-        return Task.CompletedTask;
-    }
-
-    public Task DeleteShipmentsAsync(IEnumerable<FtlShipment> shipments, CancellationToken ct = default)
-    {
-        dbContext.FtlShipments.RemoveRange(shipments);
         return Task.CompletedTask;
     }
 

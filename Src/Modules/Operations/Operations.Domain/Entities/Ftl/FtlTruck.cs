@@ -1,8 +1,9 @@
+using Operations.Domain.Entities.Common;
 using BuildingBlocks.Domain;
 using Operations.Domain.Common;
 using Operations.Domain.Enums;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Ftl;
 
 public class FtlTruck : Entity<Guid>
 {

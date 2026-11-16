@@ -2,7 +2,7 @@ using BuildingBlocks.Domain;
 using Operations.Domain.Enums;
 using Operations.Domain.Common;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Fcl;
 
 public class ExportDetails : Entity<Guid>
 {

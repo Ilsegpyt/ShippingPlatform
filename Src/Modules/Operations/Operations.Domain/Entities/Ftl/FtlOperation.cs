@@ -1,8 +1,9 @@
+using Operations.Domain.Entities.Common;
 using BuildingBlocks.Domain;
 using Operations.Domain.Common;
 using Operations.Domain.Enums;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Ftl;
 
 public class FtlOperation : Entity<Guid>, IAggregateRoot, ISoftDeletable
 {
@@ -71,7 +72,6 @@ public class FtlOperation : Entity<Guid>, IAggregateRoot, ISoftDeletable
     public string CreatedByName { get; private set; } = null!;
 
     // Child Collections
-    public ICollection<FtlShipment> Shipments { get; private set; } = new List<FtlShipment>();
     public ICollection<FtlTruck> Trucks { get; private set; } = new List<FtlTruck>();
     public ICollection<FtlOperationTrip> Trips { get; private set; } = new List<FtlOperationTrip>();
     public ICollection<FtlStatusAudit> StatusAudits { get; private set; } = new List<FtlStatusAudit>();

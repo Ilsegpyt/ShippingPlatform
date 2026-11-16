@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.UpdateTransporter;
 
-namespace Api.Modules.Operations.UpdateTransporter;
+namespace Api.Modules.Operations.Fcl.UpdateTransporter;
 
 public static class UpdateTransporterEndpoint
 {

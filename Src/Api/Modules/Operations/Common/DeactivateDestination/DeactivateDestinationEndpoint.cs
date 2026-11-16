@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.DeactivateDestination;
 
-namespace Api.Modules.Operations.DeactivateDestination;
+namespace Api.Modules.Operations.Common.DeactivateDestination;
 
 public static class DeactivateDestinationEndpoint
 {

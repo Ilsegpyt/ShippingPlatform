@@ -14,7 +14,7 @@ using Operations.Application.Operations.SearchOperations;
 
 
 
-namespace Api.Modules.Operations.ExportOperationsExcel;
+namespace Api.Modules.Operations.Fcl.ExportOperationsExcel;
 
 
 
@@ -434,9 +434,9 @@ public static class ExportOperationsExcelEndpoint
 
         string key,
 
-        global::Operations.Domain.Entities.Operation o,
+        global::Operations.Domain.Entities.Fcl.Operation o,
 
-        global::Operations.Domain.Entities.OperationContainer? c,
+        global::Operations.Domain.Entities.Fcl.OperationContainer? c,
 
         IReadOnlyDictionary<Guid, string?> clientNames)
 

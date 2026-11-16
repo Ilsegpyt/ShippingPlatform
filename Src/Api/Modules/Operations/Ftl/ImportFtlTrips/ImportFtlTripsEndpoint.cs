@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.Ftl.ImportFtlTrips;
 
-namespace Api.Modules.Operations.ImportFtlTrips;
+namespace Api.Modules.Operations.Ftl.ImportFtlTrips;
 
 public static class ImportFtlTripsEndpoint
 {

@@ -1,4 +1,4 @@
-using Operations.Domain.Entities;
+using Operations.Domain.Entities.Ftl;
 
 namespace Operations.Application.Abstractions;
 
@@ -10,9 +10,11 @@ public interface IFtlOperationRepository
     Task<int> GetNextSequenceForYearAsync(int year, CancellationToken ct = default);
     Task<int> GetCurrentWorkspaceVersionAsync(CancellationToken ct = default);
     Task AddAsync(FtlOperation operation, CancellationToken ct = default);
+    Task AddTruckAsync(FtlTruck truck, CancellationToken ct = default);
+    Task AddTruckUpdateAsync(FtlTruckUpdate update, CancellationToken ct = default);
+    Task AddTripAsync(FtlOperationTrip trip, CancellationToken ct = default);
     Task DeleteTripsAsync(IEnumerable<FtlOperationTrip> trips, CancellationToken ct = default);
     Task DeleteTrucksAsync(IEnumerable<FtlTruck> trucks, CancellationToken ct = default);
-    Task DeleteShipmentsAsync(IEnumerable<FtlShipment> shipments, CancellationToken ct = default);
     Task<bool> ExistsByRefAsync(string reference, CancellationToken ct = default);
 }
 

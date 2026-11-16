@@ -1,5 +1,6 @@
+using Operations.Domain.Entities.Common;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Fcl;
 
 /// <summary>
 /// Durable record of an approved FCL suggestion and the newly created

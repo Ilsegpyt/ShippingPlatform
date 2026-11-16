@@ -1,10 +1,10 @@
 using BuildingBlocks.Domain;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Fcl;
 
-public class Transporter : Entity<Guid>, ISoftDeletable
+public class Vehicle : Entity<Guid>, ISoftDeletable
 {
-    public string Name { get; private set; } = null!;
+    public string CarNumber { get; private set; } = null!;
     public bool IsActive { get; private set; } = true;
 
     public bool IsDeleted { get; private set; }
@@ -12,27 +12,27 @@ public class Transporter : Entity<Guid>, ISoftDeletable
     public Guid? DeletedByUserId { get; private set; }
     public string? DeletedByName { get; private set; }
 
-    private Transporter() { }
+    private Vehicle() { }
 
-    public static Transporter Create(string name)
+    public static Vehicle Create(string carNumber)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Transporter name cannot be empty.", nameof(name));
+        if (string.IsNullOrWhiteSpace(carNumber))
+            throw new ArgumentException("Car number cannot be empty.", nameof(carNumber));
 
-        return new Transporter
+        return new Vehicle
         {
             Id = Guid.NewGuid(),
-            Name = name.Trim(),
+            CarNumber = carNumber.Trim(),
             IsActive = true
         };
     }
 
-    public void Update(string name, bool isActive)
+    public void Update(string carNumber, bool isActive)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Transporter name cannot be empty.", nameof(name));
+        if (string.IsNullOrWhiteSpace(carNumber))
+            throw new ArgumentException("Car number cannot be empty.", nameof(carNumber));
 
-        Name = name.Trim();
+        CarNumber = carNumber.Trim();
         IsActive = isActive;
         if (isActive)
         {

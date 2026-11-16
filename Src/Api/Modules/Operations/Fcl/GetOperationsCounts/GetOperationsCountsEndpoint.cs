@@ -2,7 +2,7 @@ using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using Operations.Application.Abstractions;
 
-namespace Api.Modules.Operations.GetOperationsCounts;
+namespace Api.Modules.Operations.Fcl.GetOperationsCounts;
 
 public static class GetOperationsCountsEndpoint
 {

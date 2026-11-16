@@ -1,10 +1,10 @@
 using System.Text.Json;
 using BuildingBlocks.Application;
+using BuildingBlocks.Application.Serialization;
 using MediatR;
 using Operations.Application.Abstractions;
 using Operations.Application.Operations.Ftl.Common;
-using Operations.Domain.Entities;
-using Operations.Domain.Enums;
+using Operations.Domain.Entities.Ftl;
 
 namespace Operations.Application.Operations.Ftl.GetAllFtlOperations;
 
@@ -69,7 +69,7 @@ public sealed class GetAllFtlOperationsQueryHandler(
             var orderedTrips = op.Trips.OrderBy(t => t.Ordinal).ToList();
             if (orderedTrips.Count == 0)
             {
-                var defaultTripFields = BuildFallbackFields(op, null, null, null);
+                var defaultTripFields = BuildFallbackFields(op, null, null);
                 tripDtos.Add(new FtlTripDto(
                     Guid.NewGuid().ToString(),
                     0,
@@ -89,16 +89,16 @@ public sealed class GetAllFtlOperationsQueryHandler(
                     {
                         try
                         {
-                            fields = JsonSerializer.Deserialize<Dictionary<string, string>>(trip.FieldsJson) ?? new();
+                            fields = JsonSerializer.Deserialize<Dictionary<string, string>>(trip.FieldsJson, SafeStringDictionaryConverter.DefaultOptions) ?? new();
                         }
                         catch
                         {
-                            fields = BuildFallbackFields(op, trip, trip.Shipment, trip.Truck);
+                            fields = BuildFallbackFields(op, trip, trip.Truck);
                         }
                     }
                     else
                     {
-                        fields = BuildFallbackFields(op, trip, trip.Shipment, trip.Truck);
+                        fields = BuildFallbackFields(op, trip, trip.Truck);
                     }
 
                     fields["status"] = op.Status.ToString();
@@ -108,22 +108,52 @@ public sealed class GetAllFtlOperationsQueryHandler(
                     if (trip.LoadedWeight.HasValue) fields["loadedWeight"] = trip.LoadedWeight.Value.ToString();
                     if (trip.LoadedCbm.HasValue) fields["loadedCbm"] = trip.LoadedCbm.Value.ToString();
 
+                    var tripId = !string.IsNullOrWhiteSpace(trip.ExternalId)
+                        ? trip.ExternalId
+                        : trip.Id.ToString();
+
                     var updateDtos = new List<FtlUpdateDto>();
-                    if (trip.Truck?.Updates is not null)
+                    var truckUpdates = trip.Truck?.Updates 
+                        ?? (trip.FtlTruckId.HasValue ? op.Trucks.FirstOrDefault(t => t.Id == trip.FtlTruckId.Value)?.Updates : null)
+                        ?? op.Trucks.SelectMany(t => t.Updates).Where(u => u.TripId == tripId || u.TripId == trip.Id.ToString() || (trip.Ordinal == 0 && string.IsNullOrWhiteSpace(u.TripId)) || (op.Trips.Count == 1));
+
+                    if (truckUpdates is not null)
                     {
-                        foreach (var u in trip.Truck.Updates.OrderBy(x => x.CreatedAtUtc))
+                        foreach (var u in truckUpdates.OrderBy(x => x.CreatedAtUtc))
                         {
                             updateDtos.Add(new FtlUpdateDto(
                                 u.Id.ToString(),
                                 u.Note,
-                                u.CreatedAtUtc.ToString("yyyy-MM-dd HH:mm"),
-                                u.CreatedByName));
+                                u.CreatedAtUtc.ToString("HH:mm"),
+                                u.CreatedByName,
+                                u.CreatedAtUtc.ToString("yyyy-MM-dd"),
+                                u.CreatedByName,
+                                u.Note));
                         }
                     }
 
-                    var tripId = !string.IsNullOrWhiteSpace(trip.ExternalId)
-                        ? trip.ExternalId
-                        : trip.Id.ToString();
+                    if (updateDtos.Count > 0)
+                    {
+                        var lastU = updateDtos.Last();
+                        if (string.IsNullOrWhiteSpace(fields.GetValueOrDefault("updates")))
+                            fields["updates"] = lastU.Text ?? lastU.Note ?? "";
+                        if (string.IsNullOrWhiteSpace(fields.GetValueOrDefault("updDate")))
+                            fields["updDate"] = $"{lastU.Day} {lastU.At}".Trim();
+                    }
+                    else if (fields.TryGetValue("updates", out var fallbackText) && !string.IsNullOrWhiteSpace(fallbackText))
+                    {
+                        var updDateStr = fields.GetValueOrDefault("updDate") ?? "";
+                        var dayStr = updDateStr.Length >= 10 ? updDateStr[..10] : op.Day.ToString("yyyy-MM-dd");
+                        var timeStr = updDateStr.Length > 10 ? updDateStr[11..].Trim() : op.Time.ToString("HH:mm");
+                        updateDtos.Add(new FtlUpdateDto(
+                            Guid.NewGuid().ToString(),
+                            fallbackText,
+                            timeStr,
+                            op.EnteredByName ?? "User",
+                            dayStr,
+                            op.EnteredByName ?? "User",
+                            fallbackText));
+                    }
 
                     tripDtos.Add(new FtlTripDto(
                         tripId,
@@ -161,7 +191,6 @@ public sealed class GetAllFtlOperationsQueryHandler(
     private static Dictionary<string, string> BuildFallbackFields(
         FtlOperation op,
         FtlOperationTrip? trip,
-        FtlShipment? shipment,
         FtlTruck? truck)
     {
         var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

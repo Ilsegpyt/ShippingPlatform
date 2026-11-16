@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.Ftl.LockFtlOperation;
 
-namespace Api.Modules.Operations.LockFtlOperation;
+namespace Api.Modules.Operations.Ftl.LockFtlOperation;
 
 public static class LockFtlOperationEndpoint
 {
@@ -25,9 +25,13 @@ public static class LockFtlOperationEndpoint
         var command = new LockFtlOperationCommand(reference);
         var result = await sender.Send(command, ct);
 
-        return result.IsSuccess
-            ? Results.Ok(result.Value)
-            : Results.BadRequest(new { error = result.Error });
+        if (result.IsSuccess)
+            return Results.Ok(result.Value);
+
+        if (result.Error.Contains("locked", StringComparison.OrdinalIgnoreCase))
+            return Results.Conflict(new { error = result.Error });
+
+        return Results.BadRequest(new { error = result.Error });
     }
 }
 

@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.Ftl.GetAllFtlOperations;
 
-namespace Api.Modules.Operations.GetAllFtlOperations;
+namespace Api.Modules.Operations.Ftl.GetAllFtlOperations;
 
 public static class GetAllFtlOperationsEndpoint
 {

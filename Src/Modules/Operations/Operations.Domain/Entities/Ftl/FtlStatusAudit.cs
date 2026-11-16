@@ -1,6 +1,7 @@
+using Operations.Domain.Entities.Common;
 using Operations.Domain.Enums;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Ftl;
 
 public sealed class FtlStatusAudit
 {

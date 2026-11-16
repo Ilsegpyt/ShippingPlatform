@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.DeleteOperation;
 
-namespace Api.Modules.Operations.DeleteOperation;
+namespace Api.Modules.Operations.Fcl.DeleteOperation;
 
 public static class DeleteOperationEndpoint
 {

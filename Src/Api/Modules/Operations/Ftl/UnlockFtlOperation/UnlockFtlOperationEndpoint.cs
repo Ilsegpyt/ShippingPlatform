@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.Ftl.UnlockFtlOperation;
 
-namespace Api.Modules.Operations.UnlockFtlOperation;
+namespace Api.Modules.Operations.Ftl.UnlockFtlOperation;
 
 public static class UnlockFtlOperationEndpoint
 {

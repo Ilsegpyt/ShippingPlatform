@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.DeactivateDriver;
 
-namespace Api.Modules.Operations.DeactivateDriver;
+namespace Api.Modules.Operations.Fcl.DeactivateDriver;
 
 public static class DeactivateDriverEndpoint
 {

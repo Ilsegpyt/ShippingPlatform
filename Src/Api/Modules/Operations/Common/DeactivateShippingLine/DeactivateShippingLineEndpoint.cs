@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.DeactivateShippingLine;
 
-namespace Api.Modules.Operations.DeactivateShippingLine;
+namespace Api.Modules.Operations.Common.DeactivateShippingLine;
 
 public static class DeactivateShippingLineEndpoint
 {

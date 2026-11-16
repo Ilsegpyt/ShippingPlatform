@@ -1,4 +1,5 @@
 using Operations.Domain.Entities;
+using Operations.Domain.Entities.Common;
 
 namespace Operations.Application.Abstractions;
 

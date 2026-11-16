@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.CreateVehicle;
 
-namespace Api.Modules.Operations.CreateVehicle;
+namespace Api.Modules.Operations.Fcl.CreateVehicle;
 
 public static class CreateVehicleEndpoint
 {

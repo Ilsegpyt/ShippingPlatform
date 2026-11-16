@@ -1,6 +1,6 @@
 using BuildingBlocks.Application.Abstractions;
 
-namespace Api.Modules.Operations.GetFtlUserMe;
+namespace Api.Modules.Operations.Ftl.GetFtlUserMe;
 
 public static class GetFtlUserMeEndpoint
 {

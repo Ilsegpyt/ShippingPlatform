@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.DeactivateTransporter;
 
-namespace Api.Modules.Operations.DeactivateTransporter;
+namespace Api.Modules.Operations.Fcl.DeactivateTransporter;
 
 public static class DeactivateTransporterEndpoint
 {

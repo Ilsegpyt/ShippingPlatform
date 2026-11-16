@@ -2,7 +2,7 @@ using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using Operations.Application.Abstractions;
 
-namespace Api.Modules.Operations.GetOperationVehicles;
+namespace Api.Modules.Operations.Fcl.GetOperationVehicles;
 
 public static class GetOperationVehiclesEndpoint
 {

@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.CreatePort;
 
-namespace Api.Modules.Operations.CreatePort;
+namespace Api.Modules.Operations.Fcl.CreatePort;
 
 public static class CreatePortEndpoint
 {

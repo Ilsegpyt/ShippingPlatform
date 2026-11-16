@@ -1,9 +1,12 @@
 using System.Text.Json;
 using BuildingBlocks.Application;
 using BuildingBlocks.Application.Abstractions;
+using Customers.Contracts;
 using MediatR;
 using Operations.Application.Abstractions;
+using Operations.Application.Operations.Ftl.Common;
 using Operations.Domain.Entities;
+using Operations.Domain.Entities.Ftl;
 using Operations.Domain.Enums;
 
 namespace Operations.Application.Operations.Ftl.CreateFtlOperation;
@@ -11,7 +14,8 @@ namespace Operations.Application.Operations.Ftl.CreateFtlOperation;
 public sealed class CreateFtlOperationCommandHandler(
     IFtlOperationRepository operationRepository,
     IOperationsUnitOfWork unitOfWork,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    ICustomerQueries customerQueries)
     : IRequestHandler<CreateFtlOperationCommand, Result<CreateFtlOperationResult>>
 {
     public async Task<Result<CreateFtlOperationResult>> Handle(
@@ -29,6 +33,24 @@ public sealed class CreateFtlOperationCommandHandler(
         var shared = command.Shared ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         var client = shared.GetValueOrDefault("client");
+        Guid? clientId = null;
+        if (shared.TryGetValue("clientId", out var cIdStr) && Guid.TryParse(cIdStr, out var cGuid))
+        {
+            clientId = cGuid;
+        }
+        else if (!string.IsNullOrWhiteSpace(client))
+        {
+            try
+            {
+                var customers = await customerQueries.GetAllForOperationsAsync(ct);
+                var trimmed = client.Trim();
+                var match = customers.FirstOrDefault(c => string.Equals(c.CompanyName?.Trim(), trimmed, StringComparison.OrdinalIgnoreCase))
+                    ?? customers.FirstOrDefault(c => c.CompanyName != null && (c.CompanyName.Trim().StartsWith(trimmed, StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith(c.CompanyName.Trim(), StringComparison.OrdinalIgnoreCase)));
+                clientId = match?.CustomerId;
+            }
+            catch { /* ignore customer lookup failure */ }
+        }
+
         var bl = shared.GetValueOrDefault("bl");
         var booking = shared.GetValueOrDefault("booking");
         var cert = shared.GetValueOrDefault("cert");
@@ -76,7 +98,7 @@ public sealed class CreateFtlOperationCommandHandler(
             year,
             seq,
             opType,
-            null,
+            clientId,
             client,
             bl,
             booking,
@@ -118,6 +140,7 @@ public sealed class CreateFtlOperationCommandHandler(
                     ["status"] = "Open",
                     ["movement"] = opType.ToString()
                 };
+                FtlNormalizationHelper.NormalizeTripFields(tripFields);
 
                 int? tripPackages = t.LoadedPackages;
                 if (!tripPackages.HasValue && t.Fields.TryGetValue("loadedPackages", out var lpStr) && int.TryParse(lpStr, out var lpVal))
@@ -155,7 +178,6 @@ public sealed class CreateFtlOperationCommandHandler(
                     ord++,
                     extId,
                     null,
-                    null,
                     loadStatus,
                     tripPackages,
                     tripWeight,
@@ -179,6 +201,7 @@ public sealed class CreateFtlOperationCommandHandler(
                     ["movement"] = opType.ToString(),
                     ["loadStatus"] = FtlLoadStatus.Full.ToString()
                 };
+                FtlNormalizationHelper.NormalizeTripFields(tripFields);
 
                 if (packages > 0) tripFields["loadedPackages"] = packages.ToString();
                 if (weight > 0) tripFields["loadedWeight"] = weight.ToString();
@@ -189,7 +212,6 @@ public sealed class CreateFtlOperationCommandHandler(
                     operation.Id,
                     ord,
                     extId,
-                    null,
                     null,
                     FtlLoadStatus.Full,
                     packages > 0 ? packages : null,

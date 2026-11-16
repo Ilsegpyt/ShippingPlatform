@@ -1,9 +1,12 @@
 using System.Text.Json;
 using BuildingBlocks.Application;
 using BuildingBlocks.Application.Abstractions;
+using Customers.Contracts;
 using MediatR;
 using Operations.Application.Abstractions;
+using Operations.Application.Operations.Ftl.Common;
 using Operations.Domain.Entities;
+using Operations.Domain.Entities.Ftl;
 using Operations.Domain.Enums;
 
 namespace Operations.Application.Operations.Ftl.ImportFtlTrips;
@@ -11,7 +14,8 @@ namespace Operations.Application.Operations.Ftl.ImportFtlTrips;
 public sealed class ImportFtlTripsCommandHandler(
     IFtlOperationRepository operationRepository,
     IOperationsUnitOfWork unitOfWork,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    ICustomerQueries customerQueries)
     : IRequestHandler<ImportFtlTripsCommand, Result<ImportFtlTripsResult>>
 {
     public async Task<Result<ImportFtlTripsResult>> Handle(
@@ -27,6 +31,8 @@ public sealed class ImportFtlTripsCommandHandler(
         var timeNow = TimeOnly.FromDateTime(now);
         var userId = currentUser.UserId != Guid.Empty ? currentUser.UserId.ToString() : "u-1";
         var userName = await currentUser.GetUserNameAsync(ct);
+
+        IReadOnlyList<CustomerOperationOption>? customersCache = null;
 
         // Group rows by Direction and Group (or MAWB)
         var groups = new Dictionary<string, List<ImportFtlTripRow>>();
@@ -55,6 +61,24 @@ public sealed class ImportFtlTripsCommandHandler(
 
             var firstFields = rows[0].Fields;
             var client = firstFields.GetValueOrDefault("client");
+            Guid? clientId = null;
+            if (firstFields.TryGetValue("clientId", out var cIdStr) && Guid.TryParse(cIdStr, out var cGuid))
+            {
+                clientId = cGuid;
+            }
+            else if (!string.IsNullOrWhiteSpace(client))
+            {
+                try
+                {
+                    customersCache ??= await customerQueries.GetAllForOperationsAsync(ct);
+                    var trimmed = client.Trim();
+                    var match = customersCache.FirstOrDefault(c => string.Equals(c.CompanyName?.Trim(), trimmed, StringComparison.OrdinalIgnoreCase))
+                        ?? customersCache.FirstOrDefault(c => c.CompanyName != null && (c.CompanyName.Trim().StartsWith(trimmed, StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith(c.CompanyName.Trim(), StringComparison.OrdinalIgnoreCase)));
+                    clientId = match?.CustomerId;
+                }
+                catch { /* ignore customer lookup failure */ }
+            }
+
             var bl = firstFields.GetValueOrDefault("bl");
             var booking = firstFields.GetValueOrDefault("booking");
             var cert = firstFields.GetValueOrDefault("cert");
@@ -75,7 +99,7 @@ public sealed class ImportFtlTripsCommandHandler(
                 year,
                 seq,
                 opType,
-                null,
+                clientId,
                 client,
                 bl,
                 booking,
@@ -110,6 +134,7 @@ public sealed class ImportFtlTripsCommandHandler(
                     ["status"] = "Open",
                     ["movement"] = opType.ToString()
                 };
+                FtlNormalizationHelper.NormalizeTripFields(fields);
 
                 int.TryParse(fields.GetValueOrDefault("packages"), out var tripPackages);
                 decimal.TryParse(fields.GetValueOrDefault("weight"), out var tripWeight);
@@ -121,7 +146,6 @@ public sealed class ImportFtlTripsCommandHandler(
                     operation.Id,
                     ord++,
                     tripGuid.ToString(),
-                    null,
                     null,
                     FtlLoadStatus.Full,
                     tripPackages > 0 ? tripPackages : null,

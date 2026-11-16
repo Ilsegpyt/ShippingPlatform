@@ -1,10 +1,11 @@
+using Operations.Domain.Entities.Common;
 
 using BuildingBlocks.Domain;
 using Operations.Domain.Common;
 using Operations.Domain.Enums;
 using System.Security.Cryptography;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Fcl;
 
 public class Operation : Entity<Guid>, IAggregateRoot, ISoftDeletable
 {

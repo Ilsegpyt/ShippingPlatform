@@ -1,4 +1,4 @@
-using Operations.Domain.Entities;
+using Operations.Domain.Entities.Fcl;
 
 namespace Operations.Application.Operations.SearchOperations;
 

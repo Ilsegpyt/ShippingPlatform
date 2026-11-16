@@ -1,8 +1,7 @@
-
 using System.Globalization;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Operations.Domain.Entities;
+using Operations.Domain.Entities.Fcl;
 
 namespace Operations.Infrastructure.Persistence;
 

@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.UpdatePort;
 
-namespace Api.Modules.Operations.UpdatePort;
+namespace Api.Modules.Operations.Fcl.UpdatePort;
 
 public static class UpdatePortEndpoint
 {

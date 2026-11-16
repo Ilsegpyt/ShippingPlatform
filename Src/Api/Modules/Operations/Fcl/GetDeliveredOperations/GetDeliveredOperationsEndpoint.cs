@@ -4,7 +4,7 @@ using MediatR;
 using Operations.Application.Operations.GetDeliveredOperations;
 using Operations.Domain.Enums;
 
-namespace Api.Modules.Operations.GetDeliveredOperations;
+namespace Api.Modules.Operations.Fcl.GetDeliveredOperations;
 
 public static class GetDeliveredOperationsEndpoint
 {

@@ -14,6 +14,7 @@ using Api.Modules.Operations;
 using Api.Modules.Reports;
 using Api.Modules.Website;
 using BuildingBlocks.Application.Abstractions;
+using BuildingBlocks.Application.Serialization;
 using BuildingBlocks.Infrastructure;
 using Content.Infrastructure;
 using Customers.Infrastructure;
@@ -225,6 +226,16 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(
         new JsonStringEnumConverter());
+    options.SerializerOptions.Converters.Add(
+        new SafeStringDictionaryConverter());
+});
+
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(
+        new JsonStringEnumConverter());
+    options.JsonSerializerOptions.Converters.Add(
+        new SafeStringDictionaryConverter());
 });
 
 // ==================================================
@@ -360,6 +371,14 @@ using (var scope = app.Services.CreateScope())
                       [UpdatedByUserId] UNIQUEIDENTIFIER NULL,
                       [UpdatedByName] NVARCHAR(200) NULL
                   );
+              END
+              IF EXISTS (SELECT 1 FROM sys.tables WHERE name = 'FtlOperations') AND EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Customers')
+              BEGIN
+                  UPDATE o
+                  SET o.ClientId = c.Id
+                  FROM [FtlOperations] o
+                  INNER JOIN [Customers] c ON LTRIM(RTRIM(c.CompanyName)) = LTRIM(RTRIM(o.ClientName))
+                  WHERE o.ClientId IS NULL AND o.ClientName IS NOT NULL;
               END");
     }
     catch (Exception ex)

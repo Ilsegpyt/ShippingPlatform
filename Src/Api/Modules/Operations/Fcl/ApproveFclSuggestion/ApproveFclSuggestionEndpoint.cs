@@ -4,7 +4,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.ApproveFclSuggestion;
 
-namespace Api.Modules.Operations.ApproveFclSuggestion;
+namespace Api.Modules.Operations.Fcl.ApproveFclSuggestion;
 
 public static class ApproveFclSuggestionEndpoint
 {

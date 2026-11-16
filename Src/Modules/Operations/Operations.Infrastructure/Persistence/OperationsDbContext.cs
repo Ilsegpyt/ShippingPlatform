@@ -1,10 +1,11 @@
 
 using BuildingBlocks.Application.Abstractions;
-using BuildingBlocks.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Operations.Application.Abstractions;
-using Operations.Domain.Entities;
+using Operations.Domain.Entities.Common;
+using Operations.Domain.Entities.Fcl;
+using Operations.Domain.Entities.Ftl;
 
 namespace Operations.Infrastructure.Persistence;
 
@@ -37,7 +38,6 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
 
     // FTL Airport
     public DbSet<FtlOperation> FtlOperations => Set<FtlOperation>();
-    public DbSet<FtlShipment> FtlShipments => Set<FtlShipment>();
     public DbSet<FtlTruck> FtlTrucks => Set<FtlTruck>();
     public DbSet<FtlOperationTrip> FtlOperationTrips => Set<FtlOperationTrip>();
     public DbSet<FtlTruckUpdate> FtlTruckUpdates => Set<FtlTruckUpdate>();

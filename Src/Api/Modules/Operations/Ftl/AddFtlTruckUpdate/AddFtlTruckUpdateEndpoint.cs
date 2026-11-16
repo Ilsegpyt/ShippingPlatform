@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.Ftl.AddFtlTruckUpdate;
 
-namespace Api.Modules.Operations.AddFtlTruckUpdate;
+namespace Api.Modules.Operations.Ftl.AddFtlTruckUpdate;
 
 public static class AddFtlTruckUpdateEndpoint
 {

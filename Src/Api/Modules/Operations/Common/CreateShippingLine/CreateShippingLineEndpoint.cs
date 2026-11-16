@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.CreateShippingLine;
 
-namespace Api.Modules.Operations.CreateShippingLine;
+namespace Api.Modules.Operations.Common.CreateShippingLine;
 
 public static class CreateShippingLineEndpoint
 {

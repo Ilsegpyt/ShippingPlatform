@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Operations.Application.Abstractions;
-using Operations.Domain.Entities;
+using Operations.Domain.Entities.Fcl;
 using Operations.Domain.Enums;
 
 namespace Operations.Infrastructure.Persistence.Repositories;

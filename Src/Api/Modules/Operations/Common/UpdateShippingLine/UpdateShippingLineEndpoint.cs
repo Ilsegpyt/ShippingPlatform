@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.UpdateShippingLine;
 
-namespace Api.Modules.Operations.UpdateShippingLine;
+namespace Api.Modules.Operations.Common.UpdateShippingLine;
 
 public static class UpdateShippingLineEndpoint
 {

@@ -3,6 +3,7 @@ using BuildingBlocks.Application;
 using MediatR;
 using Operations.Application.Abstractions;
 using Operations.Domain.Entities;
+using Operations.Domain.Entities.Fcl;
 using Operations.Domain.Enums;
 
 namespace Operations.Application.Operations.CreateOperation;

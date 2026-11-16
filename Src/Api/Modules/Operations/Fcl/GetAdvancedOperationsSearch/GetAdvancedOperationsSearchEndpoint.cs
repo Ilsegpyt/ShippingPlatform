@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.SearchOperations;
 
-namespace Api.Modules.Operations.GetAdvancedOperationsSearch;
+namespace Api.Modules.Operations.Fcl.GetAdvancedOperationsSearch;
 
 public static class GetAdvancedOperationsSearchEndpoint
 {

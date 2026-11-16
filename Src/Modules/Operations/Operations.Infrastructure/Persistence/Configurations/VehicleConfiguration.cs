@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Operations.Domain.Entities;
+using Operations.Domain.Entities.Fcl;
 
 namespace Operations.Infrastructure.Persistence.Configurations;
 

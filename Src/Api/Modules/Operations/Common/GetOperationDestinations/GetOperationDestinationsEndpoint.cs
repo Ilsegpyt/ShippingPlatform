@@ -2,7 +2,7 @@ using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using Operations.Application.Abstractions;
 
-namespace Api.Modules.Operations.GetOperationDestinations;
+namespace Api.Modules.Operations.Common.GetOperationDestinations;
 
 public static class GetOperationDestinationsEndpoint
 {

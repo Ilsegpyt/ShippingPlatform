@@ -2046,3 +2046,82 @@ WHERE NOT EXISTS (SELECT 1 FROM #TargetPorts t WHERE t.[Code] = [Ports].[Code])
 
 DROP TABLE #TargetPorts;
 GO
+
+
+-- ===========================================================================
+-- 6. Seed FtlAirports (FTL Airport Operations)
+-- ===========================================================================
+PRINT 'Seeding FtlAirports...';
+MERGE INTO [FtlAirports] AS target
+USING (VALUES
+    (N'CAIRO INTERNATIONAL AIRPORT', N'CAI'),
+    (N'BORG EL ARAB INTERNATIONAL AIRPORT', N'HBE'),
+    (N'SPHINX INTERNATIONAL AIRPORT', N'SPX'),
+    (N'SHARM EL SHEIKH INTERNATIONAL AIRPORT', N'SSH'),
+    (N'HURGHADA INTERNATIONAL AIRPORT', N'HRG'),
+    (N'LUXOR INTERNATIONAL AIRPORT', N'LXR'),
+    (N'ASWAN INTERNATIONAL AIRPORT', N'ASW'),
+    (N'SOJAG INTERNATIONAL AIRPORT', N'HMB')
+) AS source ([Name], [Code])
+ON target.[Name] = source.[Name]
+WHEN NOT MATCHED THEN
+    INSERT ([Id], [Name], [Code], [IsActive], [IsDeleted], [CreatedAtUtc], [CreatedByUserId], [CreatedByName])
+    VALUES (NEWID(), source.[Name], source.[Code], 1, 0, GETUTCDATE(), NEWID(), N'System');
+GO
+
+-- ===========================================================================
+-- 7. Seed FtlTerminals
+-- ===========================================================================
+PRINT 'Seeding FtlTerminals...';
+MERGE INTO [FtlTerminals] AS target
+USING (VALUES
+    (N'CARGO VILLAGE - CAIRO AIRPORT'),
+    (N'TERMINAL 1 - CAIRO AIRPORT'),
+    (N'TERMINAL 2 - CAIRO AIRPORT'),
+    (N'TERMINAL 3 - CAIRO AIRPORT'),
+    (N'EGYPTAIR CARGO TERMINAL'),
+    (N'LUFTHANSA CARGO TERMINAL'),
+    (N'EMIRATES CARGO TERMINAL'),
+    (N'AIR FRANCE / KLM CARGO'),
+    (N'SAUDIA CARGO TERMINAL'),
+    (N'TURKISH CARGO TERMINAL'),
+    (N'BORG EL ARAB CARGO TERMINAL')
+) AS source ([Name])
+ON target.[Name] = source.[Name]
+WHEN NOT MATCHED THEN
+    INSERT ([Id], [Name], [IsActive], [IsDeleted], [CreatedAtUtc], [CreatedByUserId], [CreatedByName])
+    VALUES (NEWID(), source.[Name], 1, 0, GETUTCDATE(), NEWID(), N'System');
+GO
+
+-- ===========================================================================
+-- 8. Seed FtlTransporters
+-- ===========================================================================
+PRINT 'Seeding FtlTransporters...';
+MERGE INTO [FtlTransporters] AS target
+USING (VALUES
+    (N'YOUSEF FOR TRUCKING'),
+    (N'AYMAN FOR TRANSPORTATION'),
+    (N'RANIN FOR TRANSPORTATION AND CUSTOMS SERVICES'),
+    (N'TROPIC WAY'),
+    (N'EURO SHIPPING'),
+    (N'DSL FOR TRUCKING AND LOGISTICS SERVICES'),
+    (N'AL WATANIA FOR LOGISTIC'),
+    (N'AL REHAB'),
+    (N'TOWER FOR TRUCKING SERVICES'),
+    (N'MIDDLE EAST'),
+    (N'EL MASRYA FOR SHIPPING'),
+    (N'EL DAWLIA'),
+    (N'MESCO.'),
+    (N'BASIONY GROUP FOR LOGISTICS'),
+    (N'TRUST FOR LOGISTICS'),
+    (N'MOSBAH FOR TRUCKING'),
+    (N'M G TRUCKING'),
+    (N'FIRST LOGISTICS'),
+    (N'ALEX EAGLE FOR TRANSPORT & SHIPPING'),
+    (N'AL-HAWARI FOR TRANSPORT')
+) AS source ([Name])
+ON target.[Name] = source.[Name]
+WHEN NOT MATCHED THEN
+    INSERT ([Id], [Name], [IsActive], [IsDeleted])
+    VALUES (NEWID(), source.[Name], 1, 0);
+GO

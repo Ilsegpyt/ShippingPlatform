@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.GetDeletedOperations;
 
-namespace Api.Modules.Operations.GetDeletedOperations;
+namespace Api.Modules.Operations.Fcl.GetDeletedOperations;
 
 public static class GetDeletedOperationsEndpoint
 {

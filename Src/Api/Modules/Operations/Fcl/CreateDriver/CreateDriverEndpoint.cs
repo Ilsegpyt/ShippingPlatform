@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.CreateDriver;
 
-namespace Api.Modules.Operations.CreateDriver;
+namespace Api.Modules.Operations.Fcl.CreateDriver;
 
 public static class CreateDriverEndpoint
 {

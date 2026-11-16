@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.ReopenOperation;
 
-namespace Api.Modules.Operations.ReopenOperation;
+namespace Api.Modules.Operations.Fcl.ReopenOperation;
 
 public static class ReopenOperationEndpoint
 {

@@ -12,4 +12,5 @@ public sealed record AddFtlTruckUpdateResult(
     string Id,
     string Text,
     string At,
-    string By);
+    string By,
+    int? Version = null);

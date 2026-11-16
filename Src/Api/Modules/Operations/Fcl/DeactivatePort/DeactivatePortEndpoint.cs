@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.DeactivatePort;
 
-namespace Api.Modules.Operations.DeactivatePort;
+namespace Api.Modules.Operations.Fcl.DeactivatePort;
 
 public static class DeactivatePortEndpoint
 {

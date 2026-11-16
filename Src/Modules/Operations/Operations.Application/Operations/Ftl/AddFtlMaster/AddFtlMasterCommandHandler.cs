@@ -1,7 +1,8 @@
 using BuildingBlocks.Application;
 using MediatR;
 using Operations.Application.Abstractions;
-using Operations.Domain.Entities;
+using Operations.Domain.Entities.Common;
+using Operations.Domain.Entities.Ftl;
 using Operations.Domain.Enums;
 
 namespace Operations.Application.Operations.Ftl.AddFtlMaster;

@@ -2,7 +2,7 @@ using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using Operations.Application.Abstractions;
 
-namespace Api.Modules.Operations.GetOperationShippingLines;
+namespace Api.Modules.Operations.Common.GetOperationShippingLines;
 
 public static class GetOperationShippingLinesEndpoint
 {

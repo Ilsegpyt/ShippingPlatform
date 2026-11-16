@@ -2,7 +2,7 @@ using Customers.Contracts;
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 
-namespace Api.Modules.Operations.GetOperationCustomers;
+namespace Api.Modules.Operations.Fcl.GetOperationCustomers;
 
 public static class GetOperationCustomersEndpoint
 {

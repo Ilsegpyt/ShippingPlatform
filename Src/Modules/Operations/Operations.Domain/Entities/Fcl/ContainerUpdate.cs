@@ -1,4 +1,5 @@
-﻿namespace Operations.Domain.Entities;
+using Operations.Domain.Entities.Common;
+﻿namespace Operations.Domain.Entities.Fcl;
 
 public class ContainerUpdate
 {

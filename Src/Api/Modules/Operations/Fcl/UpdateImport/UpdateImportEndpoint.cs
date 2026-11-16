@@ -5,7 +5,7 @@ using MediatR;
 using Operations.Application.Operations.UpdateImport;
 using Operations.Domain.Enums;
 
-namespace Api.Modules.Operations.UpdateImport;
+namespace Api.Modules.Operations.Fcl.UpdateImport;
 
 public static class UpdateImportEndpoint
 {

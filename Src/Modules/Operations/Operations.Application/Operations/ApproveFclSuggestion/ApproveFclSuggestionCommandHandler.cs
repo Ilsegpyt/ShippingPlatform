@@ -5,6 +5,7 @@ using MediatR;
 using Operations.Application.Abstractions;
 using Operations.Application.Common;
 using Operations.Domain.Entities;
+using Operations.Domain.Entities.Fcl;
 using Operations.Domain.Enums;
 
 namespace Operations.Application.Operations.ApproveFclSuggestion;

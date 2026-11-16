@@ -5,7 +5,7 @@ using MediatR;
 using Operations.Application.Operations.CreateOperation;
 using Operations.Domain.Enums;
 
-namespace Api.Modules.Operations.CreateOperation;
+namespace Api.Modules.Operations.Fcl.CreateOperation;
 
 public static class CreateOperationEndpoint
 {

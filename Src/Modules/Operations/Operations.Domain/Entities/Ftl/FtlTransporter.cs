@@ -1,6 +1,7 @@
+using Operations.Domain.Entities.Common;
 using BuildingBlocks.Domain;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Ftl;
 
 public class FtlTransporter : Entity<Guid>, ISoftDeletable
 {

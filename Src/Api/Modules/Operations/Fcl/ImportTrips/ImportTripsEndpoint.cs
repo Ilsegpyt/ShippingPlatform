@@ -8,10 +8,11 @@ using Operations.Application.Abstractions;
 using Operations.Application.Operations.CreateOperation;
 using Operations.Application.Operations.UpdateExport;
 using Operations.Application.Operations.UpdateImport;
-using Operations.Domain.Entities;
+using Operations.Domain.Entities.Common;
+using Operations.Domain.Entities.Fcl;
 using Operations.Domain.Enums;
 
-namespace Api.Modules.Operations.ImportTrips;
+namespace Api.Modules.Operations.Fcl.ImportTrips;
 
 public static class ImportTripsEndpoint
 {

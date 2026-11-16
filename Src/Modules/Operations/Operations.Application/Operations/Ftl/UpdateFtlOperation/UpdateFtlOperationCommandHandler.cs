@@ -1,10 +1,12 @@
 using System.Text.Json;
 using BuildingBlocks.Application;
 using BuildingBlocks.Application.Abstractions;
+using Customers.Contracts;
 using MediatR;
 using Operations.Application.Abstractions;
 using Operations.Application.Operations.Ftl.Common;
 using Operations.Domain.Entities;
+using Operations.Domain.Entities.Ftl;
 using Operations.Domain.Enums;
 
 namespace Operations.Application.Operations.Ftl.UpdateFtlOperation;
@@ -12,7 +14,8 @@ namespace Operations.Application.Operations.Ftl.UpdateFtlOperation;
 public sealed class UpdateFtlOperationCommandHandler(
     IFtlOperationRepository operationRepository,
     IOperationsUnitOfWork unitOfWork,
-    ICurrentUser currentUser)
+    ICurrentUser currentUser,
+    ICustomerQueries customerQueries)
     : IRequestHandler<UpdateFtlOperationCommand, Result<UpdateFtlOperationResult>>
 {
     public async Task<Result<UpdateFtlOperationResult>> Handle(
@@ -30,6 +33,24 @@ public sealed class UpdateFtlOperationCommandHandler(
         var userName = await currentUser.GetUserNameAsync(ct);
         var userId = currentUser.UserId != Guid.Empty ? currentUser.UserId.ToString() : "u-1";
         var now = DateTime.UtcNow;
+
+        IReadOnlyList<CustomerOperationOption>? customersCache = null;
+        async Task<Guid?> ResolveClientIdAsync(string? clientName, string? candidateClientId)
+        {
+            if (!string.IsNullOrWhiteSpace(candidateClientId) && Guid.TryParse(candidateClientId, out var g))
+                return g;
+            if (string.IsNullOrWhiteSpace(clientName))
+                return null;
+            try
+            {
+                customersCache ??= await customerQueries.GetAllForOperationsAsync(ct);
+                var trimmed = clientName.Trim();
+                var match = customersCache.FirstOrDefault(c => string.Equals(c.CompanyName?.Trim(), trimmed, StringComparison.OrdinalIgnoreCase))
+                    ?? customersCache.FirstOrDefault(c => c.CompanyName != null && (c.CompanyName.Trim().StartsWith(trimmed, StringComparison.OrdinalIgnoreCase) || trimmed.StartsWith(c.CompanyName.Trim(), StringComparison.OrdinalIgnoreCase)));
+                return match?.CustomerId;
+            }
+            catch { return null; }
+        }
 
         var existingOperations = await operationRepository.GetAllActiveWithDetailsAsync(ct);
         var existingByRef = existingOperations.ToDictionary(x => x.Ref.ToUpperInvariant(), x => x);
@@ -53,7 +74,65 @@ public sealed class UpdateFtlOperationCommandHandler(
 
             if (existingByRef.TryGetValue(opRef, out var existingOp))
             {
-                existingOp.SetLayoutJson(layoutJson);
+                var currentUserGuid = currentUser.UserId != Guid.Empty ? currentUser.UserId : (Guid?)null;
+                if (existingOp.IsLockActive(now, 10))
+                {
+                    if (currentUserGuid.HasValue && existingOp.LockedByUserId.HasValue && existingOp.LockedByUserId.Value != currentUserGuid.Value)
+                    {
+                        return Result.Failure<UpdateFtlOperationResult>(
+                            $"Operation '{opRef}' is currently locked by {existingOp.LockedByName}. Save halted to prevent conflict.");
+                    }
+                }
+
+                var firstTripFields = s.Trips.FirstOrDefault()?.Fields ?? new Dictionary<string, string>();
+                var client = firstTripFields.GetValueOrDefault("client");
+                var bl = firstTripFields.GetValueOrDefault("bl");
+                var booking = firstTripFields.GetValueOrDefault("booking");
+                var cert = firstTripFields.GetValueOrDefault("cert");
+                var commodity = firstTripFields.GetValueOrDefault("commodity");
+                var line = firstTripFields.GetValueOrDefault("line");
+                var dest = firstTripFields.GetValueOrDefault("dest");
+                var aod = firstTripFields.GetValueOrDefault("aod") ?? firstTripFields.GetValueOrDefault("pod");
+                var customsArea = firstTripFields.GetValueOrDefault("customsArea") ?? firstTripFields.GetValueOrDefault("customs");
+
+                int.TryParse(firstTripFields.GetValueOrDefault("packages"), out var packages);
+                decimal.TryParse(firstTripFields.GetValueOrDefault("weight"), out var weight);
+                decimal.TryParse(firstTripFields.GetValueOrDefault("cbm"), out var cbm);
+
+                ClearanceType? clrType = null;
+                if (Enum.TryParse<ClearanceType>(firstTripFields.GetValueOrDefault("clrType"), true, out var ctParsed))
+                    clrType = ctParsed;
+
+                DateOnly? arrDate = DateOnly.TryParse(firstTripFields.GetValueOrDefault("arrDate"), out var ad) ? ad : null;
+                TimeOnly? arrTime = TimeOnly.TryParse(firstTripFields.GetValueOrDefault("arrTime"), out var at) ? at : null;
+                DateOnly? reqArrDate = DateOnly.TryParse(firstTripFields.GetValueOrDefault("reqDate"), out var rd) ? rd : null;
+                TimeOnly? reqArrTime = TimeOnly.TryParse(firstTripFields.GetValueOrDefault("reqTime"), out var rt) ? rt : null;
+                DateOnly? invRcv = DateOnly.TryParse(firstTripFields.GetValueOrDefault("invRcv"), out var ir) ? ir : null;
+
+                var resolvedClientId = await ResolveClientIdAsync(client, firstTripFields.GetValueOrDefault("clientId"))
+                    ?? existingOp.ClientId;
+
+                existingOp.UpdateSharedDetails(
+                    resolvedClientId,
+                    string.IsNullOrWhiteSpace(client) ? existingOp.ClientName : client,
+                    string.IsNullOrWhiteSpace(bl) ? existingOp.BL : bl,
+                    string.IsNullOrWhiteSpace(booking) ? existingOp.BookingNumber : booking,
+                    clrType ?? existingOp.ClearanceType,
+                    string.IsNullOrWhiteSpace(cert) ? existingOp.CertificateNumber : cert,
+                    packages > 0 ? packages : existingOp.Packages,
+                    weight > 0 ? weight : existingOp.GrossWeight,
+                    cbm > 0 ? cbm : existingOp.Cbm,
+                    string.IsNullOrWhiteSpace(commodity) ? existingOp.Commodity : commodity,
+                    string.IsNullOrWhiteSpace(line) ? existingOp.Terminal : line,
+                    string.IsNullOrWhiteSpace(dest) ? existingOp.Destination : dest,
+                    string.IsNullOrWhiteSpace(aod) ? existingOp.AOD : aod,
+                    arrDate ?? existingOp.ArrivalDate,
+                    arrTime ?? existingOp.ArrivalTime,
+                    reqArrDate ?? existingOp.RequiredArrivalDate,
+                    reqArrTime ?? existingOp.RequiredArrivalTime,
+                    string.IsNullOrWhiteSpace(customsArea) ? existingOp.CustomsArea : customsArea,
+                    invRcv ?? existingOp.InvoicesReceivedDate,
+                    layoutJson);
 
                 var existingTripsByExtId = existingOp.Trips
                     .Where(t => !string.IsNullOrWhiteSpace(t.ExternalId))
@@ -71,6 +150,7 @@ public sealed class UpdateFtlOperationCommandHandler(
                     incomingExtIds.Add(extId);
 
                     var fields = new Dictionary<string, string>(incomingTrip.Fields, StringComparer.OrdinalIgnoreCase);
+                    FtlNormalizationHelper.NormalizeTripFields(fields);
 
                     int? tripPackages = incomingTrip.LoadedPackages;
                     if (!tripPackages.HasValue && fields.TryGetValue("loadedPackages", out var lpStr) && int.TryParse(lpStr, out var lpVal))
@@ -113,7 +193,6 @@ public sealed class UpdateFtlOperationCommandHandler(
                         existingTrip.Update(
                             ord++,
                             extId,
-                            existingTrip.FtlShipmentId,
                             existingTrip.FtlTruckId,
                             loadStatus,
                             tripPackages ?? existingTrip.LoadedPackages,
@@ -130,7 +209,6 @@ public sealed class UpdateFtlOperationCommandHandler(
                             ord++,
                             extId,
                             null,
-                            null,
                             loadStatus,
                             tripPackages,
                             tripWeight,
@@ -138,6 +216,52 @@ public sealed class UpdateFtlOperationCommandHandler(
                             fieldsJson);
 
                         existingOp.Trips.Add(newTrip);
+                        await operationRepository.AddTripAsync(newTrip, ct);
+                    }
+
+                    if (incomingTrip.Updates is { Count: > 0 } updatesList)
+                    {
+                        var truck = existingOp.Trucks.FirstOrDefault();
+                        if (truck is null)
+                        {
+                            truck = new FtlTruck(existingOp.Id, 1);
+                            existingOp.Trucks.Add(truck);
+                            await operationRepository.AddTruckAsync(truck, ct);
+                        }
+
+                        var tripToLink = existingTripsByExtId.GetValueOrDefault(extId);
+                        if (tripToLink is not null && tripToLink.FtlTruckId is null)
+                        {
+                            tripToLink.Update(
+                                tripToLink.Ordinal,
+                                tripToLink.ExternalId,
+                                truck.Id,
+                                tripToLink.LoadStatus,
+                                tripToLink.LoadedPackages,
+                                tripToLink.LoadedWeight,
+                                tripToLink.LoadedCbm,
+                                tripToLink.FieldsJson);
+                        }
+
+                        var existingNotes = new HashSet<string>(truck.Updates.Select(u => $"{u.TripId}_{u.Note}"));
+                        foreach (var u in updatesList)
+                        {
+                            var text = u.Text ?? u.Note;
+                            if (string.IsNullOrWhiteSpace(text)) continue;
+                            var key = $"{extId}_{text.Trim()}";
+                            if (!existingNotes.Contains(key))
+                            {
+                                DateTime uDate = now;
+                                if (!string.IsNullOrWhiteSpace(u.Day) && DateOnly.TryParse(u.Day, out var dOnly))
+                                {
+                                    TimeOnly tOnly = TimeOnly.TryParse(u.At, out var tParsed) ? tParsed : TimeOnly.MinValue;
+                                    uDate = dOnly.ToDateTime(tOnly, DateTimeKind.Utc);
+                                }
+                                var newUpd = truck.AddUpdate(extId, text.Trim(), userId, u.By ?? u.User ?? userName, uDate);
+                                await operationRepository.AddTruckUpdateAsync(newUpd, ct);
+                                existingNotes.Add(key);
+                            }
+                        }
                     }
                 }
 
@@ -150,6 +274,7 @@ public sealed class UpdateFtlOperationCommandHandler(
                     await operationRepository.DeleteTripsAsync(tripsToRemove, ct);
                 }
 
+                existingOp.ReleaseLock();
                 existingOp.IncrementVersion();
             }
             else
@@ -181,12 +306,14 @@ public sealed class UpdateFtlOperationCommandHandler(
                 var seq = await operationRepository.GetNextSequenceForYearAsync(year, ct);
                 var effectiveRef = string.IsNullOrWhiteSpace(s.Ref) ? $"OPS-{year}-{seq:D4}" : s.Ref.Trim().ToUpperInvariant();
 
+                var newClientId = await ResolveClientIdAsync(client, firstTripFields.GetValueOrDefault("clientId"));
+
                 var newOp = new FtlOperation(
                     effectiveRef,
                     year,
                     seq,
                     opType,
-                    null,
+                    newClientId,
                     client,
                     bl,
                     booking,
@@ -219,6 +346,7 @@ public sealed class UpdateFtlOperationCommandHandler(
                         : Guid.NewGuid().ToString();
 
                     var fields = new Dictionary<string, string>(incomingTrip.Fields, StringComparer.OrdinalIgnoreCase);
+                    FtlNormalizationHelper.NormalizeTripFields(fields);
 
                     int.TryParse(fields.GetValueOrDefault("packages"), out var pVal);
                     int? tripPackages = incomingTrip.LoadedPackages ?? (pVal > 0 ? pVal : null);
@@ -250,7 +378,6 @@ public sealed class UpdateFtlOperationCommandHandler(
                         ord++,
                         extId,
                         null,
-                        null,
                         loadStatus,
                         tripPackages,
                         tripWeight,
@@ -258,6 +385,29 @@ public sealed class UpdateFtlOperationCommandHandler(
                         fieldsJson);
 
                     newOp.Trips.Add(newTrip);
+
+                    if (incomingTrip.Updates is { Count: > 0 } newUpdatesList)
+                    {
+                        var truck = newOp.Trucks.FirstOrDefault();
+                        if (truck is null)
+                        {
+                            truck = new FtlTruck(newOp.Id, 1);
+                            newOp.Trucks.Add(truck);
+                        }
+
+                        foreach (var u in newUpdatesList)
+                        {
+                            var text = u.Text ?? u.Note;
+                            if (string.IsNullOrWhiteSpace(text)) continue;
+                            DateTime uDate = now;
+                            if (!string.IsNullOrWhiteSpace(u.Day) && DateOnly.TryParse(u.Day, out var dOnly))
+                            {
+                                TimeOnly tOnly = TimeOnly.TryParse(u.At, out var tParsed) ? tParsed : TimeOnly.MinValue;
+                                uDate = dOnly.ToDateTime(tOnly, DateTimeKind.Utc);
+                            }
+                            truck.AddUpdate(extId, text.Trim(), userId, u.By ?? u.User ?? userName, uDate);
+                        }
+                    }
                 }
 
                 await operationRepository.AddAsync(newOp, ct);

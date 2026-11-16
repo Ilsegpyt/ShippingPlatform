@@ -2,7 +2,7 @@ using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using Operations.Application.Abstractions;
 
-namespace Api.Modules.Operations.GetOperationTransporters;
+namespace Api.Modules.Operations.Fcl.GetOperationTransporters;
 
 public static class GetOperationTransportersEndpoint
 {

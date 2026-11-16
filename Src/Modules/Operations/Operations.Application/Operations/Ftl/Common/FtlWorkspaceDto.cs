@@ -1,3 +1,6 @@
+using System.Text.Json.Serialization;
+using BuildingBlocks.Application.Serialization;
+
 namespace Operations.Application.Operations.Ftl.Common;
 
 public sealed record FtlWorkspaceDto(
@@ -27,6 +30,7 @@ public sealed record FtlUserDto(
 public sealed record FtlTripDto(
     string Id,
     int Ordinal,
+    [property: JsonConverter(typeof(SafeStringDictionaryConverter))]
     Dictionary<string, string> Fields,
     IReadOnlyList<FtlUpdateDto> Updates,
     string? LoadStatus = "Full",
@@ -35,7 +39,10 @@ public sealed record FtlTripDto(
     decimal? LoadedCbm = null);
 
 public sealed record FtlUpdateDto(
-    string Id,
-    string Text,
-    string At,
-    string By);
+    string? Id = null,
+    string? Text = null,
+    string? At = null,
+    string? By = null,
+    string? Day = null,
+    string? User = null,
+    string? Note = null);

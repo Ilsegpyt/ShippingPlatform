@@ -1,6 +1,7 @@
+using Operations.Domain.Entities.Common;
 using Operations.Domain.Enums;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Fcl;
 
 /// <summary>Append-only history of changes to Operations.Status only.</summary>
 public sealed class OperationStatusAudit

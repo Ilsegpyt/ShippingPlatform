@@ -1,5 +1,6 @@
 using Operations.Application.Operations.GetFclSuggestions;
 using Operations.Domain.Entities;
+using Operations.Domain.Entities.Fcl;
 using Operations.Domain.Enums;
 
 namespace Operations.Application.Common;

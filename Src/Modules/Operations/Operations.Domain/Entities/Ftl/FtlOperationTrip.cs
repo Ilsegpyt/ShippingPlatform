@@ -1,7 +1,8 @@
+using Operations.Domain.Entities.Common;
 using BuildingBlocks.Domain;
 using Operations.Domain.Enums;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Ftl;
 
 public class FtlOperationTrip : Entity<Guid>
 {
@@ -10,9 +11,6 @@ public class FtlOperationTrip : Entity<Guid>
 
     public short Ordinal { get; private set; }
     public string? ExternalId { get; private set; }
-
-    public Guid? FtlShipmentId { get; private set; }
-    public FtlShipment? Shipment { get; private set; }
 
     public Guid? FtlTruckId { get; private set; }
     public FtlTruck? Truck { get; private set; }
@@ -34,7 +32,6 @@ public class FtlOperationTrip : Entity<Guid>
         Guid ftlOperationId,
         short ordinal,
         string? externalId = null,
-        Guid? ftlShipmentId = null,
         Guid? ftlTruckId = null,
         FtlLoadStatus loadStatus = FtlLoadStatus.Full,
         int? loadedPackages = null,
@@ -49,7 +46,6 @@ public class FtlOperationTrip : Entity<Guid>
         FtlOperationId = ftlOperationId;
         Ordinal = ordinal;
         ExternalId = string.IsNullOrWhiteSpace(externalId) ? null : externalId.Trim();
-        FtlShipmentId = ftlShipmentId;
         FtlTruckId = ftlTruckId;
         LoadStatus = loadStatus;
         LoadedPackages = loadedPackages;
@@ -61,7 +57,6 @@ public class FtlOperationTrip : Entity<Guid>
     public void Update(
         short ordinal,
         string? externalId,
-        Guid? ftlShipmentId,
         Guid? ftlTruckId,
         FtlLoadStatus loadStatus,
         int? loadedPackages,
@@ -71,7 +66,6 @@ public class FtlOperationTrip : Entity<Guid>
     {
         Ordinal = ordinal;
         ExternalId = string.IsNullOrWhiteSpace(externalId) ? null : externalId.Trim();
-        FtlShipmentId = ftlShipmentId;
         FtlTruckId = ftlTruckId;
         LoadStatus = loadStatus;
         LoadedPackages = loadedPackages;

@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.AddContainerUpdate;
 
-namespace Api.Modules.Operations.AddContainerUpdate;
+namespace Api.Modules.Operations.Fcl.AddContainerUpdate;
 
 public static class AddContainerUpdateEndpoint
 {

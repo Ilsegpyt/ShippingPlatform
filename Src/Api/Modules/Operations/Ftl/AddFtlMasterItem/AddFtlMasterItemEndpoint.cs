@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.Ftl.AddFtlMaster;
 
-namespace Api.Modules.Operations.AddFtlMasterItem;
+namespace Api.Modules.Operations.Ftl.AddFtlMasterItem;
 
 public static class AddFtlMasterItemEndpoint
 {

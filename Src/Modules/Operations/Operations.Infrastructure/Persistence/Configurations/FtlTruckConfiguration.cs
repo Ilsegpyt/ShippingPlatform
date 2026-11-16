@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Operations.Domain.Entities;
+using Operations.Domain.Entities.Ftl;
 
 namespace Operations.Infrastructure.Persistence.Configurations;
 
@@ -11,6 +11,7 @@ public sealed class FtlTruckConfiguration : IEntityTypeConfiguration<FtlTruck>
         builder.ToTable("FtlTrucks");
 
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedNever();
 
         builder.Property(x => x.Ordinal)
             .IsRequired();

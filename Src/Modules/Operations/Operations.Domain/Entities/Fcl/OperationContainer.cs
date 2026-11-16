@@ -1,8 +1,7 @@
-
 using BuildingBlocks.Domain;
 using Operations.Domain.Enums;
 
-namespace Operations.Domain.Entities;
+namespace Operations.Domain.Entities.Fcl;
 
 public class OperationContainer : Entity<Guid>
 {

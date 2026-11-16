@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.UpdateVehicle;
 
-namespace Api.Modules.Operations.UpdateVehicle;
+namespace Api.Modules.Operations.Fcl.UpdateVehicle;
 
 public static class UpdateVehicleEndpoint
 {

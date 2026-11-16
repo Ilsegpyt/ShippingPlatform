@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.CreateTransporter;
 
-namespace Api.Modules.Operations.CreateTransporter;
+namespace Api.Modules.Operations.Fcl.CreateTransporter;
 
 public static class CreateTransporterEndpoint
 {

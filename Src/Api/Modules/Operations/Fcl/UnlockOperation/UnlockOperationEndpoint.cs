@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Operations.Application.Operations.UnlockOperation;
 
-namespace Api.Modules.Operations.UnlockOperation;
+namespace Api.Modules.Operations.Fcl.UnlockOperation;
 
 public static class UnlockOperationEndpoint
 {

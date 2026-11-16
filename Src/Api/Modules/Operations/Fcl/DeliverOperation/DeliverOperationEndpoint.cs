@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.DeliverOperation;
 
-namespace Api.Modules.Operations.DeliverOperation;
+namespace Api.Modules.Operations.Fcl.DeliverOperation;
 
 public static class DeliverOperationEndpoint
 {

@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.GenerateFclSuggestions;
 
-namespace Api.Modules.Operations.GenerateFclSuggestions;
+namespace Api.Modules.Operations.Fcl.GenerateFclSuggestions;
 
 public static class GenerateFclSuggestionsEndpoint
 {

@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.UpdateDriver;
 
-namespace Api.Modules.Operations.UpdateDriver;
+namespace Api.Modules.Operations.Fcl.UpdateDriver;
 
 public static class UpdateDriverEndpoint
 {

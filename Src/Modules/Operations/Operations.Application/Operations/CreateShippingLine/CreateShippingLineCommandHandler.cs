@@ -1,7 +1,7 @@
 using BuildingBlocks.Application;
 using MediatR;
 using Operations.Application.Abstractions;
-using Operations.Domain.Entities;
+using Operations.Domain.Entities.Common;
 
 namespace Operations.Application.Operations.CreateShippingLine;
 

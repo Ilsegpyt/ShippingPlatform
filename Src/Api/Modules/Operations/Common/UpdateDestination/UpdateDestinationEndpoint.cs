@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Operations.Application.Operations.UpdateDestination;
 
-namespace Api.Modules.Operations.UpdateDestination;
+namespace Api.Modules.Operations.Common.UpdateDestination;
 
 public static class UpdateDestinationEndpoint
 {

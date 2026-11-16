@@ -2,7 +2,7 @@ using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using Operations.Application.Abstractions;
 
-namespace Api.Modules.Operations.GetOperationPorts;
+namespace Api.Modules.Operations.Fcl.GetOperationPorts;
 
 public static class GetOperationPortsEndpoint
 {

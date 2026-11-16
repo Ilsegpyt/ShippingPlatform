@@ -3,7 +3,7 @@ using Identity.Infrastructure.Authorization;
 using MediatR;
 using Operations.Application.Operations.GetAllFclApprovals;
 
-namespace Api.Modules.Operations.GetAllFclApprovals;
+namespace Api.Modules.Operations.Fcl.GetAllFclApprovals;
 
 public static class GetAllFclApprovalsEndpoint
 {

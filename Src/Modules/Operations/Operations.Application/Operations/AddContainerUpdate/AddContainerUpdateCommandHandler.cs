@@ -4,6 +4,7 @@ using MediatR;
 using Operations.Application.Abstractions;
 using Operations.Application.Operations.GetAllOperations;
 using Operations.Domain.Entities;
+using Operations.Domain.Entities.Fcl;
 
 namespace Operations.Application.Operations.AddContainerUpdate;
 

@@ -4,7 +4,7 @@ using MediatR;
 using Operations.Application.Operations.UpdateExport;
 using Operations.Domain.Enums;
 
-namespace Api.Modules.Operations.UpdateExport;
+namespace Api.Modules.Operations.Fcl.UpdateExport;
 
 public static class UpdateExportEndpoint
 {
