@@ -2028,5 +2028,21 @@ IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'202
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'20261117110000_AddFtlShipmentsAndEnforceConstraints', N'10.0.12');
 
+IF COL_LENGTH(N'[FtlOperations]', N'DeliveredAtUtc') IS NULL
+    ALTER TABLE [FtlOperations] ADD [DeliveredAtUtc] datetime2 NULL;
+
+IF COL_LENGTH(N'[FtlOperations]', N'DeliveredByUserId') IS NULL
+    ALTER TABLE [FtlOperations] ADD [DeliveredByUserId] nvarchar(128) NULL;
+
+IF COL_LENGTH(N'[FtlOperations]', N'DeliveredByName') IS NULL
+    ALTER TABLE [FtlOperations] ADD [DeliveredByName] nvarchar(200) NULL;
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_FtlOperations_Status_DeliveredAtUtc' AND object_id = OBJECT_ID(N'[FtlOperations]'))
+    CREATE INDEX [IX_FtlOperations_Status_DeliveredAtUtc] ON [FtlOperations] ([Status], [DeliveredAtUtc]);
+
+IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20261118131500_AddFtlOperationDeliveryAudit')
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261118131500_AddFtlOperationDeliveryAudit', N'10.0.12');
+
 COMMIT;
 GO

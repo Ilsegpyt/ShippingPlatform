@@ -31,6 +31,11 @@ public class FtlOperation : Entity<Guid>, IAggregateRoot, ISoftDeletable
     public Guid? DeletedByUserId { get; private set; }
     public string? DeletedByName { get; private set; }
 
+    // Delivery Audit
+    public DateTime? DeliveredAtUtc { get; private set; }
+    public string? DeliveredByUserId { get; private set; }
+    public string? DeliveredByName { get; private set; }
+
     // Audit
     public DateTime CreatedAtUtc { get; private set; }
     public string CreatedByUserId { get; private set; } = null!;
@@ -94,6 +99,28 @@ public class FtlOperation : Entity<Guid>, IAggregateRoot, ISoftDeletable
             utcNow);
 
         StatusAudits.Add(audit);
+    }
+
+    public void MarkDelivered(string userId, string userName, DateTime utcNow)
+    {
+        if (Status != OperationStatus.Open)
+            throw new InvalidOperationException("Only open operations can be marked as delivered.");
+
+        UpdateStatus(OperationStatus.Delivered, userId, userName, utcNow);
+        DeliveredAtUtc = utcNow.Kind == DateTimeKind.Utc ? utcNow : DateTime.SpecifyKind(utcNow, DateTimeKind.Utc);
+        DeliveredByUserId = string.IsNullOrWhiteSpace(userId) ? "System" : userId.Trim();
+        DeliveredByName = string.IsNullOrWhiteSpace(userName) ? "System" : userName.Trim();
+    }
+
+    public void Reopen(string userId, string userName, string? reason, DateTime utcNow)
+    {
+        if (Status != OperationStatus.Delivered)
+            throw new InvalidOperationException("Only delivered operations can be reopened.");
+
+        UpdateStatus(OperationStatus.Open, userId, userName, utcNow, reason);
+        DeliveredAtUtc = null;
+        DeliveredByUserId = null;
+        DeliveredByName = null;
     }
 
     public bool IsLockActive(DateTime utcNow, int timeoutMinutes = 10)

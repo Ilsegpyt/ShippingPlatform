@@ -372,13 +372,15 @@ using (var scope = app.Services.CreateScope())
                       [UpdatedByName] NVARCHAR(200) NULL
                   );
               END
-              IF EXISTS (SELECT 1 FROM sys.tables WHERE name = 'FtlOperations') AND EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Customers')
+              IF EXISTS (SELECT 1 FROM sys.tables WHERE name = 'Customers')
+                 AND EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('FtlShipments') AND name = 'ClientId')
+                 AND EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('FtlShipments') AND name = 'ClientName')
               BEGIN
-                  UPDATE o
-                  SET o.ClientId = c.Id
-                  FROM [FtlOperations] o
-                  INNER JOIN [Customers] c ON LTRIM(RTRIM(c.CompanyName)) = LTRIM(RTRIM(o.ClientName))
-                  WHERE o.ClientId IS NULL AND o.ClientName IS NOT NULL;
+                  EXEC sp_executesql N'UPDATE s
+                  SET s.ClientId = c.Id
+                  FROM [FtlShipments] s
+                  INNER JOIN [Customers] c ON LTRIM(RTRIM(c.CompanyName)) = LTRIM(RTRIM(s.ClientName))
+                  WHERE s.ClientId IS NULL AND s.ClientName IS NOT NULL;';
               END");
     }
     catch (Exception ex)

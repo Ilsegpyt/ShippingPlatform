@@ -10,13 +10,13 @@ public static class GetFtlMasterEndpoint
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapGet("/api/operations/ftl/master", HandleGetMaster)
-            .RequirePermission(PermissionCatalog.OperationsView);
+            .RequirePermission(PermissionCatalog.FtlOperationsView);
 
         // Support front routes
         app.MapGet("/api/v1/ftl/master", HandleGetMaster)
-            .RequirePermission(PermissionCatalog.OperationsView);
+            .RequirePermission(PermissionCatalog.FtlOperationsView);
         app.MapGet("/master", HandleGetMaster)
-            .RequirePermission(PermissionCatalog.OperationsView);
+            .RequirePermission(PermissionCatalog.FtlOperationsView);
     }
 
     private static async Task<IResult> HandleGetMaster(ISender sender, CancellationToken ct)

@@ -13,13 +13,13 @@ public static class AddFtlMasterItemEndpoint
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapPost("/api/operations/ftl/master/{list}", HandleAddItem)
-            .RequirePermission(PermissionCatalog.OperationsCreate);
+            .RequirePermission(PermissionCatalog.FtlOperationsCreate);
 
         // Support front routes
         app.MapPost("/api/v1/ftl/master/{list}", HandleAddItem)
-            .RequirePermission(PermissionCatalog.OperationsCreate);
+            .RequirePermission(PermissionCatalog.FtlOperationsCreate);
         app.MapPost("/master/{list}", HandleAddItem)
-            .RequirePermission(PermissionCatalog.OperationsCreate);
+            .RequirePermission(PermissionCatalog.FtlOperationsCreate);
     }
 
     private static async Task<IResult> HandleAddItem(

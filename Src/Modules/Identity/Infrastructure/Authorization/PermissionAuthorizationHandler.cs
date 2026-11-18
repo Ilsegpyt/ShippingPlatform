@@ -187,6 +187,11 @@ public sealed class PermissionAuthorizationHandler
             return false;
         }
 
+        if (role.Name == "Super Admin")
+        {
+            return true;
+        }
+
         return role.HasPermission(permission);
     }
 }

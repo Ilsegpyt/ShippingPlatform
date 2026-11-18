@@ -34,13 +34,13 @@ public static class CreateFtlOperationEndpoint
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapPost("/api/operations/ftl", HandleCreate)
-            .RequirePermission(PermissionCatalog.OperationsCreate);
+            .RequirePermission(PermissionCatalog.FtlOperationsCreate);
 
         // Also support legacy/front routes
         app.MapPost("/api/v1/ftl/operations", HandleCreate)
-            .RequirePermission(PermissionCatalog.OperationsCreate);
+            .RequirePermission(PermissionCatalog.FtlOperationsCreate);
         app.MapPost("/createOperation", HandleCreate)
-            .RequirePermission(PermissionCatalog.OperationsCreate);
+            .RequirePermission(PermissionCatalog.FtlOperationsCreate);
     }
 
     private static async Task<IResult> HandleCreate(

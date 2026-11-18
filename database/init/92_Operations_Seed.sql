@@ -2099,26 +2099,17 @@ GO
 PRINT 'Seeding FtlTransporters...';
 MERGE INTO [FtlTransporters] AS target
 USING (VALUES
-    (N'YOUSEF FOR TRUCKING'),
-    (N'AYMAN FOR TRANSPORTATION'),
-    (N'RANIN FOR TRANSPORTATION AND CUSTOMS SERVICES'),
-    (N'TROPIC WAY'),
-    (N'EURO SHIPPING'),
-    (N'DSL FOR TRUCKING AND LOGISTICS SERVICES'),
-    (N'AL WATANIA FOR LOGISTIC'),
-    (N'AL REHAB'),
-    (N'TOWER FOR TRUCKING SERVICES'),
-    (N'MIDDLE EAST'),
-    (N'EL MASRYA FOR SHIPPING'),
-    (N'EL DAWLIA'),
-    (N'MESCO.'),
-    (N'BASIONY GROUP FOR LOGISTICS'),
-    (N'TRUST FOR LOGISTICS'),
-    (N'MOSBAH FOR TRUCKING'),
-    (N'M G TRUCKING'),
-    (N'FIRST LOGISTICS'),
-    (N'ALEX EAGLE FOR TRANSPORT & SHIPPING'),
-    (N'AL-HAWARI FOR TRANSPORT')
+    (N'Darwesh'),
+    (N'ILS'),
+    (N'ALRihab'),
+    (N'TAQA'),
+    (N'ALDAMNHORY'),
+    (N'ABU ELDAHAB'),
+    (N'Ranin'),
+    (N'EURO'),
+    (N'Eldawlya'),
+    (N'Ayman'),
+    (N'MEDIL EAST')
 ) AS source ([Name])
 ON target.[Name] = source.[Name]
 WHEN NOT MATCHED THEN

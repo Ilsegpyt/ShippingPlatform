@@ -13,11 +13,11 @@ public static class AddFtlTruckUpdateEndpoint
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapPost("/api/operations/ftl/{reference}/truck-updates", HandleAddUpdate)
-            .RequirePermission(PermissionCatalog.OperationsEdit);
+            .RequirePermission(PermissionCatalog.FtlOperationsEdit);
 
         // Support front route
         app.MapPost("/api/v1/ftl/operations/{reference}/truck-updates", HandleAddUpdate)
-            .RequirePermission(PermissionCatalog.OperationsEdit);
+            .RequirePermission(PermissionCatalog.FtlOperationsEdit);
     }
 
     private static async Task<IResult> HandleAddUpdate(

@@ -42,7 +42,23 @@ public sealed class GetFtlMasterQueryHandler(
         try
         {
             var airports = await airportRepository.GetAllAsync(false, ct);
-            pods = airports.Select(a => !string.IsNullOrWhiteSpace(a.Code) ? a.Code : a.Name).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().OrderBy(s => s).ToList();
+            pods = airports
+                .Select(a =>
+                {
+                    if (!string.IsNullOrWhiteSpace(a.Code) && !string.IsNullOrWhiteSpace(a.Name))
+                    {
+                        var cleanName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(a.Name.ToLowerInvariant())
+                            .Replace("International Airport", "", StringComparison.OrdinalIgnoreCase)
+                            .Replace("Airport", "", StringComparison.OrdinalIgnoreCase)
+                            .Trim();
+                        return cleanName.Contains('(') ? cleanName : $"{cleanName} ({a.Code.Trim().ToUpperInvariant()})";
+                    }
+                    return !string.IsNullOrWhiteSpace(a.Code) ? a.Code.Trim().ToUpperInvariant() : a.Name.Trim();
+                })
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Distinct()
+                .OrderBy(s => s)
+                .ToList();
         }
         catch { /* fallback */ }
 
@@ -74,9 +90,9 @@ public sealed class GetFtlMasterQueryHandler(
         }
         catch { /* fallback */ }
 
-        if (pods.Count == 0) pods = ["CAI", "HBE", "LXR", "ASW", "HRG", "SSH"];
-        if (lines.Count == 0) lines = ["CACC Terminal", "Cairo Cargo Village", "EgyptAir Cargo", "EAS Cargo"];
-        if (truckers.Count == 0) truckers = ["EURO", "ALRihab", "ALDAMNHORY", "TAQA", "Ranin"];
+        if (pods.Count == 0) pods = ["Cairo (CAI)", "Borg El Arab (HBE)", "Luxor (LXR)", "Aswan (ASW)", "Hurghada (HRG)", "Sharm El Sheikh (SSH)"];
+        if (lines.Count == 0) lines = ["CACC Terminal", "Cairo Cargo Village", "EgyptAir Cargo Terminal", "CT3", "Air France Cargo"];
+        if (truckers.Count == 0) truckers = ["ABU ELDAHAB", "ALDAMNHORY", "ALRihab", "Ayman", "Darwesh", "Eldawlya", "EURO", "MEDIL EAST", "Ranin", "TAQA"];
         if (dests.Count == 0) dests = ["10th of Ramadan", "6th of October", "Al Obour City", "Borg El Arab", "Sadat City"];
 
         var truckTypes = new List<string> { "دبابة", "جامبو 4م", "جامبو 6م", "تريلا 6م", "تريلا 12م" };
@@ -95,7 +111,9 @@ public sealed class GetFtlMasterQueryHandler(
             truckTypes,
             clrTypes,
             customs,
-            statuses);
+            statuses,
+            Aod: pods,
+            Pol: pods);
 
         return Result.Success(result);
     }

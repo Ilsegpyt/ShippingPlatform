@@ -1,4 +1,4 @@
-﻿using Identity.Application.Abstractions;
+using Identity.Application.Abstractions;
 using Identity.Domain.Entities;
 using Identity.Domain.Repositories;
 using Identity.Domain.ValueObjects;
@@ -16,8 +16,9 @@ public sealed class IdentitySeeder
         ("Super Admin", "Full system access with all permissions"),
         ("Account Manager", "Manage assigned customers, shipments, and related operations"),
         ("Operations", "Manage scheduling, shipments, locations, and ports"),
-        ("Ocean Operations Specialist", "Ocean Transport data entry and shipment processing"),
-        ("Ocean Operations Manager", "Manage ocean transport operations, dashboards, reopen shipments and reports"),
+        ("Executive Maritime Transportation", "Maritime transport data entry and shipment processing"),
+        ("Supervisor Maritime Transportation", "Manage maritime transport operations, dashboards, reopen shipments and reports"),
+        ("FTL Operation Executive", "FTL operations data entry and trip processing"),
         ("Sales", "Manage leads, quotations, and customer inquiries"),
         ("Viewer", "Read-only access to view data"),
         ("Finance Manager", "Oversees Financial functions")
@@ -80,6 +81,16 @@ public sealed class IdentitySeeder
 
                     accountManagerRole = role;
                 }
+                else if (name == "FTL Operation Executive")
+                {
+                    foreach (var permission in PermissionCatalog.FtlOperationExecutivePermissions)
+                        role.GrantPermission(permission);
+                }
+                else if (name == "Executive Maritime Transportation")
+                {
+                    foreach (var permission in PermissionCatalog.ExecutiveMaritimeTransportationPermissions)
+                        role.GrantPermission(permission);
+                }
 
                 _roles.Add(role);
             }
@@ -139,6 +150,87 @@ public sealed class IdentitySeeder
             }
 
             _roles.Update(accountManagerRole);
+        }
+
+        // ---------------------------------------------------------
+        // Migrate legacy role names to standardized names
+        // ---------------------------------------------------------
+        var legacyOceanManager = existingRoles
+            .FirstOrDefault(x => x.Name == "Ocean Operations Manager");
+
+        if (legacyOceanManager is not null)
+        {
+            _logger.LogInformation(
+                "Migrating role 'Ocean Operations Manager' to 'Supervisor Maritime Transportation'.");
+
+            legacyOceanManager.Rename(
+                "Supervisor Maritime Transportation",
+                "Manage maritime transport operations, dashboards, reopen shipments and reports");
+
+            _roles.Update(legacyOceanManager);
+        }
+
+        var legacyOceanSpecialist = existingRoles
+            .FirstOrDefault(x => x.Name == "Ocean Operations Specialist");
+
+        if (legacyOceanSpecialist is not null)
+        {
+            _logger.LogInformation(
+                "Migrating role 'Ocean Operations Specialist' to 'Executive Maritime Transportation'.");
+
+            legacyOceanSpecialist.Rename(
+                "Executive Maritime Transportation",
+                "Maritime transport data entry and shipment processing");
+
+            _roles.Update(legacyOceanSpecialist);
+        }
+
+        // ---------------------------------------------------------
+        // FTL Operation Executive
+        // ---------------------------------------------------------
+        var ftlExecutiveRole = existingRoles
+            .FirstOrDefault(x => x.Name == "FTL Operation Executive");
+
+        if (ftlExecutiveRole is null)
+        {
+            _logger.LogInformation(
+                "FTL Operation Executive role was not found — creating it.");
+
+            ftlExecutiveRole = Role.Create(
+                "FTL Operation Executive",
+                "FTL operations data entry and trip processing");
+
+            foreach (var permission in PermissionCatalog.FtlOperationExecutivePermissions)
+                ftlExecutiveRole.GrantPermission(permission);
+
+            _roles.Add(ftlExecutiveRole);
+        }
+        else
+        {
+            foreach (var permission in PermissionCatalog.FtlOperationExecutivePermissions)
+            {
+                if (!ftlExecutiveRole.HasPermission(permission))
+                    ftlExecutiveRole.GrantPermission(permission);
+            }
+
+            _roles.Update(ftlExecutiveRole);
+        }
+
+        // ---------------------------------------------------------
+        // Executive Maritime Transportation
+        // ---------------------------------------------------------
+        var executiveMaritime = existingRoles
+            .FirstOrDefault(x => x.Name == "Executive Maritime Transportation");
+
+        if (executiveMaritime is not null)
+        {
+            foreach (var permission in PermissionCatalog.ExecutiveMaritimeTransportationPermissions)
+            {
+                if (!executiveMaritime.HasPermission(permission))
+                    executiveMaritime.GrantPermission(permission);
+            }
+
+            _roles.Update(executiveMaritime);
         }
 
         await _unitOfWork.SaveChangesAsync(ct);

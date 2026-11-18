@@ -13,13 +13,13 @@ public static class DeleteFtlOperationEndpoint
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapDelete("/api/operations/ftl/{reference}", HandleDelete)
-            .RequirePermission(PermissionCatalog.OperationsDelete);
+            .RequirePermission(PermissionCatalog.FtlOperationsDelete);
 
         // Support front routes
         app.MapDelete("/api/v1/ftl/operations/{reference}", HandleDelete)
-            .RequirePermission(PermissionCatalog.OperationsDelete);
+            .RequirePermission(PermissionCatalog.FtlOperationsDelete);
         app.MapPost("/deleteShipment", HandleDeleteFromLegacy)
-            .RequirePermission(PermissionCatalog.OperationsDelete);
+            .RequirePermission(PermissionCatalog.FtlOperationsDelete);
     }
 
     private static async Task<IResult> HandleDelete(

@@ -21,7 +21,20 @@ public sealed record FtlOperationDto(
     int? Trk = 1,
     IReadOnlyList<IReadOnlyList<int>>? ShpSpans = null,
     IReadOnlyList<IReadOnlyList<int>>? TrkSpans = null,
-    IReadOnlyList<int>? TrkOf = null);
+    IReadOnlyList<int>? TrkOf = null,
+    Guid? Id = null,
+    bool IsDeleted = false,
+    DateTime? DeletedAtUtc = null,
+    string? DeletedByUserId = null,
+    string? DeletedByName = null,
+    DateTime? DeliveredAtUtc = null,
+    string? DeliveredByUserId = null,
+    string? DeliveredByName = null,
+    DateTime? ReopenedAtUtc = null,
+    string? ReopenedByUserId = null,
+    string? ReopenReason = null,
+    int? TotalTrucks = null,
+    int? TotalShipments = null);
 
 public sealed record FtlUserDto(
     string Id,

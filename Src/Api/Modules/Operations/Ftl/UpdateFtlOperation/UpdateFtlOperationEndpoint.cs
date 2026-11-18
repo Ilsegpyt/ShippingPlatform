@@ -13,9 +13,9 @@ public static class UpdateFtlOperationEndpoint
     {
         // Per-operation single update (Identical to FCL)
         app.MapPut("/api/v1/ftl/operations/{reference}", HandleUpdateSingle)
-            .RequirePermission(PermissionCatalog.OperationsEdit);
+            .RequirePermission(PermissionCatalog.FtlOperationsEdit);
         app.MapPut("/api/operations/ftl/{reference}", HandleUpdateSingle)
-            .RequirePermission(PermissionCatalog.OperationsEdit);
+            .RequirePermission(PermissionCatalog.FtlOperationsEdit);
     }
 
     private static async Task<IResult> HandleUpdateSingle(

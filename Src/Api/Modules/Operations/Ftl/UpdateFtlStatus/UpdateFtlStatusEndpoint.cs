@@ -14,19 +14,19 @@ public static class UpdateFtlStatusEndpoint
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapPut("/api/operations/ftl/{reference}/status", HandleUpdateStatus)
-            .RequirePermission(PermissionCatalog.OperationsEdit);
+            .RequirePermission(PermissionCatalog.FtlOperationsEdit);
 
         // Support front routes
         app.MapPut("/api/v1/ftl/operations/{reference}/status", HandleUpdateStatus)
-            .RequirePermission(PermissionCatalog.OperationsEdit);
+            .RequirePermission(PermissionCatalog.FtlOperationsEdit);
         app.MapPost("/updateShipmentStatus", HandleUpdateStatusFromLegacy)
-            .RequirePermission(PermissionCatalog.OperationsEdit);
+            .RequirePermission(PermissionCatalog.FtlOperationsEdit);
 
         // Status Audit History
         app.MapGet("/api/v1/ftl/operations/{reference}/status-audits", HandleGetStatusAudits)
-            .RequirePermission(PermissionCatalog.OperationsView);
+            .RequirePermission(PermissionCatalog.FtlOperationsView);
         app.MapGet("/api/operations/ftl/{reference}/status-audits", HandleGetStatusAudits)
-            .RequirePermission(PermissionCatalog.OperationsView);
+            .RequirePermission(PermissionCatalog.FtlOperationsView);
     }
 
     private static async Task<IResult> HandleGetStatusAudits(
@@ -57,7 +57,9 @@ public static class UpdateFtlStatusEndpoint
                 userId = a.UserId,
                 userName = a.UserId == operation.CreatedByUserId
                     ? operation.CreatedByName
-                    : a.UserId,
+                    : (a.UserId == operation.DeliveredByUserId && !string.IsNullOrWhiteSpace(operation.DeliveredByName)
+                        ? operation.DeliveredByName
+                        : a.UserId),
                 atUtc = a.AtUtc
             })
             .ToList();

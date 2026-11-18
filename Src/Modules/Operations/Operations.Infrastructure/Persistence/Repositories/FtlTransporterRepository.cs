@@ -10,6 +10,7 @@ public sealed class FtlTransporterRepository(OperationsDbContext dbContext) : IF
     {
         var query = dbContext.FtlTransporters.AsNoTracking();
         if (!includeInactive) query = query.Where(x => !x.IsDeleted && x.IsActive);
+        else query = query.IgnoreQueryFilters();
         return await query.OrderBy(x => x.Name).ToListAsync(ct);
     }
 
@@ -20,17 +21,17 @@ public sealed class FtlTransporterRepository(OperationsDbContext dbContext) : IF
         int pageSize,
         CancellationToken ct = default)
     {
-        var baseQuery = dbContext.FtlTransporters.AsNoTracking().Where(x => !x.IsDeleted);
+        var baseQuery = dbContext.FtlTransporters.IgnoreQueryFilters().AsNoTracking();
 
-        var activeCount = await baseQuery.CountAsync(x => x.IsActive, ct);
-        var inactiveCount = await baseQuery.CountAsync(x => !x.IsActive, ct);
+        var activeCount = await baseQuery.CountAsync(x => x.IsActive && !x.IsDeleted, ct);
+        var inactiveCount = await baseQuery.CountAsync(x => !x.IsActive || x.IsDeleted, ct);
 
         var query = baseQuery;
 
         if (string.Equals(status, "active", StringComparison.OrdinalIgnoreCase))
-            query = query.Where(x => x.IsActive);
+            query = query.Where(x => x.IsActive && !x.IsDeleted);
         else if (string.Equals(status, "inactive", StringComparison.OrdinalIgnoreCase))
-            query = query.Where(x => !x.IsActive);
+            query = query.Where(x => !x.IsActive || x.IsDeleted);
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -48,7 +49,7 @@ public sealed class FtlTransporterRepository(OperationsDbContext dbContext) : IF
     }
 
     public Task<FtlTransporter?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
-        dbContext.FtlTransporters.FirstOrDefaultAsync(x => x.Id == id, ct);
+        dbContext.FtlTransporters.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public Task<FtlTransporter?> GetByNameAsync(string name, CancellationToken ct = default)
     {

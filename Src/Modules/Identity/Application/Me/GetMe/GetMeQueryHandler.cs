@@ -108,8 +108,9 @@ public sealed class GetMeQueryHandler(
                 "User role is not available.");
         }
 
-        var internalPermissions = PermissionCatalog.All
-            .Where(role.HasPermission)
+        var internalPermissions = (role.Name == "Super Admin"
+            ? PermissionCatalog.All
+            : PermissionCatalog.All.Where(role.HasPermission))
             .Select(x => x.Value)
             .ToList();
 

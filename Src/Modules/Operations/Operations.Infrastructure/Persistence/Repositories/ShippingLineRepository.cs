@@ -21,17 +21,17 @@ public sealed class ShippingLineRepository(OperationsDbContext dbContext) : IShi
         int pageSize,
         CancellationToken cancellationToken = default)
     {
-        var baseQuery = dbContext.ShippingLines.AsNoTracking().Where(x => !x.IsDeleted);
+        var baseQuery = dbContext.ShippingLines.AsNoTracking();
 
-        var activeCount = await baseQuery.CountAsync(x => x.IsActive, cancellationToken);
-        var inactiveCount = await baseQuery.CountAsync(x => !x.IsActive, cancellationToken);
+        var activeCount = await baseQuery.CountAsync(x => x.IsActive && !x.IsDeleted, cancellationToken);
+        var inactiveCount = await baseQuery.CountAsync(x => !x.IsActive || x.IsDeleted, cancellationToken);
 
         var query = baseQuery;
 
         if (string.Equals(status, "active", StringComparison.OrdinalIgnoreCase))
-            query = query.Where(x => x.IsActive);
+            query = query.Where(x => x.IsActive && !x.IsDeleted);
         else if (string.Equals(status, "inactive", StringComparison.OrdinalIgnoreCase))
-            query = query.Where(x => !x.IsActive);
+            query = query.Where(x => !x.IsActive || x.IsDeleted);
 
         if (!string.IsNullOrWhiteSpace(search))
         {

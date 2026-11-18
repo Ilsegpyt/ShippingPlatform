@@ -55,14 +55,35 @@ using Api.Modules.Operations.Ftl.AddFtlMasterItem;
 using Api.Modules.Operations.Ftl.AddFtlTruckUpdate;
 using Api.Modules.Operations.Ftl.CreateFtlOperation;
 using Api.Modules.Operations.Ftl.DeleteFtlOperation;
+using Api.Modules.Operations.Ftl.DeliverFtlOperation;
 using Api.Modules.Operations.Ftl.GetAllFtlOperations;
 using Api.Modules.Operations.Ftl.GetFtlMaster;
+using Api.Modules.Operations.Ftl.GetFtlOperationsCounts;
 using Api.Modules.Operations.Ftl.GetFtlUserMe;
 using Api.Modules.Operations.Ftl.ImportFtlTrips;
 using Api.Modules.Operations.Ftl.LockFtlOperation;
+using Api.Modules.Operations.Ftl.ReopenFtlOperation;
 using Api.Modules.Operations.Ftl.UnlockFtlOperation;
 using Api.Modules.Operations.Ftl.UpdateFtlOperation;
 using Api.Modules.Operations.Ftl.UpdateFtlStatus;
+
+// FTL Lookups Endpoints
+using Api.Modules.Operations.Ftl.CreateFtlDriver;
+using Api.Modules.Operations.Ftl.DeactivateFtlDriver;
+using Api.Modules.Operations.Ftl.GetFtlDrivers;
+using Api.Modules.Operations.Ftl.UpdateFtlDriver;
+using Api.Modules.Operations.Ftl.CreateFtlTransporter;
+using Api.Modules.Operations.Ftl.DeactivateFtlTransporter;
+using Api.Modules.Operations.Ftl.GetFtlTransporters;
+using Api.Modules.Operations.Ftl.UpdateFtlTransporter;
+using Api.Modules.Operations.Ftl.CreateFtlVehicle;
+using Api.Modules.Operations.Ftl.DeactivateFtlVehicle;
+using Api.Modules.Operations.Ftl.GetFtlVehicles;
+using Api.Modules.Operations.Ftl.UpdateFtlVehicle;
+using Api.Modules.Operations.Ftl.CreateFtlAirport;
+using Api.Modules.Operations.Ftl.DeactivateFtlAirport;
+using Api.Modules.Operations.Ftl.GetFtlAirports;
+using Api.Modules.Operations.Ftl.UpdateFtlAirport;
 
 namespace Api.Modules.Operations;
 
@@ -143,6 +164,9 @@ public static class OperationsEndpoints
     {
         CreateFtlOperationEndpoint.Map(app);
         GetAllFtlOperationsEndpoint.Map(app);
+        GetFtlOperationsCountsEndpoint.Map(app);
+        DeliverFtlOperationEndpoint.Map(app);
+        ReopenFtlOperationEndpoint.Map(app);
         UpdateFtlOperationEndpoint.Map(app);
         UpdateFtlStatusEndpoint.Map(app);
         DeleteFtlOperationEndpoint.Map(app);
@@ -153,5 +177,26 @@ public static class OperationsEndpoints
         GetFtlMasterEndpoint.Map(app);
         AddFtlMasterItemEndpoint.Map(app);
         GetFtlUserMeEndpoint.Map(app);
+
+        // FTL Lookups
+        CreateFtlDriverEndpoint.Map(app);
+        UpdateFtlDriverEndpoint.Map(app);
+        DeactivateFtlDriverEndpoint.Map(app);
+        GetFtlDriversEndpoint.Map(app);
+
+        CreateFtlTransporterEndpoint.Map(app);
+        UpdateFtlTransporterEndpoint.Map(app);
+        DeactivateFtlTransporterEndpoint.Map(app);
+        GetFtlTransportersEndpoint.Map(app);
+
+        CreateFtlVehicleEndpoint.Map(app);
+        UpdateFtlVehicleEndpoint.Map(app);
+        DeactivateFtlVehicleEndpoint.Map(app);
+        GetFtlVehiclesEndpoint.Map(app);
+
+        CreateFtlAirportEndpoint.Map(app);
+        UpdateFtlAirportEndpoint.Map(app);
+        DeactivateFtlAirportEndpoint.Map(app);
+        GetFtlAirportsEndpoint.Map(app);
     }
 }

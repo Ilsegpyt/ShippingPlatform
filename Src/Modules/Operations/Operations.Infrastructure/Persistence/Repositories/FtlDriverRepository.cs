@@ -10,6 +10,7 @@ public sealed class FtlDriverRepository(OperationsDbContext dbContext) : IFtlDri
     {
         var query = dbContext.FtlDrivers.AsNoTracking();
         if (!includeInactive) query = query.Where(x => !x.IsDeleted && x.IsActive);
+        else query = query.IgnoreQueryFilters();
         return await query.OrderBy(x => x.Name).ToListAsync(ct);
     }
 
@@ -20,17 +21,17 @@ public sealed class FtlDriverRepository(OperationsDbContext dbContext) : IFtlDri
         int pageSize,
         CancellationToken ct = default)
     {
-        var baseQuery = dbContext.FtlDrivers.AsNoTracking().Where(x => !x.IsDeleted);
+        var baseQuery = dbContext.FtlDrivers.IgnoreQueryFilters().AsNoTracking();
 
-        var activeCount = await baseQuery.CountAsync(x => x.IsActive, ct);
-        var inactiveCount = await baseQuery.CountAsync(x => !x.IsActive, ct);
+        var activeCount = await baseQuery.CountAsync(x => x.IsActive && !x.IsDeleted, ct);
+        var inactiveCount = await baseQuery.CountAsync(x => !x.IsActive || x.IsDeleted, ct);
 
         var query = baseQuery;
 
         if (string.Equals(status, "active", StringComparison.OrdinalIgnoreCase))
-            query = query.Where(x => x.IsActive);
+            query = query.Where(x => x.IsActive && !x.IsDeleted);
         else if (string.Equals(status, "inactive", StringComparison.OrdinalIgnoreCase))
-            query = query.Where(x => !x.IsActive);
+            query = query.Where(x => !x.IsActive || x.IsDeleted);
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -50,7 +51,7 @@ public sealed class FtlDriverRepository(OperationsDbContext dbContext) : IFtlDri
     }
 
     public Task<FtlDriver?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
-        dbContext.FtlDrivers.FirstOrDefaultAsync(x => x.Id == id, ct);
+        dbContext.FtlDrivers.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public Task<FtlDriver?> GetByNameAsync(string name, CancellationToken ct = default)
     {

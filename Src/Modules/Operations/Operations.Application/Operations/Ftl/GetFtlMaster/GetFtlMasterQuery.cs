@@ -14,7 +14,9 @@ public sealed record FtlMasterDto(
     IReadOnlyList<string> TruckType,
     IReadOnlyList<string> ClrType,
     IReadOnlyList<string> Customs,
-    IReadOnlyList<string> Status);
+    IReadOnlyList<string> Status,
+    IReadOnlyList<string>? Aod = null,
+    IReadOnlyList<string>? Pol = null);
 
 public sealed record GetFtlMasterQuery : IRequest<Result<FtlMasterDto>>;
 

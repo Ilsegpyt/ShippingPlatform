@@ -774,6 +774,17 @@ namespace Operations.Infrastructure.Migrations
                     b.Property<Guid?>("DeletedByUserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("DeliveredAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeliveredByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("DeliveredByUserId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -811,6 +822,9 @@ namespace Operations.Infrastructure.Migrations
 
                     b.HasIndex("OperationType", "IsDeleted", "Status", "CreatedAtUtc")
                         .HasDatabaseName("IX_FtlOperations_Type_Deleted_Status_Created");
+
+                    b.HasIndex("Status", "DeliveredAtUtc")
+                        .HasDatabaseName("IX_FtlOperations_Status_DeliveredAtUtc");
 
                     b.ToTable("FtlOperations", (string)null);
                 });

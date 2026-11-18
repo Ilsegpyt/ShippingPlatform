@@ -10,11 +10,11 @@ public static class UnlockFtlOperationEndpoint
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapPost("/api/operations/ftl/{reference}/unlock", HandleUnlock)
-            .RequirePermission(PermissionCatalog.OperationsEdit);
+            .RequirePermission(PermissionCatalog.FtlOperationsEdit);
 
         // Support front route
         app.MapPost("/api/v1/ftl/operations/{reference}/unlock", HandleUnlock)
-            .RequirePermission(PermissionCatalog.OperationsEdit);
+            .RequirePermission(PermissionCatalog.FtlOperationsEdit);
     }
 
     private static async Task<IResult> HandleUnlock(

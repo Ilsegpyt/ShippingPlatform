@@ -60,9 +60,22 @@ public sealed class FtlOperationConfiguration : IEntityTypeConfiguration<FtlOper
             .IsRequired()
             .HasMaxLength(200);
 
+        // Delivery Audit
+        builder.Property(x => x.DeliveredAtUtc)
+            .HasColumnType("datetime2");
+
+        builder.Property(x => x.DeliveredByUserId)
+            .HasMaxLength(128);
+
+        builder.Property(x => x.DeliveredByName)
+            .HasMaxLength(200);
+
         // Indexes
         builder.HasIndex(x => new { x.OperationType, x.IsDeleted, x.Status, x.CreatedAtUtc })
             .HasDatabaseName("IX_FtlOperations_Type_Deleted_Status_Created");
+
+        builder.HasIndex(x => new { x.Status, x.DeliveredAtUtc })
+            .HasDatabaseName("IX_FtlOperations_Status_DeliveredAtUtc");
 
         builder.HasQueryFilter(x => !x.IsDeleted);
 

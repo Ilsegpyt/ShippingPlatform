@@ -11,13 +11,13 @@ public static class ImportFtlTripsEndpoint
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapPost("/api/operations/ftl/import", HandleImport)
-            .RequirePermission(PermissionCatalog.OperationsCreate);
+            .RequirePermission(PermissionCatalog.FtlOperationsCreate);
 
         // Support front routes
         app.MapPost("/api/v1/ftl/trips/import", HandleImport)
-            .RequirePermission(PermissionCatalog.OperationsCreate);
+            .RequirePermission(PermissionCatalog.FtlOperationsCreate);
         app.MapPost("/importTrips", HandleImport)
-            .RequirePermission(PermissionCatalog.OperationsCreate);
+            .RequirePermission(PermissionCatalog.FtlOperationsCreate);
     }
 
     private static async Task<IResult> HandleImport(

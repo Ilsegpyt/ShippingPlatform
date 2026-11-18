@@ -10,11 +10,11 @@ public static class LockFtlOperationEndpoint
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapPost("/api/operations/ftl/{reference}/lock", HandleLock)
-            .RequirePermission(PermissionCatalog.OperationsEdit);
+            .RequirePermission(PermissionCatalog.FtlOperationsEdit);
 
         // Support front route
         app.MapPost("/api/v1/ftl/operations/{reference}/lock", HandleLock)
-            .RequirePermission(PermissionCatalog.OperationsEdit);
+            .RequirePermission(PermissionCatalog.FtlOperationsEdit);
     }
 
     private static async Task<IResult> HandleLock(

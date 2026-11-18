@@ -185,6 +185,25 @@ public static class PermissionCatalog
     public static readonly PermissionKey OperationsReopen =
         PermissionKey.Of("operations.reopen");
 
+    // FTL Operations
+    public static readonly PermissionKey FtlOperationsView =
+        PermissionKey.Of("operations.ftl.view");
+
+    public static readonly PermissionKey FtlOperationsCreate =
+        PermissionKey.Of("operations.ftl.create");
+
+    public static readonly PermissionKey FtlOperationsEdit =
+        PermissionKey.Of("operations.ftl.edit");
+
+    public static readonly PermissionKey FtlOperationsDelete =
+        PermissionKey.Of("operations.ftl.delete");
+
+    public static readonly PermissionKey FtlOperationsDeliver =
+        PermissionKey.Of("operations.ftl.deliver");
+
+    public static readonly PermissionKey FtlOperationsReopen =
+        PermissionKey.Of("operations.ftl.reopen");
+
 
 
 
@@ -207,8 +226,8 @@ public static class PermissionCatalog
 
 
 
-    // Permissions available to Ocean Operations Specialist
-    public static readonly IReadOnlyCollection<PermissionKey> OceanOperationsSpecialistPermissions =
+    // Permissions available to Executive Maritime Transportation (formerly Ocean Operations Specialist)
+    public static readonly IReadOnlyCollection<PermissionKey> ExecutiveMaritimeTransportationPermissions =
     [
         OperationsView,
         OperationsCreate,
@@ -217,8 +236,12 @@ public static class PermissionCatalog
         OperationsDeliver
     ];
 
-    // Permissions available to Ocean Operations Manager
-    public static readonly IReadOnlyCollection<PermissionKey> OceanOperationsManagerPermissions =
+    [Obsolete("Use ExecutiveMaritimeTransportationPermissions instead.")]
+    public static readonly IReadOnlyCollection<PermissionKey> OceanOperationsSpecialistPermissions =
+        ExecutiveMaritimeTransportationPermissions;
+
+    // Permissions available to Supervisor Maritime Transportation (formerly Ocean Operations Manager)
+    public static readonly IReadOnlyCollection<PermissionKey> SupervisorMaritimeTransportationPermissions =
     [
         OperationsView,
         OperationsCreate,
@@ -229,6 +252,21 @@ public static class PermissionCatalog
         ReportsView,
         ReportsUpload,
         ReportsDownload
+    ];
+
+    [Obsolete("Use SupervisorMaritimeTransportationPermissions instead.")]
+    public static readonly IReadOnlyCollection<PermissionKey> OceanOperationsManagerPermissions =
+        SupervisorMaritimeTransportationPermissions;
+
+    // Permissions available to FTL Operation Executive
+    public static readonly IReadOnlyCollection<PermissionKey> FtlOperationExecutivePermissions =
+    [
+        FtlOperationsView,
+        FtlOperationsCreate,
+        FtlOperationsEdit,
+        FtlOperationsDelete,
+        FtlOperationsDeliver,
+        FtlOperationsReopen
     ];
 
     // Permissions available to SubAccounts
@@ -356,6 +394,14 @@ public static class PermissionCatalog
         // Notifications
         NotificationsView,
 
+
+        // FTL Operations
+        FtlOperationsView,
+        FtlOperationsCreate,
+        FtlOperationsEdit,
+        FtlOperationsDelete,
+        FtlOperationsDeliver,
+        FtlOperationsReopen,
 
         ImpersonatedCustomerView
     };
