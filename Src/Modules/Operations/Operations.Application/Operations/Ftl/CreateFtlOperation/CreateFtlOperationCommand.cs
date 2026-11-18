@@ -19,6 +19,8 @@ public sealed record CreateFtlOperationCommand(
     string Direction,
     int? RowCount,
     int? ContainerCount,
+    int? Shipments,
+    int? Trucks,
     [property: JsonConverter(typeof(SafeStringDictionaryConverter))]
     Dictionary<string, string>? Shared,
     List<CreateFtlTripInput>? Trips,
@@ -26,9 +28,9 @@ public sealed record CreateFtlOperationCommand(
 
 public sealed record CreateFtlOperationResult(
     string Ref,
-    int Version,
     string Day,
     string At,
-    IReadOnlyList<CreateFtlTripRef> Trips);
+    IReadOnlyList<CreateFtlTripRef> Trips,
+    int? Version = null);
 
 public sealed record CreateFtlTripRef(string Id);

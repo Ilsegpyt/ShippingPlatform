@@ -24,17 +24,35 @@ public sealed class AddFtlTruckUpdateCommandHandler(
         var userName = await currentUser.GetUserNameAsync(ct);
         var now = DateTime.UtcNow;
 
-        // Try to match truck from trip or first truck
+        // Try to match truck from trip or by ordinal from LayoutJson
         var trip = operation.Trips.FirstOrDefault(t => 
             (!string.IsNullOrWhiteSpace(command.TripId) && (t.ExternalId == command.TripId || t.Id.ToString() == command.TripId)));
+
+        short truckOrd = (short)(trip is not null ? trip.Ordinal + 1 : 1);
+        if (!string.IsNullOrWhiteSpace(operation.LayoutJson))
+        {
+            try
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(operation.LayoutJson);
+                if (doc.RootElement.TryGetProperty("trkOf", out var trkOfEl) && trkOfEl.ValueKind == System.Text.Json.JsonValueKind.Array)
+                {
+                    var trkOfList = System.Text.Json.JsonSerializer.Deserialize<List<int>>(trkOfEl.GetRawText());
+                    if (trkOfList is not null && trip is not null && trip.Ordinal < trkOfList.Count)
+                    {
+                        truckOrd = (short)trkOfList[trip.Ordinal];
+                    }
+                }
+            }
+            catch { }
+        }
+
         var truck = trip?.Truck 
             ?? (trip?.FtlTruckId.HasValue == true ? operation.Trucks.FirstOrDefault(t => t.Id == trip.FtlTruckId.Value) : null)
-            ?? operation.Trucks.FirstOrDefault();
+            ?? operation.Trucks.FirstOrDefault(t => t.Ordinal == truckOrd);
 
         if (truck is null)
         {
-            // Create a default truck if none exists yet
-            truck = new Domain.Entities.Ftl.FtlTruck(operation.Id, 1);
+            truck = new Domain.Entities.Ftl.FtlTruck(operation.Id, truckOrd);
             operation.Trucks.Add(truck);
             await operationRepository.AddTruckAsync(truck, ct);
         }
@@ -44,39 +62,16 @@ public sealed class AddFtlTruckUpdateCommandHandler(
 
         if (trip is not null)
         {
-            Dictionary<string, string> fields;
-            if (!string.IsNullOrWhiteSpace(trip.FieldsJson))
-            {
-                try
-                {
-                    fields = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(trip.FieldsJson, SafeStringDictionaryConverter.DefaultOptions) ?? new();
-                }
-                catch
-                {
-                    fields = new();
-                }
-            }
-            else
-            {
-                fields = new();
-            }
-
-            fields["updates"] = command.Note.Trim();
-            fields["updDate"] = $"{now:yyyy-MM-dd} {now:HH:mm}";
-            var newFieldsJson = System.Text.Json.JsonSerializer.Serialize(fields);
-
             trip.Update(
                 trip.Ordinal,
                 trip.ExternalId,
+                trip.FtlShipmentId,
                 truck.Id,
                 trip.LoadStatus,
                 trip.LoadedPackages,
                 trip.LoadedWeight,
-                trip.LoadedCbm,
-                newFieldsJson);
+                trip.LoadedCbm);
         }
-
-        operation.IncrementVersion();
 
         await unitOfWork.SaveChangesAsync(ct);
 
@@ -84,8 +79,7 @@ public sealed class AddFtlTruckUpdateCommandHandler(
             update.Id.ToString(),
             update.Note,
             update.CreatedAtUtc.ToString("HH:mm"),
-            update.CreatedByName,
-            operation.Version);
+            update.CreatedByName);
 
         return Result.Success(result);
     }

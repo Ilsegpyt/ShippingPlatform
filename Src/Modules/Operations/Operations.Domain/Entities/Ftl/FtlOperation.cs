@@ -1,6 +1,4 @@
-using Operations.Domain.Entities.Common;
 using BuildingBlocks.Domain;
-using Operations.Domain.Common;
 using Operations.Domain.Enums;
 
 namespace Operations.Domain.Entities.Ftl;
@@ -10,50 +8,17 @@ public class FtlOperation : Entity<Guid>, IAggregateRoot, ISoftDeletable
     private readonly List<IDomainEvent> _domainEvents = new();
     public IReadOnlyCollection<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
 
-    public string Ref { get; private set; } = null!;
-    public int Year { get; private set; }
-    public int Sequence { get; private set; }
+    public string Ref => $"OPS-{Id.ToString()[..8].ToUpperInvariant()}";
 
     public OperationType OperationType { get; private set; }
     public OperationStatus Status { get; private set; } = OperationStatus.Open;
 
-    public Guid? ClientId { get; private set; }
-    public string? ClientName { get; private set; }
-
-    public string? BL { get; private set; }
-    public string? BookingNumber { get; private set; }
-    public ClearanceType? ClearanceType { get; private set; }
-    public string? CertificateNumber { get; private set; }
-
-    public int? Packages { get; private set; }
-    public decimal? GrossWeight { get; private set; }
-    public decimal? Cbm { get; private set; }
-    public string? Commodity { get; private set; }
-
-    public string? Terminal { get; private set; }
-    public string? Destination { get; private set; }
-    public string? AOD { get; private set; }
-
-    public DateOnly? ArrivalDate { get; private set; }
-    public TimeOnly? ArrivalTime { get; private set; }
-
-    public DateOnly? RequiredArrivalDate { get; private set; }
-    public TimeOnly? RequiredArrivalTime { get; private set; }
-
-    public string? CustomsArea { get; private set; }
-    public DateOnly? InvoicesReceivedDate { get; private set; }
+    public int NumberOfShipments { get; private set; } = 1;
 
     /// <summary>
     /// Serialized JSON for client UI layout state, unmerged fields, etc.
     /// </summary>
     public string? LayoutJson { get; private set; }
-
-    public int Version { get; private set; } = 1;
-
-    public DateOnly Day { get; private set; }
-    public TimeOnly Time { get; private set; }
-    public string? EnteredByUserId { get; private set; }
-    public string? EnteredByName { get; private set; }
 
     // Concurrency Lock
     public Guid? LockedByUserId { get; private set; }
@@ -72,6 +37,7 @@ public class FtlOperation : Entity<Guid>, IAggregateRoot, ISoftDeletable
     public string CreatedByName { get; private set; } = null!;
 
     // Child Collections
+    public ICollection<FtlShipment> Shipments { get; private set; } = new List<FtlShipment>();
     public ICollection<FtlTruck> Trucks { get; private set; } = new List<FtlTruck>();
     public ICollection<FtlOperationTrip> Trips { get; private set; } = new List<FtlOperationTrip>();
     public ICollection<FtlStatusAudit> StatusAudits { get; private set; } = new List<FtlStatusAudit>();
@@ -79,70 +45,16 @@ public class FtlOperation : Entity<Guid>, IAggregateRoot, ISoftDeletable
     private FtlOperation() { }
 
     public FtlOperation(
-        string reference,
-        int year,
-        int sequence,
+        Guid id,
         OperationType operationType,
-        Guid? clientId = null,
-        string? clientName = null,
-        string? bl = null,
-        string? bookingNumber = null,
-        ClearanceType? clearanceType = null,
-        string? certificateNumber = null,
-        int? packages = null,
-        decimal? grossWeight = null,
-        decimal? cbm = null,
-        string? commodity = null,
-        string? terminal = null,
-        string? destination = null,
-        string? aod = null,
-        DateOnly? arrivalDate = null,
-        TimeOnly? arrivalTime = null,
-        DateOnly? requiredArrivalDate = null,
-        TimeOnly? requiredArrivalTime = null,
-        string? customsArea = null,
-        DateOnly? invoicesReceivedDate = null,
-        string? layoutJson = null,
-        DateOnly? day = null,
-        TimeOnly? time = null,
-        string? enteredByUserId = null,
-        string? enteredByName = null)
-        : base(Guid.NewGuid())
+        int numberOfShipments = 1,
+        string? layoutJson = null)
+        : base(id == Guid.Empty ? Guid.NewGuid() : id)
     {
-        if (string.IsNullOrWhiteSpace(reference))
-            throw new ArgumentException("Reference number is required.", nameof(reference));
-
-        Ref = reference.Trim();
-        Year = year;
-        Sequence = sequence;
         OperationType = operationType;
         Status = OperationStatus.Open;
-
-        ClientId = clientId;
-        ClientName = string.IsNullOrWhiteSpace(clientName) ? null : clientName.Trim();
-        BL = IdentifierNormalizer.Normalize(bl);
-        BookingNumber = IdentifierNormalizer.Normalize(bookingNumber);
-        ClearanceType = clearanceType;
-        CertificateNumber = IdentifierNormalizer.Normalize(certificateNumber);
-        Packages = packages;
-        GrossWeight = grossWeight;
-        Cbm = cbm;
-        Commodity = string.IsNullOrWhiteSpace(commodity) ? null : commodity.Trim();
-        Terminal = string.IsNullOrWhiteSpace(terminal) ? null : terminal.Trim();
-        Destination = string.IsNullOrWhiteSpace(destination) ? null : destination.Trim();
-        AOD = string.IsNullOrWhiteSpace(aod) ? null : aod.Trim();
-        ArrivalDate = arrivalDate;
-        ArrivalTime = arrivalTime;
-        RequiredArrivalDate = requiredArrivalDate;
-        RequiredArrivalTime = requiredArrivalTime;
-        CustomsArea = string.IsNullOrWhiteSpace(customsArea) ? null : customsArea.Trim();
-        InvoicesReceivedDate = invoicesReceivedDate;
+        NumberOfShipments = Math.Max(1, numberOfShipments);
         LayoutJson = layoutJson;
-
-        Day = day ?? DateOnly.FromDateTime(DateTime.UtcNow);
-        Time = time ?? TimeOnly.FromDateTime(DateTime.UtcNow);
-        EnteredByUserId = enteredByUserId;
-        EnteredByName = enteredByName;
     }
 
     public void SetCreatedAudit(string userId, string userName, DateTime utcNow)
@@ -152,58 +64,14 @@ public class FtlOperation : Entity<Guid>, IAggregateRoot, ISoftDeletable
         CreatedAtUtc = utcNow.Kind == DateTimeKind.Utc ? utcNow : DateTime.SpecifyKind(utcNow, DateTimeKind.Utc);
     }
 
-    public void UpdateSharedDetails(
-        Guid? clientId,
-        string? clientName,
-        string? bl,
-        string? bookingNumber,
-        ClearanceType? clearanceType,
-        string? certificateNumber,
-        int? packages,
-        decimal? grossWeight,
-        decimal? cbm,
-        string? commodity,
-        string? terminal,
-        string? destination,
-        string? aod,
-        DateOnly? arrivalDate,
-        TimeOnly? arrivalTime,
-        DateOnly? requiredArrivalDate,
-        TimeOnly? requiredArrivalTime,
-        string? customsArea,
-        DateOnly? invoicesReceivedDate,
-        string? layoutJson)
-    {
-        ClientId = clientId;
-        ClientName = string.IsNullOrWhiteSpace(clientName) ? null : clientName.Trim();
-        BL = IdentifierNormalizer.Normalize(bl);
-        BookingNumber = IdentifierNormalizer.Normalize(bookingNumber);
-        ClearanceType = clearanceType;
-        CertificateNumber = IdentifierNormalizer.Normalize(certificateNumber);
-        Packages = packages;
-        GrossWeight = grossWeight;
-        Cbm = cbm;
-        Commodity = string.IsNullOrWhiteSpace(commodity) ? null : commodity.Trim();
-        Terminal = string.IsNullOrWhiteSpace(terminal) ? null : terminal.Trim();
-        Destination = string.IsNullOrWhiteSpace(destination) ? null : destination.Trim();
-        AOD = string.IsNullOrWhiteSpace(aod) ? null : aod.Trim();
-        ArrivalDate = arrivalDate;
-        ArrivalTime = arrivalTime;
-        RequiredArrivalDate = requiredArrivalDate;
-        RequiredArrivalTime = requiredArrivalTime;
-        CustomsArea = string.IsNullOrWhiteSpace(customsArea) ? null : customsArea.Trim();
-        InvoicesReceivedDate = invoicesReceivedDate;
-        if (layoutJson is not null) LayoutJson = layoutJson;
-    }
-
-    public void IncrementVersion()
-    {
-        Version += 1;
-    }
-
     public void SetLayoutJson(string? layoutJson)
     {
         LayoutJson = layoutJson;
+    }
+
+    public void UpdateNumberOfShipments(int numberOfShipments)
+    {
+        NumberOfShipments = Math.Max(1, numberOfShipments);
     }
 
     public void UpdateStatus(
@@ -217,7 +85,6 @@ public class FtlOperation : Entity<Guid>, IAggregateRoot, ISoftDeletable
         if (oldStatus == newStatus) return;
 
         Status = newStatus;
-        IncrementVersion();
 
         var audit = new FtlStatusAudit(
             Id,

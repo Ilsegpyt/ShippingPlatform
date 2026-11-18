@@ -22,40 +22,7 @@ namespace Operations.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Operations.Domain.Entities.ContainerUpdate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("CreatedByUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Details")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<Guid>("OperationContainerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OperationContainerId");
-
-                    b.ToTable("ContainerUpdates");
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.Destination", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Common.Destination", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -90,7 +57,79 @@ namespace Operations.Infrastructure.Migrations
                     b.ToTable("Destinations");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.Driver", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Common.ShippingLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Abbreviation")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("ShippingLines");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.ContainerUpdate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Details")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("OperationContainerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperationContainerId");
+
+                    b.ToTable("ContainerUpdates");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.Driver", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -134,7 +173,7 @@ namespace Operations.Infrastructure.Migrations
                     b.ToTable("Drivers");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.ExportDetails", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.ExportDetails", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -186,7 +225,7 @@ namespace Operations.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.FclApproval", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.FclApproval", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -225,585 +264,7 @@ namespace Operations.Infrastructure.Migrations
                     b.ToTable("FclApprovals", (string)null);
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.FtlAirport", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.ToTable("FtlAirports", (string)null);
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlDriver", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DriverNumber")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("MobileNumber")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DriverNumber")
-                        .IsUnique()
-                        .HasFilter("[DriverNumber] IS NOT NULL AND [IsDeleted] = 0");
-
-                    b.ToTable("FtlDrivers", (string)null);
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlOperation", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AOD")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateOnly?>("ArrivalDate")
-                        .HasColumnType("date");
-
-                    b.Property<TimeOnly?>("ArrivalTime")
-                        .HasColumnType("time");
-
-                    b.Property<string>("BL")
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<string>("BookingNumber")
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<decimal?>("Cbm")
-                        .HasPrecision(10, 3)
-                        .HasColumnType("decimal(10,3)");
-
-                    b.Property<string>("CertificateNumber")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<string>("ClearanceType")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<Guid?>("ClientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ClientName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Commodity")
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("CreatedByUserId")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("CustomsArea")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateOnly>("Day")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Destination")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("EnteredByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("EnteredByUserId")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<decimal?>("GrossWeight")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<DateOnly?>("InvoicesReceivedDate")
-                        .HasColumnType("date");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("LayoutJson")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LockedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LockedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("LockedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("OperationType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int?>("Packages")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Ref")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateOnly?>("RequiredArrivalDate")
-                        .HasColumnType("date");
-
-                    b.Property<TimeOnly?>("RequiredArrivalTime")
-                        .HasColumnType("time");
-
-                    b.Property<int>("Sequence")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Terminal")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<TimeOnly>("Time")
-                        .HasColumnType("time");
-
-                    b.Property<int>("Version")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
-
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Ref")
-                        .IsUnique()
-                        .HasDatabaseName("UX_FtlOperations_Ref")
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.HasIndex("OperationType", "IsDeleted", "Status", "CreatedAtUtc")
-                        .HasDatabaseName("IX_FtlOperations_Type_Deleted_Status_Created");
-
-                    b.ToTable("FtlOperations", (string)null);
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlOperationTrip", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ExternalId")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("FieldsJson")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("FtlOperationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("FtlTruckId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("LoadStatus")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<decimal?>("LoadedCbm")
-                        .HasPrecision(10, 3)
-                        .HasColumnType("decimal(10,3)");
-
-                    b.Property<int?>("LoadedPackages")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("LoadedWeight")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<short>("Ordinal")
-                        .HasColumnType("smallint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FtlTruckId");
-
-                    b.HasIndex("FtlOperationId", "Ordinal")
-                        .IsUnique()
-                        .HasDatabaseName("UX_FtlOperationTrips_Operation_Ordinal");
-
-                    b.ToTable("FtlOperationTrips", (string)null);
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlStatusAudit", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("AfterStatus")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("AtUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("BeforeStatus")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<Guid>("FtlOperationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FtlOperationId", "AtUtc");
-
-                    b.ToTable("FtlStatusAudits", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_FtlStatusAudits_StatusChanged", "[BeforeStatus] <> [AfterStatus]");
-                        });
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlTerminal", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.ToTable("FtlTerminals", (string)null);
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlTransporter", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.ToTable("FtlTransporters", (string)null);
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlTruck", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("DriverId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DriverMobile")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("DriverName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid>("FtlOperationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateOnly?>("GateInDate")
-                        .HasColumnType("date");
-
-                    b.Property<TimeOnly?>("GateInTime")
-                        .HasColumnType("time");
-
-                    b.Property<DateOnly?>("GateOutDate")
-                        .HasColumnType("date");
-
-                    b.Property<TimeOnly?>("GateOutTime")
-                        .HasColumnType("time");
-
-                    b.Property<short>("Ordinal")
-                        .HasColumnType("smallint");
-
-                    b.Property<Guid?>("TransporterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("TransporterName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("TruckPlateNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("TruckType")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FtlOperationId", "Ordinal")
-                        .IsUnique()
-                        .HasDatabaseName("UX_FtlTrucks_Operation_Ordinal");
-
-                    b.ToTable("FtlTrucks", (string)null);
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlTruckUpdate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedByName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("CreatedByUserId")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<Guid>("FtlTruckId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Note")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<string>("TripId")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FtlTruckId");
-
-                    b.ToTable("FtlTruckUpdates", (string)null);
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlVehicle", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("FtlTransporterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("PlateNumber")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("TruckType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FtlTransporterId");
-
-                    b.HasIndex("PlateNumber")
-                        .IsUnique()
-                        .HasFilter("[IsDeleted] = 0");
-
-                    b.ToTable("FtlVehicles", (string)null);
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.ImportDetails", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.ImportDetails", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -836,7 +297,7 @@ namespace Operations.Infrastructure.Migrations
                     b.ToTable("ImportDetails");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.Operation", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.Operation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -939,31 +400,6 @@ namespace Operations.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DeletedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime?>("LockedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LockedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("LockedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ShippingLineId");
@@ -982,7 +418,7 @@ namespace Operations.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.OperationContainer", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.OperationContainer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1067,7 +503,7 @@ namespace Operations.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.OperationStatusAudit", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.OperationStatusAudit", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -1108,7 +544,7 @@ namespace Operations.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.Port", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.Port", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1148,46 +584,7 @@ namespace Operations.Infrastructure.Migrations
                     b.ToTable("Ports");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.ShippingLine", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Abbreviation")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeletedByName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(160)
-                        .HasColumnType("nvarchar(160)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("ShippingLines");
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.Transporter", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.Transporter", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1222,7 +619,7 @@ namespace Operations.Infrastructure.Migrations
                     b.ToTable("Transporters");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.Vehicle", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.Vehicle", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1257,9 +654,608 @@ namespace Operations.Infrastructure.Migrations
                     b.ToTable("Vehicles");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.ContainerUpdate", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlAirport", b =>
                 {
-                    b.HasOne("Operations.Domain.Entities.OperationContainer", "OperationContainer")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("FtlAirports", (string)null);
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlDriver", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DriverNumber")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("MobileNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DriverNumber")
+                        .IsUnique()
+                        .HasFilter("[DriverNumber] IS NOT NULL AND [IsDeleted] = 0");
+
+                    b.ToTable("FtlDrivers", (string)null);
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlOperation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("LayoutJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LockedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LockedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("LockedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("NumberOfShipments")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("OperationType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OperationType", "IsDeleted", "Status", "CreatedAtUtc")
+                        .HasDatabaseName("IX_FtlOperations_Type_Deleted_Status_Created");
+
+                    b.ToTable("FtlOperations", (string)null);
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlOperationTrip", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ExternalId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FieldsJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("FtlOperationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FtlShipmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FtlTruckId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LoadStatus")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<decimal?>("LoadedCbm")
+                        .HasPrecision(10, 3)
+                        .HasColumnType("decimal(10,3)");
+
+                    b.Property<int?>("LoadedPackages")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("LoadedWeight")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<short>("Ordinal")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FtlShipmentId");
+
+                    b.HasIndex("FtlTruckId");
+
+                    b.HasIndex("FtlOperationId", "Ordinal")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FtlOperationTrips_Operation_Ordinal");
+
+                    b.ToTable("FtlOperationTrips", (string)null);
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlShipment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AOD")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal?>("Cbm")
+                        .HasPrecision(10, 3)
+                        .HasColumnType("decimal(10,3)");
+
+                    b.Property<string>("CertificateNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ClearanceType")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClientName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Commodity")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("CustomsArea")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Destination")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("FtlOperationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("GrossWeight")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<string>("HAWB")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateOnly?>("InvoicesReceivedDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("MAWB")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("MissingDocs")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateOnly?>("MissingDocsReceivedDate")
+                        .HasColumnType("date");
+
+                    b.Property<short>("Ordinal")
+                        .HasColumnType("smallint");
+
+                    b.Property<int?>("Packages")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ShipmentNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Terminal")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TransporterInvoiceNo")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CertificateNumber", "ShipmentNumber")
+                        .HasDatabaseName("IX_FtlShipments_Cert_ShipmentNumber")
+                        .HasFilter("[CertificateNumber] IS NOT NULL AND [ShipmentNumber] IS NOT NULL");
+
+                    b.HasIndex("FtlOperationId", "Ordinal")
+                        .HasDatabaseName("IX_FtlShipments_Operation_Ordinal");
+
+                    b.HasIndex("HAWB")
+                        .HasDatabaseName("IX_FtlShipments_HAWB")
+                        .HasFilter("[HAWB] IS NOT NULL");
+
+                    b.HasIndex("MAWB", "HAWB")
+                        .HasDatabaseName("IX_FtlShipments_MAWB_HAWB")
+                        .HasFilter("[MAWB] IS NOT NULL AND [HAWB] IS NOT NULL");
+
+                    b.HasIndex("ShipmentNumber")
+                        .HasDatabaseName("IX_FtlShipments_ShipmentNumber")
+                        .HasFilter("[ShipmentNumber] IS NOT NULL");
+
+                    b.ToTable("FtlShipments", (string)null);
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlStatusAudit", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AfterStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("AtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("BeforeStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("FtlOperationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FtlOperationId", "AtUtc");
+
+                    b.ToTable("FtlStatusAudits", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_FtlStatusAudits_StatusChanged", "[BeforeStatus] <> [AfterStatus]");
+                        });
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlTerminal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("FtlTerminals", (string)null);
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlTransporter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("FtlTransporters", (string)null);
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlTruck", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("ArrivalDate")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly?>("ArrivalTime")
+                        .HasColumnType("time");
+
+                    b.Property<Guid?>("DriverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DriverMobile")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("DriverName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("FtlOperationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly?>("GateInDate")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly?>("GateInTime")
+                        .HasColumnType("time");
+
+                    b.Property<DateOnly?>("GateOutDate")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly?>("GateOutTime")
+                        .HasColumnType("time");
+
+                    b.Property<short>("Ordinal")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateOnly?>("RequiredArrivalDate")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly?>("RequiredArrivalTime")
+                        .HasColumnType("time");
+
+                    b.Property<Guid?>("TransporterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TransporterName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TruckPlateNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("TruckType")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FtlOperationId", "Ordinal")
+                        .IsUnique()
+                        .HasDatabaseName("UX_FtlTrucks_Operation_Ordinal");
+
+                    b.ToTable("FtlTrucks", (string)null);
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlTruckUpdate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<Guid>("FtlTruckId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("TripId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FtlTruckId");
+
+                    b.ToTable("FtlTruckUpdates", (string)null);
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlVehicle", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("FtlTransporterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("PlateNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("TruckType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FtlTransporterId");
+
+                    b.HasIndex("PlateNumber")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("FtlVehicles", (string)null);
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.ContainerUpdate", b =>
+                {
+                    b.HasOne("Operations.Domain.Entities.Fcl.OperationContainer", "OperationContainer")
                         .WithMany("Updates")
                         .HasForeignKey("OperationContainerId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1268,26 +1264,26 @@ namespace Operations.Infrastructure.Migrations
                     b.Navigation("OperationContainer");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.ExportDetails", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.ExportDetails", b =>
                 {
-                    b.HasOne("Operations.Domain.Entities.Operation", "Operation")
+                    b.HasOne("Operations.Domain.Entities.Fcl.Operation", "Operation")
                         .WithOne("ExportDetails")
-                        .HasForeignKey("Operations.Domain.Entities.ExportDetails", "OperationId")
+                        .HasForeignKey("Operations.Domain.Entities.Fcl.ExportDetails", "OperationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Operations.Domain.Entities.Port", "POD")
+                    b.HasOne("Operations.Domain.Entities.Fcl.Port", "POD")
                         .WithMany()
                         .HasForeignKey("PODId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Operations.Domain.Entities.Port", "POL")
+                    b.HasOne("Operations.Domain.Entities.Fcl.Port", "POL")
                         .WithMany()
                         .HasForeignKey("POLId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Operations.Domain.Entities.Port", "POW")
+                    b.HasOne("Operations.Domain.Entities.Fcl.Port", "POW")
                         .WithMany()
                         .HasForeignKey("POWId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -1301,14 +1297,14 @@ namespace Operations.Infrastructure.Migrations
                     b.Navigation("POW");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.FclApproval", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.FclApproval", b =>
                 {
-                    b.HasOne("Operations.Domain.Entities.Operation", "ExportOperation")
+                    b.HasOne("Operations.Domain.Entities.Fcl.Operation", "ExportOperation")
                         .WithMany()
                         .HasForeignKey("ExportOperationId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Operations.Domain.Entities.OperationContainer", "ImportContainer")
+                    b.HasOne("Operations.Domain.Entities.Fcl.OperationContainer", "ImportContainer")
                         .WithMany()
                         .HasForeignKey("ImportContainerId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1319,76 +1315,15 @@ namespace Operations.Infrastructure.Migrations
                     b.Navigation("ImportContainer");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.FtlOperationTrip", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.ImportDetails", b =>
                 {
-                    b.HasOne("Operations.Domain.Entities.FtlOperation", "Operation")
-                        .WithMany("Trips")
-                        .HasForeignKey("FtlOperationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Operations.Domain.Entities.FtlTruck", "Truck")
-                        .WithMany()
-                        .HasForeignKey("FtlTruckId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Operation");
-
-                    b.Navigation("Truck");
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlStatusAudit", b =>
-                {
-                    b.HasOne("Operations.Domain.Entities.FtlOperation", "Operation")
-                        .WithMany("StatusAudits")
-                        .HasForeignKey("FtlOperationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Operation");
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlTruck", b =>
-                {
-                    b.HasOne("Operations.Domain.Entities.FtlOperation", "Operation")
-                        .WithMany("Trucks")
-                        .HasForeignKey("FtlOperationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Operation");
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlTruckUpdate", b =>
-                {
-                    b.HasOne("Operations.Domain.Entities.FtlTruck", "Truck")
-                        .WithMany("Updates")
-                        .HasForeignKey("FtlTruckId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Truck");
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.FtlVehicle", b =>
-                {
-                    b.HasOne("Operations.Domain.Entities.FtlTransporter", "Transporter")
-                        .WithMany()
-                        .HasForeignKey("FtlTransporterId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Transporter");
-                });
-
-            modelBuilder.Entity("Operations.Domain.Entities.ImportDetails", b =>
-                {
-                    b.HasOne("Operations.Domain.Entities.Operation", "Operation")
+                    b.HasOne("Operations.Domain.Entities.Fcl.Operation", "Operation")
                         .WithOne("ImportDetails")
-                        .HasForeignKey("Operations.Domain.Entities.ImportDetails", "OperationId")
+                        .HasForeignKey("Operations.Domain.Entities.Fcl.ImportDetails", "OperationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Operations.Domain.Entities.Port", "POD")
+                    b.HasOne("Operations.Domain.Entities.Fcl.Port", "POD")
                         .WithMany()
                         .HasForeignKey("PODId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1399,9 +1334,9 @@ namespace Operations.Infrastructure.Migrations
                     b.Navigation("POD");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.Operation", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.Operation", b =>
                 {
-                    b.HasOne("Operations.Domain.Entities.ShippingLine", "ShippingLine")
+                    b.HasOne("Operations.Domain.Entities.Common.ShippingLine", "ShippingLine")
                         .WithMany()
                         .HasForeignKey("ShippingLineId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1410,25 +1345,25 @@ namespace Operations.Infrastructure.Migrations
                     b.Navigation("ShippingLine");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.OperationContainer", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.OperationContainer", b =>
                 {
-                    b.HasOne("Operations.Domain.Entities.Driver", "Driver")
+                    b.HasOne("Operations.Domain.Entities.Fcl.Driver", "Driver")
                         .WithMany()
                         .HasForeignKey("DriverId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Operations.Domain.Entities.Operation", "Operation")
+                    b.HasOne("Operations.Domain.Entities.Fcl.Operation", "Operation")
                         .WithMany("Containers")
                         .HasForeignKey("OperationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Operations.Domain.Entities.Transporter", "Transporter")
+                    b.HasOne("Operations.Domain.Entities.Fcl.Transporter", "Transporter")
                         .WithMany()
                         .HasForeignKey("TransporterId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Operations.Domain.Entities.Vehicle", "Vehicle")
+                    b.HasOne("Operations.Domain.Entities.Fcl.Vehicle", "Vehicle")
                         .WithMany()
                         .HasForeignKey("VehicleId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -1442,9 +1377,9 @@ namespace Operations.Infrastructure.Migrations
                     b.Navigation("Vehicle");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.OperationStatusAudit", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.OperationStatusAudit", b =>
                 {
-                    b.HasOne("Operations.Domain.Entities.Operation", "Operation")
+                    b.HasOne("Operations.Domain.Entities.Fcl.Operation", "Operation")
                         .WithMany()
                         .HasForeignKey("OperationId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1453,21 +1388,86 @@ namespace Operations.Infrastructure.Migrations
                     b.Navigation("Operation");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.FtlOperation", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlOperationTrip", b =>
                 {
-                    b.Navigation("StatusAudits");
+                    b.HasOne("Operations.Domain.Entities.Ftl.FtlOperation", "Operation")
+                        .WithMany("Trips")
+                        .HasForeignKey("FtlOperationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Trips");
+                    b.HasOne("Operations.Domain.Entities.Ftl.FtlShipment", "Shipment")
+                        .WithMany()
+                        .HasForeignKey("FtlShipmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Trucks");
+                    b.HasOne("Operations.Domain.Entities.Ftl.FtlTruck", "Truck")
+                        .WithMany()
+                        .HasForeignKey("FtlTruckId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Operation");
+
+                    b.Navigation("Shipment");
+
+                    b.Navigation("Truck");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.FtlTruck", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlShipment", b =>
                 {
-                    b.Navigation("Updates");
+                    b.HasOne("Operations.Domain.Entities.Ftl.FtlOperation", "Operation")
+                        .WithMany("Shipments")
+                        .HasForeignKey("FtlOperationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Operation");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.Operation", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlStatusAudit", b =>
+                {
+                    b.HasOne("Operations.Domain.Entities.Ftl.FtlOperation", "Operation")
+                        .WithMany("StatusAudits")
+                        .HasForeignKey("FtlOperationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Operation");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlTruck", b =>
+                {
+                    b.HasOne("Operations.Domain.Entities.Ftl.FtlOperation", "Operation")
+                        .WithMany("Trucks")
+                        .HasForeignKey("FtlOperationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Operation");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlTruckUpdate", b =>
+                {
+                    b.HasOne("Operations.Domain.Entities.Ftl.FtlTruck", "Truck")
+                        .WithMany("Updates")
+                        .HasForeignKey("FtlTruckId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Truck");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlVehicle", b =>
+                {
+                    b.HasOne("Operations.Domain.Entities.Ftl.FtlTransporter", "Transporter")
+                        .WithMany()
+                        .HasForeignKey("FtlTransporterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Transporter");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.Operation", b =>
                 {
                     b.Navigation("Containers");
 
@@ -1476,7 +1476,23 @@ namespace Operations.Infrastructure.Migrations
                     b.Navigation("ImportDetails");
                 });
 
-            modelBuilder.Entity("Operations.Domain.Entities.OperationContainer", b =>
+            modelBuilder.Entity("Operations.Domain.Entities.Fcl.OperationContainer", b =>
+                {
+                    b.Navigation("Updates");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlOperation", b =>
+                {
+                    b.Navigation("Shipments");
+
+                    b.Navigation("StatusAudits");
+
+                    b.Navigation("Trips");
+
+                    b.Navigation("Trucks");
+                });
+
+            modelBuilder.Entity("Operations.Domain.Entities.Ftl.FtlTruck", b =>
                 {
                     b.Navigation("Updates");
                 });

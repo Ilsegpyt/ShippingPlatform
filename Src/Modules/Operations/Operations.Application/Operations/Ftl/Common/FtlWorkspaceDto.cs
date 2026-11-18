@@ -4,8 +4,8 @@ using BuildingBlocks.Application.Serialization;
 namespace Operations.Application.Operations.Ftl.Common;
 
 public sealed record FtlWorkspaceDto(
-    int Version,
-    IReadOnlyList<FtlOperationDto> Shipments);
+    IReadOnlyList<FtlOperationDto> Shipments,
+    int? Version = null);
 
 public sealed record FtlOperationDto(
     string Ref,

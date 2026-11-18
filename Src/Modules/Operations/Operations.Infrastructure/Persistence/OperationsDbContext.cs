@@ -38,6 +38,7 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
 
     // FTL Airport
     public DbSet<FtlOperation> FtlOperations => Set<FtlOperation>();
+    public DbSet<FtlShipment> FtlShipments => Set<FtlShipment>();
     public DbSet<FtlTruck> FtlTrucks => Set<FtlTruck>();
     public DbSet<FtlOperationTrip> FtlOperationTrips => Set<FtlOperationTrip>();
     public DbSet<FtlTruckUpdate> FtlTruckUpdates => Set<FtlTruckUpdate>();
@@ -47,6 +48,13 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
     public DbSet<FtlTransporter> FtlTransporters => Set<FtlTransporter>();
     public DbSet<FtlDriver> FtlDrivers => Set<FtlDriver>();
     public DbSet<FtlVehicle> FtlVehicles => Set<FtlVehicle>();
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.ConfigureWarnings(warnings =>
+            warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        base.OnConfiguring(optionsBuilder);
+    }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -169,6 +177,24 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
 
     if (statusChanges.Count > 0)
         OperationStatusAudits.AddRange(statusChanges);
+
+    var ftlStatusChanges = ChangeTracker
+        .Entries<FtlOperation>()
+        .Where(entry =>
+            entry.State == EntityState.Modified &&
+            entry.Property(x => x.Status).IsModified &&
+            entry.Property(x => x.Status).OriginalValue != entry.Entity.Status &&
+            !FtlStatusAudits.Local.Any(a => a.FtlOperationId == entry.Entity.Id && a.AfterStatus == entry.Entity.Status))
+        .Select(entry => new FtlStatusAudit(
+            entry.Entity.Id,
+            entry.Property(x => x.Status).OriginalValue,
+            entry.Entity.Status,
+            userId,
+            now))
+        .ToList();
+
+    if (ftlStatusChanges.Count > 0)
+        FtlStatusAudits.AddRange(ftlStatusChanges);
 
     return await base.SaveChangesAsync(
         acceptAllChangesOnSuccess,

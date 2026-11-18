@@ -1650,36 +1650,10 @@ IF OBJECT_ID(N'[FtlOperations]', N'U') IS NULL
 BEGIN
     CREATE TABLE [FtlOperations] (
         [Id] uniqueidentifier NOT NULL,
-        [Ref] nvarchar(50) NOT NULL,
-        [Year] int NOT NULL,
-        [Sequence] int NOT NULL,
         [OperationType] nvarchar(20) NOT NULL,
         [Status] nvarchar(20) NOT NULL,
-        [ClientId] uniqueidentifier NULL,
-        [ClientName] nvarchar(200) NULL,
-        [BL] nvarchar(120) NULL,
-        [BookingNumber] nvarchar(120) NULL,
-        [ClearanceType] nvarchar(20) NULL,
-        [CertificateNumber] nvarchar(80) NULL,
-        [Packages] int NULL,
-        [GrossWeight] decimal(18,3) NULL,
-        [Cbm] decimal(10,3) NULL,
-        [Commodity] nvarchar(300) NULL,
-        [Terminal] nvarchar(200) NULL,
-        [Destination] nvarchar(200) NULL,
-        [AOD] nvarchar(50) NULL,
-        [ArrivalDate] date NULL,
-        [ArrivalTime] time NULL,
-        [RequiredArrivalDate] date NULL,
-        [RequiredArrivalTime] time NULL,
-        [CustomsArea] nvarchar(200) NULL,
-        [InvoicesReceivedDate] date NULL,
+        [NumberOfShipments] int NOT NULL DEFAULT 1,
         [LayoutJson] nvarchar(max) NULL,
-        [Version] int NOT NULL DEFAULT 1,
-        [Day] date NOT NULL,
-        [Time] time NOT NULL,
-        [EnteredByUserId] nvarchar(128) NULL,
-        [EnteredByName] nvarchar(200) NULL,
         [LockedByUserId] uniqueidentifier NULL,
         [LockedByName] nvarchar(200) NULL,
         [LockedAtUtc] datetime2 NULL,
@@ -1750,6 +1724,10 @@ BEGIN
         [DriverId] uniqueidentifier NULL,
         [DriverName] nvarchar(200) NULL,
         [DriverMobile] nvarchar(50) NULL,
+        [ArrivalDate] date NULL,
+        [ArrivalTime] time NULL,
+        [RequiredArrivalDate] date NULL,
+        [RequiredArrivalTime] time NULL,
         [GateInDate] date NULL,
         [GateInTime] time NULL,
         [GateOutDate] date NULL,
@@ -1823,7 +1801,7 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_FtlDrivers_DriverNumb
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_FtlOperations_Type_Deleted_Status_Created' AND object_id = OBJECT_ID(N'[FtlOperations]'))
     CREATE INDEX [IX_FtlOperations_Type_Deleted_Status_Created] ON [FtlOperations] ([OperationType], [IsDeleted], [Status], [CreatedAtUtc]);
 
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_FtlOperations_Ref' AND object_id = OBJECT_ID(N'[FtlOperations]'))
+IF COL_LENGTH(N'[FtlOperations]', N'Ref') IS NOT NULL AND NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_FtlOperations_Ref' AND object_id = OBJECT_ID(N'[FtlOperations]'))
     EXEC(N'CREATE UNIQUE INDEX [UX_FtlOperations_Ref] ON [FtlOperations] ([Ref]) WHERE [IsDeleted] = 0');
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_FtlOperationTrips_FtlTruckId' AND object_id = OBJECT_ID(N'[FtlOperationTrips]'))
@@ -1868,6 +1846,187 @@ IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'202
 IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20261111084008_AddFtlAirportModule')
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'20261111084008_AddFtlAirportModule', N'10.0.12');
+
+-- 6. FTL Shipments & Schema Enhancement
+IF COL_LENGTH(N'[FtlOperations]', N'NumberOfShipments') IS NULL
+    ALTER TABLE [FtlOperations] ADD [NumberOfShipments] int NOT NULL DEFAULT 1;
+
+IF OBJECT_ID(N'[FtlShipments]', N'U') IS NULL
+BEGIN
+    CREATE TABLE [FtlShipments] (
+        [Id] uniqueidentifier NOT NULL,
+        [FtlOperationId] uniqueidentifier NOT NULL,
+        [Ordinal] smallint NOT NULL,
+        [ShipmentNumber] nvarchar(100) NULL,
+        [MAWB] nvarchar(100) NULL,
+        [HAWB] nvarchar(100) NULL,
+        [CertificateNumber] nvarchar(100) NULL,
+        [ClearanceType] nvarchar(20) NULL,
+        [ClientId] uniqueidentifier NULL,
+        [ClientName] nvarchar(200) NULL,
+        [CustomsArea] nvarchar(200) NULL,
+        [Packages] int NULL,
+        [GrossWeight] decimal(18,3) NULL,
+        [Cbm] decimal(10,3) NULL,
+        [Commodity] nvarchar(300) NULL,
+        [Terminal] nvarchar(200) NULL,
+        [Destination] nvarchar(200) NULL,
+        [AOD] nvarchar(50) NULL,
+        [InvoicesReceivedDate] date NULL,
+        [TransporterInvoiceNo] nvarchar(100) NULL,
+        [MissingDocs] nvarchar(500) NULL,
+        [MissingDocsReceivedDate] date NULL,
+        CONSTRAINT [PK_FtlShipments] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_FtlShipments_FtlOperations_FtlOperationId] FOREIGN KEY ([FtlOperationId]) REFERENCES [FtlOperations] ([Id]) ON DELETE CASCADE
+    );
+END;
+
+IF COL_LENGTH(N'[FtlTrucks]', N'ArrivalDate') IS NULL
+    ALTER TABLE [FtlTrucks] ADD [ArrivalDate] date NULL;
+IF COL_LENGTH(N'[FtlTrucks]', N'ArrivalTime') IS NULL
+    ALTER TABLE [FtlTrucks] ADD [ArrivalTime] time NULL;
+IF COL_LENGTH(N'[FtlTrucks]', N'RequiredArrivalDate') IS NULL
+    ALTER TABLE [FtlTrucks] ADD [RequiredArrivalDate] date NULL;
+IF COL_LENGTH(N'[FtlTrucks]', N'RequiredArrivalTime') IS NULL
+    ALTER TABLE [FtlTrucks] ADD [RequiredArrivalTime] time NULL;
+
+IF COL_LENGTH(N'[FtlOperationTrips]', N'FtlShipmentId') IS NULL
+BEGIN
+    ALTER TABLE [FtlOperationTrips] ADD [FtlShipmentId] uniqueidentifier NULL;
+    ALTER TABLE [FtlOperationTrips] ADD CONSTRAINT [FK_FtlOperationTrips_FtlShipments_FtlShipmentId] FOREIGN KEY ([FtlShipmentId]) REFERENCES [FtlShipments] ([Id]) ON DELETE NO ACTION;
+END;
+
+-- One-time Data Migration: copy legacy data from FtlOperations into FtlShipments & FtlTrucks (using dynamic SQL to prevent compile errors when columns are dropped)
+IF COL_LENGTH(N'[FtlOperations]', N'BL') IS NOT NULL OR COL_LENGTH(N'[FtlOperations]', N'BookingNumber') IS NOT NULL
+BEGIN
+    EXEC sp_executesql N'
+        INSERT INTO [FtlShipments] (
+            [Id], [FtlOperationId], [Ordinal], [ShipmentNumber], [MAWB], [HAWB], [CertificateNumber],
+            [ClearanceType], [ClientId], [ClientName], [CustomsArea], [Packages], [GrossWeight],
+            [Cbm], [Commodity], [Terminal], [Destination], [AOD], [InvoicesReceivedDate]
+        )
+        SELECT 
+            NEWID(), o.Id, 0, NULL, ISNULL(o.BL, o.BookingNumber), NULL, o.CertificateNumber,
+            o.ClearanceType, o.ClientId, o.ClientName, o.CustomsArea, o.Packages, o.GrossWeight,
+            o.Cbm, o.Commodity, o.Terminal, o.Destination, o.AOD, o.InvoicesReceivedDate
+        FROM [FtlOperations] o
+        WHERE NOT EXISTS (SELECT 1 FROM [FtlShipments] s WHERE s.FtlOperationId = o.Id);
+    ';
+END;
+
+IF COL_LENGTH(N'[FtlOperations]', N'ArrivalDate') IS NOT NULL
+BEGIN
+    EXEC sp_executesql N'
+        UPDATE t
+        SET 
+            t.ArrivalDate = ISNULL(t.ArrivalDate, o.ArrivalDate),
+            t.ArrivalTime = ISNULL(t.ArrivalTime, o.ArrivalTime),
+            t.RequiredArrivalDate = ISNULL(t.RequiredArrivalDate, o.RequiredArrivalDate),
+            t.RequiredArrivalTime = ISNULL(t.RequiredArrivalTime, o.RequiredArrivalTime)
+        FROM [FtlTrucks] t
+        INNER JOIN [FtlOperations] o ON t.FtlOperationId = o.Id
+        WHERE t.ArrivalDate IS NULL AND t.RequiredArrivalDate IS NULL;
+    ';
+END;
+
+UPDATE tr
+SET tr.FtlShipmentId = s.Id
+FROM [FtlOperationTrips] tr
+INNER JOIN [FtlShipments] s ON tr.FtlOperationId = s.FtlOperationId AND s.Ordinal = 0
+WHERE tr.FtlShipmentId IS NULL;
+
+-- Drop old UX indexes if present (must drop before dropping IsDeleted)
+IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_FtlShipments_ShipmentNumber' AND object_id = OBJECT_ID(N'[FtlShipments]'))
+    DROP INDEX [UX_FtlShipments_ShipmentNumber] ON [FtlShipments];
+IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_FtlShipments_HAWB' AND object_id = OBJECT_ID(N'[FtlShipments]'))
+    DROP INDEX [UX_FtlShipments_HAWB] ON [FtlShipments];
+IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_FtlShipments_MAWB_HAWB' AND object_id = OBJECT_ID(N'[FtlShipments]'))
+    DROP INDEX [UX_FtlShipments_MAWB_HAWB] ON [FtlShipments];
+IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_FtlShipments_Cert_ShipmentNumber' AND object_id = OBJECT_ID(N'[FtlShipments]'))
+    DROP INDEX [UX_FtlShipments_Cert_ShipmentNumber] ON [FtlShipments];
+
+-- Drop legacy columns from FtlShipments if present
+IF COL_LENGTH(N'[FtlShipments]', N'IsDeleted') IS NOT NULL
+BEGIN
+    DECLARE @dfFtlShip nvarchar(max);
+    SELECT @dfFtlShip = d.name
+    FROM sys.default_constraints d
+    INNER JOIN sys.columns c ON d.parent_column_id = c.column_id AND d.parent_object_id = c.object_id
+    WHERE d.parent_object_id = OBJECT_ID(N'[FtlShipments]') AND c.name = N'IsDeleted';
+    IF @dfFtlShip IS NOT NULL EXEC(N'ALTER TABLE [FtlShipments] DROP CONSTRAINT ' + @dfFtlShip + ';');
+    ALTER TABLE [FtlShipments] DROP COLUMN [IsDeleted];
+END;
+IF COL_LENGTH(N'[FtlShipments]', N'DeletedAtUtc') IS NOT NULL
+    ALTER TABLE [FtlShipments] DROP COLUMN [DeletedAtUtc];
+IF COL_LENGTH(N'[FtlShipments]', N'DeletedByUserId') IS NOT NULL
+    ALTER TABLE [FtlShipments] DROP COLUMN [DeletedByUserId];
+IF COL_LENGTH(N'[FtlShipments]', N'DeletedByName') IS NOT NULL
+    ALTER TABLE [FtlShipments] DROP COLUMN [DeletedByName];
+
+-- Drop legacy columns from FtlOperations
+IF COL_LENGTH(N'[FtlOperations]', N'Ref') IS NOT NULL
+BEGIN
+    IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_FtlOperations_Ref' AND object_id = OBJECT_ID(N'[FtlOperations]'))
+        DROP INDEX [UX_FtlOperations_Ref] ON [FtlOperations];
+    ALTER TABLE [FtlOperations] DROP COLUMN [Ref];
+END;
+IF COL_LENGTH(N'[FtlOperations]', N'ClientId') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [ClientId];
+IF COL_LENGTH(N'[FtlOperations]', N'ClientName') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [ClientName];
+IF COL_LENGTH(N'[FtlOperations]', N'BL') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [BL];
+IF COL_LENGTH(N'[FtlOperations]', N'BookingNumber') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [BookingNumber];
+IF COL_LENGTH(N'[FtlOperations]', N'MAWB') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [MAWB];
+IF COL_LENGTH(N'[FtlOperations]', N'ClearanceType') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [ClearanceType];
+IF COL_LENGTH(N'[FtlOperations]', N'CertificateNumber') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [CertificateNumber];
+IF COL_LENGTH(N'[FtlOperations]', N'Packages') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [Packages];
+IF COL_LENGTH(N'[FtlOperations]', N'GrossWeight') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [GrossWeight];
+IF COL_LENGTH(N'[FtlOperations]', N'Cbm') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [Cbm];
+IF COL_LENGTH(N'[FtlOperations]', N'Commodity') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [Commodity];
+IF COL_LENGTH(N'[FtlOperations]', N'Terminal') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [Terminal];
+IF COL_LENGTH(N'[FtlOperations]', N'Destination') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [Destination];
+IF COL_LENGTH(N'[FtlOperations]', N'AOD') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [AOD];
+IF COL_LENGTH(N'[FtlOperations]', N'ArrivalDate') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [ArrivalDate];
+IF COL_LENGTH(N'[FtlOperations]', N'ArrivalTime') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [ArrivalTime];
+IF COL_LENGTH(N'[FtlOperations]', N'RequiredArrivalDate') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [RequiredArrivalDate];
+IF COL_LENGTH(N'[FtlOperations]', N'RequiredArrivalTime') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [RequiredArrivalTime];
+IF COL_LENGTH(N'[FtlOperations]', N'CustomsArea') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [CustomsArea];
+IF COL_LENGTH(N'[FtlOperations]', N'InvoicesReceivedDate') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [InvoicesReceivedDate];
+IF COL_LENGTH(N'[FtlOperations]', N'EnteredByUserId') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [EnteredByUserId];
+IF COL_LENGTH(N'[FtlOperations]', N'EnteredByName') IS NOT NULL ALTER TABLE [FtlOperations] DROP COLUMN [EnteredByName];
+
+-- Create fast search indexes (non-unique, FCL architecture)
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_FtlShipments_ShipmentNumber' AND object_id = OBJECT_ID(N'[FtlShipments]'))
+    EXEC(N'CREATE INDEX [IX_FtlShipments_ShipmentNumber] ON [FtlShipments] ([ShipmentNumber]) WHERE [ShipmentNumber] IS NOT NULL');
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_FtlShipments_HAWB' AND object_id = OBJECT_ID(N'[FtlShipments]'))
+    EXEC(N'CREATE INDEX [IX_FtlShipments_HAWB] ON [FtlShipments] ([HAWB]) WHERE [HAWB] IS NOT NULL');
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_FtlShipments_MAWB_HAWB' AND object_id = OBJECT_ID(N'[FtlShipments]'))
+    EXEC(N'CREATE INDEX [IX_FtlShipments_MAWB_HAWB] ON [FtlShipments] ([MAWB], [HAWB]) WHERE [MAWB] IS NOT NULL AND [HAWB] IS NOT NULL');
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_FtlShipments_Cert_ShipmentNumber' AND object_id = OBJECT_ID(N'[FtlShipments]'))
+    EXEC(N'CREATE INDEX [IX_FtlShipments_Cert_ShipmentNumber] ON [FtlShipments] ([CertificateNumber], [ShipmentNumber]) WHERE [CertificateNumber] IS NOT NULL AND [ShipmentNumber] IS NOT NULL');
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_FtlShipments_Operation_Ordinal' AND object_id = OBJECT_ID(N'[FtlShipments]'))
+    CREATE INDEX [IX_FtlShipments_Operation_Ordinal] ON [FtlShipments] ([FtlOperationId], [Ordinal]);
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_FtlOperationTrips_FtlShipmentId' AND object_id = OBJECT_ID(N'[FtlOperationTrips]'))
+    CREATE INDEX [IX_FtlOperationTrips_FtlShipmentId] ON [FtlOperationTrips] ([FtlShipmentId]);
+
+IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20261116101500_RemoveFtlShipment')
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261116101500_RemoveFtlShipment', N'10.0.12');
+
+IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20261116120000_RemoveVersionDayTimeFromFtlOperation')
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261116120000_RemoveVersionDayTimeFromFtlOperation', N'10.0.12');
+
+IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20261116124500_RemoveYearSequenceFromFtlOperation')
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261116124500_RemoveYearSequenceFromFtlOperation', N'10.0.12');
+
+IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20261117110000_AddFtlShipmentsAndEnforceConstraints')
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261117110000_AddFtlShipmentsAndEnforceConstraints', N'10.0.12');
 
 COMMIT;
 GO

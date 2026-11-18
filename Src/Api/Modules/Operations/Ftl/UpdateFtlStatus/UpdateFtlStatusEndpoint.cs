@@ -57,7 +57,7 @@ public static class UpdateFtlStatusEndpoint
                 userId = a.UserId,
                 userName = a.UserId == operation.CreatedByUserId
                     ? operation.CreatedByName
-                    : (a.UserId == operation.EnteredByUserId ? operation.EnteredByName : a.UserId),
+                    : a.UserId,
                 atUtc = a.AtUtc
             })
             .ToList();

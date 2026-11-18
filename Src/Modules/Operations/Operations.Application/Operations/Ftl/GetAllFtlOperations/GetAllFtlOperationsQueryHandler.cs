@@ -5,6 +5,7 @@ using MediatR;
 using Operations.Application.Abstractions;
 using Operations.Application.Operations.Ftl.Common;
 using Operations.Domain.Entities.Ftl;
+using Operations.Domain.Enums;
 
 namespace Operations.Application.Operations.Ftl.GetAllFtlOperations;
 
@@ -15,7 +16,6 @@ public sealed class GetAllFtlOperationsQueryHandler(
     public async Task<Result<FtlWorkspaceDto>> Handle(GetAllFtlOperationsQuery query, CancellationToken ct)
     {
         var operations = await operationRepository.GetAllActiveWithDetailsAsync(ct);
-        var currentVersion = await operationRepository.GetCurrentWorkspaceVersionAsync(ct);
 
         var shipmentDtos = new List<FtlOperationDto>();
 
@@ -61,15 +61,18 @@ public sealed class GetAllFtlOperationsQueryHandler(
             }
 
             var enteredBy = new FtlUserDto(
-                op.EnteredByUserId ?? op.CreatedByUserId,
-                op.EnteredByName ?? op.CreatedByName);
+                op.CreatedByUserId,
+                op.CreatedByName ?? "System");
 
             var tripDtos = new List<FtlTripDto>();
 
             var orderedTrips = op.Trips.OrderBy(t => t.Ordinal).ToList();
+            var orderedShipments = op.Shipments.OrderBy(s => s.Ordinal).ToList();
+            var orderedTrucks = op.Trucks.OrderBy(t => t.Ordinal).ToList();
+
             if (orderedTrips.Count == 0)
             {
-                var defaultTripFields = BuildFallbackFields(op, null, null);
+                var defaultTripFields = BuildFallbackFields(op, null, orderedShipments.FirstOrDefault(), orderedTrucks.FirstOrDefault());
                 tripDtos.Add(new FtlTripDto(
                     Guid.NewGuid().ToString(),
                     0,
@@ -84,22 +87,25 @@ public sealed class GetAllFtlOperationsQueryHandler(
             {
                 foreach (var trip in orderedTrips)
                 {
-                    Dictionary<string, string> fields;
-                    if (!string.IsNullOrWhiteSpace(trip.FieldsJson))
+                    var tripId = !string.IsNullOrWhiteSpace(trip.ExternalId)
+                        ? trip.ExternalId
+                        : trip.Id.ToString();
+
+                    short truckOrd = (short)(trkOf is not null && trip.Ordinal < trkOf.Count ? trkOf[trip.Ordinal] : (trip.Ordinal + 1));
+                    var truck = trip.Truck
+                        ?? (trip.FtlTruckId.HasValue ? op.Trucks.FirstOrDefault(t => t.Id == trip.FtlTruckId.Value) : null)
+                        ?? op.Trucks.FirstOrDefault(t => t.Ordinal == truckOrd);
+
+                    int shpIdx = -1;
+                    if (shpSpans is not null)
                     {
-                        try
-                        {
-                            fields = JsonSerializer.Deserialize<Dictionary<string, string>>(trip.FieldsJson, SafeStringDictionaryConverter.DefaultOptions) ?? new();
-                        }
-                        catch
-                        {
-                            fields = BuildFallbackFields(op, trip, trip.Truck);
-                        }
+                        shpIdx = shpSpans.FindIndex(span => span.Count >= 2 && trip.Ordinal >= span[0] && trip.Ordinal < span[0] + span[1]);
                     }
-                    else
-                    {
-                        fields = BuildFallbackFields(op, trip, trip.Truck);
-                    }
+                    var shipment = trip.Shipment
+                        ?? (trip.FtlShipmentId.HasValue ? op.Shipments.FirstOrDefault(s => s.Id == trip.FtlShipmentId.Value) : null)
+                        ?? (shpIdx >= 0 && shpIdx < orderedShipments.Count ? orderedShipments[shpIdx] : orderedShipments.FirstOrDefault());
+
+                    var fields = BuildFallbackFields(op, trip, shipment, truck);
 
                     fields["status"] = op.Status.ToString();
                     fields["movement"] = op.OperationType.ToString();
@@ -108,50 +114,51 @@ public sealed class GetAllFtlOperationsQueryHandler(
                     if (trip.LoadedWeight.HasValue) fields["loadedWeight"] = trip.LoadedWeight.Value.ToString();
                     if (trip.LoadedCbm.HasValue) fields["loadedCbm"] = trip.LoadedCbm.Value.ToString();
 
-                    var tripId = !string.IsNullOrWhiteSpace(trip.ExternalId)
-                        ? trip.ExternalId
-                        : trip.Id.ToString();
-
                     var updateDtos = new List<FtlUpdateDto>();
-                    var truckUpdates = trip.Truck?.Updates 
-                        ?? (trip.FtlTruckId.HasValue ? op.Trucks.FirstOrDefault(t => t.Id == trip.FtlTruckId.Value)?.Updates : null)
-                        ?? op.Trucks.SelectMany(t => t.Updates).Where(u => u.TripId == tripId || u.TripId == trip.Id.ToString() || (trip.Ordinal == 0 && string.IsNullOrWhiteSpace(u.TripId)) || (op.Trips.Count == 1));
 
-                    if (truckUpdates is not null)
+                    var rawUpdates = truck?.Updates ?? (IEnumerable<FtlTruckUpdate>)Array.Empty<FtlTruckUpdate>();
+
+                    // Filter to updates belonging to this trip or general to the truck
+                    var filteredUpdates = rawUpdates.Where(u =>
+                        string.IsNullOrWhiteSpace(u.TripId) ||
+                        u.TripId == tripId ||
+                        u.TripId == trip.Id.ToString());
+
+                    // Deduplicate by (CreatedAtUtc + Note)
+                    var seenUpdates = new HashSet<string>();
+                    foreach (var u in filteredUpdates.OrderBy(x => x.CreatedAtUtc))
                     {
-                        foreach (var u in truckUpdates.OrderBy(x => x.CreatedAtUtc))
-                        {
-                            updateDtos.Add(new FtlUpdateDto(
-                                u.Id.ToString(),
-                                u.Note,
-                                u.CreatedAtUtc.ToString("HH:mm"),
-                                u.CreatedByName,
-                                u.CreatedAtUtc.ToString("yyyy-MM-dd"),
-                                u.CreatedByName,
-                                u.Note));
-                        }
+                        var uKey = $"{u.CreatedAtUtc:yyyyMMddHHmmss}_{u.Note?.Trim()}";
+                        if (!seenUpdates.Add(uKey)) continue;
+
+                        updateDtos.Add(new FtlUpdateDto(
+                            u.Id.ToString(),
+                            u.Note,
+                            u.CreatedAtUtc.ToString("HH:mm"),
+                            u.CreatedByName,
+                            u.CreatedAtUtc.ToString("yyyy-MM-dd"),
+                            u.CreatedByName,
+                            u.Note));
                     }
 
                     if (updateDtos.Count > 0)
                     {
                         var lastU = updateDtos.Last();
-                        if (string.IsNullOrWhiteSpace(fields.GetValueOrDefault("updates")))
-                            fields["updates"] = lastU.Text ?? lastU.Note ?? "";
-                        if (string.IsNullOrWhiteSpace(fields.GetValueOrDefault("updDate")))
-                            fields["updDate"] = $"{lastU.Day} {lastU.At}".Trim();
+                        fields["updates"] = lastU.Text ?? lastU.Note ?? "";
+                        fields["updDate"] = $"{lastU.Day} {lastU.At}".Trim();
                     }
                     else if (fields.TryGetValue("updates", out var fallbackText) && !string.IsNullOrWhiteSpace(fallbackText))
                     {
                         var updDateStr = fields.GetValueOrDefault("updDate") ?? "";
-                        var dayStr = updDateStr.Length >= 10 ? updDateStr[..10] : op.Day.ToString("yyyy-MM-dd");
-                        var timeStr = updDateStr.Length > 10 ? updDateStr[11..].Trim() : op.Time.ToString("HH:mm");
+                        var dayStr = updDateStr.Length >= 10 ? updDateStr[..10] : op.CreatedAtUtc.ToString("yyyy-MM-dd");
+                        var timeStr = updDateStr.Length > 10 ? updDateStr[11..].Trim() : op.CreatedAtUtc.ToString("HH:mm");
                         updateDtos.Add(new FtlUpdateDto(
                             Guid.NewGuid().ToString(),
                             fallbackText,
                             timeStr,
-                            op.EnteredByName ?? "User",
+                            op.CreatedByName ?? "User",
                             dayStr,
-                            op.EnteredByName ?? "User",
+                            op.CreatedByName ?? "User",
                             fallbackText));
                     }
 
@@ -171,62 +178,124 @@ public sealed class GetAllFtlOperationsQueryHandler(
                 op.Ref,
                 op.OperationType.ToString(),
                 op.Status.ToString(),
-                op.Day.ToString("yyyy-MM-dd"),
-                op.Time.ToString("HH:mm"),
+                op.CreatedAtUtc.ToString("yyyy-MM-dd"),
+                op.CreatedAtUtc.ToString("HH:mm"),
                 enteredBy,
                 unmergedList,
                 tripDtos,
                 per,
-                shp,
+                shp ?? op.NumberOfShipments,
                 trk,
                 shpSpans,
                 trkSpans,
                 trkOf));
         }
 
-        var dto = new FtlWorkspaceDto(currentVersion, shipmentDtos);
+        var dto = new FtlWorkspaceDto(shipmentDtos);
         return Result.Success(dto);
     }
 
     private static Dictionary<string, string> BuildFallbackFields(
         FtlOperation op,
         FtlOperationTrip? trip,
+        FtlShipment? shipment,
         FtlTruck? truck)
     {
+        // 1. Operation-level fields (Authoritative source: FtlOperation)
         var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             ["status"] = op.Status.ToString(),
-            ["movement"] = op.OperationType.ToString()
+            ["movement"] = op.OperationType.ToString(),
+            ["oper"] = op.CreatedByName ?? "",
+            ["vol"] = (op.NumberOfShipments > 0 ? op.NumberOfShipments : (op.Shipments.Count > 0 ? op.Shipments.Count : 1)).ToString()
         };
 
-        if (op.ClientName is not null) dict["client"] = op.ClientName;
-        if (op.BL is not null) dict["bl"] = op.BL;
-        if (op.BookingNumber is not null) dict["booking"] = op.BookingNumber;
-        if (op.ClearanceType.HasValue) dict["clrType"] = op.ClearanceType.Value.ToString();
-        if (op.CertificateNumber is not null) dict["cert"] = op.CertificateNumber;
-        if (op.Packages.HasValue) dict["packages"] = op.Packages.Value.ToString();
-        if (op.GrossWeight.HasValue) dict["weight"] = op.GrossWeight.Value.ToString();
-        if (op.Cbm.HasValue) dict["cbm"] = op.Cbm.Value.ToString();
-        if (op.Commodity is not null) dict["commodity"] = op.Commodity;
-        if (op.Terminal is not null) dict["line"] = op.Terminal;
-        if (op.Destination is not null) dict["dest"] = op.Destination;
-        if (op.AOD is not null) dict["aod"] = op.AOD;
-        if (op.ArrivalDate.HasValue) dict["arrDate"] = op.ArrivalDate.Value.ToString("yyyy-MM-dd");
-        if (op.ArrivalTime.HasValue) dict["arrTime"] = op.ArrivalTime.Value.ToString("HH:mm");
-        if (op.RequiredArrivalDate.HasValue) dict["reqArrDate"] = op.RequiredArrivalDate.Value.ToString("yyyy-MM-dd");
-        if (op.RequiredArrivalTime.HasValue) dict["reqArrTime"] = op.RequiredArrivalTime.Value.ToString("HH:mm");
-        if (op.CustomsArea is not null) dict["customsArea"] = op.CustomsArea;
+        // 2. Shipment-level fields (Authoritative source: FtlShipment)
+        if (shipment is not null)
+        {
+            if (shipment.ShipmentNumber is not null) dict["shipNo"] = shipment.ShipmentNumber;
+            if (shipment.MAWB is not null)
+            {
+                dict["mawb"] = shipment.MAWB;
+                dict["bl"] = shipment.MAWB;
+                dict["booking"] = shipment.MAWB;
+            }
+            if (shipment.HAWB is not null) dict["hawb"] = shipment.HAWB;
+            if (shipment.CertificateNumber is not null) dict["cert"] = shipment.CertificateNumber;
+            if (shipment.ClearanceType.HasValue) dict["clrType"] = shipment.ClearanceType.Value.ToString();
+            if (shipment.ClientName is not null) dict["client"] = shipment.ClientName;
+            if (shipment.CustomsArea is not null)
+            {
+                dict["customsArea"] = shipment.CustomsArea;
+                dict["customs"] = shipment.CustomsArea;
+            }
+            if (shipment.Packages.HasValue) dict["packages"] = shipment.Packages.Value.ToString();
+            if (shipment.GrossWeight.HasValue) dict["weight"] = shipment.GrossWeight.Value.ToString();
+            if (shipment.Cbm.HasValue) dict["cbm"] = shipment.Cbm.Value.ToString();
+            if (shipment.Commodity is not null) dict["commodity"] = shipment.Commodity;
+            if (shipment.Terminal is not null) dict["line"] = shipment.Terminal;
+            if (shipment.Destination is not null) dict["dest"] = shipment.Destination;
+            if (shipment.AOD is not null) dict["aod"] = shipment.AOD;
+            if (shipment.InvoicesReceivedDate.HasValue) dict["invRcv"] = shipment.InvoicesReceivedDate.Value.ToString("yyyy-MM-dd");
+            if (shipment.TransporterInvoiceNo is not null) dict["transInv"] = shipment.TransporterInvoiceNo;
+            if (shipment.MissingDocs is not null) dict["missDoc"] = shipment.MissingDocs;
+            if (shipment.MissingDocsReceivedDate.HasValue) dict["missRcv"] = shipment.MissingDocsReceivedDate.Value.ToString("yyyy-MM-dd");
+        }
 
+        // 3. Truck-level fields (Authoritative source: FtlTruck)
         if (truck is not null)
         {
             if (truck.TransporterName is not null) dict["trucker"] = truck.TransporterName;
-            if (truck.TruckPlateNumber is not null) dict["car"] = truck.TruckPlateNumber;
+            if (truck.TruckPlateNumber is not null)
+            {
+                dict["car"] = truck.TruckPlateNumber;
+                dict["cntr"] = truck.TruckPlateNumber;
+            }
+            if (truck.TruckType.HasValue)
+            {
+                var ttStr = truck.TruckType.ToFrontendString();
+                if (!string.IsNullOrWhiteSpace(ttStr))
+                    dict["truckType"] = ttStr;
+            }
             if (truck.DriverName is not null) dict["driver"] = truck.DriverName;
             if (truck.DriverMobile is not null) dict["mob"] = truck.DriverMobile;
-            if (truck.GateInDate.HasValue) dict["gateIn"] = truck.GateInDate.Value.ToString("yyyy-MM-dd") + (truck.GateInTime.HasValue ? " " + truck.GateInTime.Value.ToString("HH:mm") : "");
-            if (truck.GateOutDate.HasValue) dict["gateOut"] = truck.GateOutDate.Value.ToString("yyyy-MM-dd") + (truck.GateOutTime.HasValue ? " " + truck.GateOutTime.Value.ToString("HH:mm") : "");
+
+            if (truck.ArrivalDate.HasValue) dict["arrDate"] = truck.ArrivalDate.Value.ToString("yyyy-MM-dd");
+            if (truck.ArrivalTime.HasValue) dict["arrTime"] = truck.ArrivalTime.Value.ToString("HH:mm");
+
+            if (truck.RequiredArrivalDate.HasValue)
+            {
+                var reqDateStr = truck.RequiredArrivalDate.Value.ToString("yyyy-MM-dd");
+                dict["reqArrDate"] = reqDateStr;
+                dict["reqDate"] = reqDateStr;
+            }
+
+            if (truck.RequiredArrivalTime.HasValue)
+            {
+                var reqTimeStr = truck.RequiredArrivalTime.Value.ToString("HH:mm");
+                dict["reqArrTime"] = reqTimeStr;
+                dict["reqTime"] = reqTimeStr;
+            }
+
+            if (truck.GateInDate.HasValue)
+            {
+                dict["gateIn"] = truck.GateInDate.Value.ToString("yyyy-MM-dd");
+                if (truck.GateInTime.HasValue)
+                    dict["gateInT"] = truck.GateInTime.Value.ToString("HH:mm");
+            }
+            else if (truck.GateInTime.HasValue)
+            {
+                dict["gateInT"] = truck.GateInTime.Value.ToString("HH:mm");
+            }
+            if (truck.GateOutDate.HasValue)
+            {
+                dict["gateOut"] = truck.GateOutDate.Value.ToString("yyyy-MM-dd");
+                if (truck.GateOutTime.HasValue)
+                    dict["gateOutT"] = truck.GateOutTime.Value.ToString("HH:mm");
+            }
         }
 
+        // 4. Trip-level fields (Authoritative source: FtlOperationTrip)
         if (trip is not null)
         {
             dict["loadStatus"] = trip.LoadStatus.ToString();
@@ -238,4 +307,3 @@ public sealed class GetAllFtlOperationsQueryHandler(
         return dict;
     }
 }
-

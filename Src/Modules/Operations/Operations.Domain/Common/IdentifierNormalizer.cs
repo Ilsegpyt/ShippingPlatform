@@ -1,4 +1,4 @@
-﻿namespace Operations.Domain.Common;
+namespace Operations.Domain.Common;
 
 public static class IdentifierNormalizer
 {
@@ -25,6 +25,6 @@ public static class IdentifierNormalizer
             }
         }
 
-        return builder.ToString();
+        return builder.Length == 0 ? null : builder.ToString();
     }
 }

@@ -15,4 +15,4 @@ public sealed record ImportFtlTripsCommand(
     string? RequestId,
     List<ImportFtlTripRow> Trips) : IRequest<Result<ImportFtlTripsResult>>;
 
-public sealed record ImportFtlTripsResult(int Version);
+public sealed record ImportFtlTripsResult(int? Version = null);

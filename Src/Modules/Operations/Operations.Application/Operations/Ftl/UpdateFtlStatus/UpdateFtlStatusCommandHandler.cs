@@ -1,6 +1,4 @@
-using System.Text.Json;
 using BuildingBlocks.Application;
-using BuildingBlocks.Application.Serialization;
 using BuildingBlocks.Application.Abstractions;
 using MediatR;
 using Operations.Application.Abstractions;
@@ -22,10 +20,14 @@ public sealed class UpdateFtlStatusCommandHandler(
         if (operation is null)
             return Result.Failure<UpdateFtlStatusResult>($"Operation '{command.Ref}' not found.");
 
-        if (command.Version.HasValue && command.Version.Value != operation.Version)
+        var currentUserGuid = currentUser.UserId != Guid.Empty ? currentUser.UserId : (Guid?)null;
+        if (operation.IsLockActive(DateTime.UtcNow, 10))
         {
-            return Result.Failure<UpdateFtlStatusResult>(
-                "Operation was modified by another user (409 Conflict).");
+            if (currentUserGuid.HasValue && operation.LockedByUserId.HasValue && operation.LockedByUserId.Value != currentUserGuid.Value)
+            {
+                return Result.Failure<UpdateFtlStatusResult>(
+                    $"Operation '{command.Ref}' is currently locked by {operation.LockedByName}. Status update halted.");
+            }
         }
 
         if (!Enum.TryParse<OperationStatus>(command.Status, true, out var targetStatus))
@@ -37,34 +39,8 @@ public sealed class UpdateFtlStatusCommandHandler(
 
         operation.UpdateStatus(targetStatus, userId, userName, now);
 
-        // Also update status inside trips fields JSON so it remains synchronized
-        foreach (var trip in operation.Trips)
-        {
-            if (!string.IsNullOrWhiteSpace(trip.FieldsJson))
-            {
-                try
-                {
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(trip.FieldsJson, SafeStringDictionaryConverter.DefaultOptions);
-                    if (dict is not null)
-                    {
-                        dict["status"] = targetStatus.ToString();
-                        trip.Update(
-                            trip.Ordinal,
-                            trip.ExternalId,
-                            trip.FtlTruckId,
-                            trip.LoadStatus,
-                            trip.LoadedPackages,
-                            trip.LoadedWeight,
-                            trip.LoadedCbm,
-                            JsonSerializer.Serialize(dict));
-                    }
-                }
-                catch { /* Ignore deserialization failure */ }
-            }
-        }
-
         await unitOfWork.SaveChangesAsync(ct);
 
-        return Result.Success(new UpdateFtlStatusResult(operation.Version));
+        return Result.Success(new UpdateFtlStatusResult());
     }
 }

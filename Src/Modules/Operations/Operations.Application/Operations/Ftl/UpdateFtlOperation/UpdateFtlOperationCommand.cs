@@ -8,5 +8,5 @@ public sealed record UpdateFtlOperationCommand(
     int? Version,
     List<FtlOperationDto> Shipments) : IRequest<Result<UpdateFtlOperationResult>>;
 
-public sealed record UpdateFtlOperationResult(int Version);
+public sealed record UpdateFtlOperationResult(int? Version = null);
 

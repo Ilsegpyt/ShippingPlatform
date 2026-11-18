@@ -31,6 +31,8 @@ public sealed class FtlOperationTripConfiguration : IEntityTypeConfiguration<Ftl
         builder.Property(x => x.LoadedCbm)
             .HasPrecision(10, 3);
 
+        builder.Property(x => x.FieldsJson);
+
         builder.HasIndex(x => new { x.FtlOperationId, x.Ordinal })
             .IsUnique()
             .HasDatabaseName("UX_FtlOperationTrips_Operation_Ordinal");
@@ -43,6 +45,11 @@ public sealed class FtlOperationTripConfiguration : IEntityTypeConfiguration<Ftl
         builder.HasOne(x => x.Truck)
             .WithMany()
             .HasForeignKey(x => x.FtlTruckId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.Shipment)
+            .WithMany()
+            .HasForeignKey(x => x.FtlShipmentId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

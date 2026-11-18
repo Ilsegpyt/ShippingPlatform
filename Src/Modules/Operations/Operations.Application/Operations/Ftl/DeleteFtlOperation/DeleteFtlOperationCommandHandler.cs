@@ -19,10 +19,14 @@ public sealed class DeleteFtlOperationCommandHandler(
         if (operation is null)
             return Result.Failure<DeleteFtlOperationResult>($"Operation '{command.Ref}' not found.");
 
-        if (command.Version.HasValue && command.Version.Value != operation.Version)
+        var currentUserGuid = currentUser.UserId != Guid.Empty ? currentUser.UserId : (Guid?)null;
+        if (operation.IsLockActive(DateTime.UtcNow, 10))
         {
-            return Result.Failure<DeleteFtlOperationResult>(
-                "Operation was modified by another user (409 Conflict).");
+            if (currentUserGuid.HasValue && operation.LockedByUserId.HasValue && operation.LockedByUserId.Value != currentUserGuid.Value)
+            {
+                return Result.Failure<DeleteFtlOperationResult>(
+                    $"Operation '{command.Ref}' is currently locked by {operation.LockedByName}. Delete halted.");
+            }
         }
 
         var userId = currentUser.UserId != Guid.Empty ? currentUser.UserId : Guid.NewGuid();
@@ -30,10 +34,9 @@ public sealed class DeleteFtlOperationCommandHandler(
         var now = DateTime.UtcNow;
 
         operation.MarkAsDeleted(userId, userName, now);
-        operation.IncrementVersion();
 
         await unitOfWork.SaveChangesAsync(ct);
 
-        return Result.Success(new DeleteFtlOperationResult(operation.Version));
+        return Result.Success(new DeleteFtlOperationResult());
     }
 }

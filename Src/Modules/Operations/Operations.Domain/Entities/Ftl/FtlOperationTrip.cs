@@ -1,4 +1,3 @@
-using Operations.Domain.Entities.Common;
 using BuildingBlocks.Domain;
 using Operations.Domain.Enums;
 
@@ -12,6 +11,9 @@ public class FtlOperationTrip : Entity<Guid>
     public short Ordinal { get; private set; }
     public string? ExternalId { get; private set; }
 
+    public Guid? FtlShipmentId { get; private set; }
+    public FtlShipment? Shipment { get; private set; }
+
     public Guid? FtlTruckId { get; private set; }
     public FtlTruck? Truck { get; private set; }
 
@@ -19,10 +21,6 @@ public class FtlOperationTrip : Entity<Guid>
     public int? LoadedPackages { get; private set; }
     public decimal? LoadedWeight { get; private set; }
     public decimal? LoadedCbm { get; private set; }
-
-    /// <summary>
-    /// Raw JSON representation of row-level UI fields for 100% fidelity with ftlEngine.js
-    /// </summary>
     public string? FieldsJson { get; private set; }
 
     private FtlOperationTrip() { }
@@ -32,12 +30,12 @@ public class FtlOperationTrip : Entity<Guid>
         Guid ftlOperationId,
         short ordinal,
         string? externalId = null,
+        Guid? ftlShipmentId = null,
         Guid? ftlTruckId = null,
         FtlLoadStatus loadStatus = FtlLoadStatus.Full,
         int? loadedPackages = null,
         decimal? loadedWeight = null,
-        decimal? loadedCbm = null,
-        string? fieldsJson = null)
+        decimal? loadedCbm = null)
         : base(id == Guid.Empty ? Guid.NewGuid() : id)
     {
         if (ftlOperationId == Guid.Empty)
@@ -46,32 +44,31 @@ public class FtlOperationTrip : Entity<Guid>
         FtlOperationId = ftlOperationId;
         Ordinal = ordinal;
         ExternalId = string.IsNullOrWhiteSpace(externalId) ? null : externalId.Trim();
+        FtlShipmentId = ftlShipmentId;
         FtlTruckId = ftlTruckId;
         LoadStatus = loadStatus;
         LoadedPackages = loadedPackages;
         LoadedWeight = loadedWeight;
         LoadedCbm = loadedCbm;
-        FieldsJson = fieldsJson;
     }
 
     public void Update(
         short ordinal,
         string? externalId,
+        Guid? ftlShipmentId,
         Guid? ftlTruckId,
         FtlLoadStatus loadStatus,
         int? loadedPackages,
         decimal? loadedWeight,
-        decimal? loadedCbm,
-        string? fieldsJson)
+        decimal? loadedCbm)
     {
         Ordinal = ordinal;
         ExternalId = string.IsNullOrWhiteSpace(externalId) ? null : externalId.Trim();
+        FtlShipmentId = ftlShipmentId;
         FtlTruckId = ftlTruckId;
         LoadStatus = loadStatus;
         LoadedPackages = loadedPackages;
         LoadedWeight = loadedWeight;
         LoadedCbm = loadedCbm;
-        FieldsJson = fieldsJson;
     }
 }
-

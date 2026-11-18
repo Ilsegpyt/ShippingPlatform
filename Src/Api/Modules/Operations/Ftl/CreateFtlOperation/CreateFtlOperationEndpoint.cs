@@ -24,6 +24,8 @@ public static class CreateFtlOperationEndpoint
         string Direction,
         int? RowCount,
         int? ContainerCount,
+        int? Shipments,
+        int? Trucks,
         [property: JsonConverter(typeof(SafeStringDictionaryConverter))]
         Dictionary<string, string>? Shared,
         List<CreateFtlTripRequest>? Trips,
@@ -59,6 +61,8 @@ public static class CreateFtlOperationEndpoint
             request.Direction,
             request.RowCount,
             request.ContainerCount,
+            request.Shipments,
+            request.Trucks,
             request.Shared,
             trips,
             request.RequestId);

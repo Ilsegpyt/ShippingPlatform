@@ -14,8 +14,12 @@ public static class OperationsModuleServiceCollectionExtensions
         IConfiguration configuration)
     {
         services.AddDbContext<OperationsDbContext>(options =>
+        {
             options.UseSqlServer(
-                configuration.GetConnectionString("OperationsDb")));
+                configuration.GetConnectionString("OperationsDb"));
+            options.ConfigureWarnings(w =>
+                w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        });
 
         services.AddScoped<IOperationsUnitOfWork>(
             sp => sp.GetRequiredService<OperationsDbContext>());
