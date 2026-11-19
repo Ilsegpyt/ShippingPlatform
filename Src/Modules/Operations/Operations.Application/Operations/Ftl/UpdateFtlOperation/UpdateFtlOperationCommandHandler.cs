@@ -85,6 +85,10 @@ public sealed class UpdateFtlOperationCommandHandler(
                 ["trkSpans"] = s.TrkSpans,
                 ["trkOf"] = s.TrkOf
             };
+            if (s.Allocations is not null)
+            {
+                layoutDict["allocations"] = s.Allocations;
+            }
             var layoutJson = JsonSerializer.Serialize(layoutDict);
 
             var isExport = string.Equals(s.Direction, "Export", StringComparison.OrdinalIgnoreCase);
@@ -407,10 +411,8 @@ public sealed class UpdateFtlOperationCommandHandler(
                     FtlNormalizationHelper.NormalizeTripFields(fields);
 
                     int? tripPackages = incomingTrip.LoadedPackages;
-                    if (!tripPackages.HasValue && fields.TryGetValue("loadedPackages", out var lpStr) && int.TryParse(lpStr, out var lpVal))
+                    if (!tripPackages.HasValue && fields.TryGetValue("loadedPackages", out var lpStr) && !string.IsNullOrWhiteSpace(lpStr) && int.TryParse(lpStr, out var lpVal))
                         tripPackages = lpVal;
-                    else if (!tripPackages.HasValue && fields.TryGetValue("packages", out var pStr) && int.TryParse(pStr, out var pVal))
-                        tripPackages = pVal;
 
                     int rowTotalPackages = 0;
                     if (fields.TryGetValue("packages", out var pTotStr) && int.TryParse(pTotStr, out var pTotVal))
@@ -459,7 +461,7 @@ public sealed class UpdateFtlOperationCommandHandler(
                             targetShipment?.Id,
                             targetTruck?.Id,
                             loadStatus,
-                            tripPackages ?? existingTrip.LoadedPackages,
+                            tripPackages,
                             tripWeight ?? existingTrip.LoadedWeight,
                             tripCbm ?? existingTrip.LoadedCbm);
                     }

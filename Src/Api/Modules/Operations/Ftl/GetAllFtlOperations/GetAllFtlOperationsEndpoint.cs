@@ -11,15 +11,15 @@ public static class GetAllFtlOperationsEndpoint
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapGet("/api/operations/ftl", HandleRequest)
-            .RequirePermission(PermissionCatalog.OperationsView);
+            .RequirePermission(PermissionCatalog.FtlOperationsView);
 
         // Support front routes
         app.MapGet("/api/v1/ftl/operations", HandleRequest)
-            .RequirePermission(PermissionCatalog.OperationsView);
+            .RequirePermission(PermissionCatalog.FtlOperationsView);
         app.MapGet("/api/v1/ftl/workspace", HandleRequest)
-            .RequirePermission(PermissionCatalog.OperationsView);
+            .RequirePermission(PermissionCatalog.FtlOperationsView);
         app.MapGet("/load", HandleRequest)
-            .RequirePermission(PermissionCatalog.OperationsView);
+            .RequirePermission(PermissionCatalog.FtlOperationsView);
     }
 
     private static async Task<IResult> HandleRequest(

@@ -10,10 +10,10 @@ public static class GetFtlOperationsCountsEndpoint
     public static void Map(IEndpointRouteBuilder app)
     {
         app.MapGet("/api/operations/ftl/counts", HandleGetCounts)
-            .RequirePermission(PermissionCatalog.OperationsView);
+            .RequirePermission(PermissionCatalog.FtlOperationsView);
 
         app.MapGet("/api/v1/ftl/counts", HandleGetCounts)
-            .RequirePermission(PermissionCatalog.OperationsView);
+            .RequirePermission(PermissionCatalog.FtlOperationsView);
     }
 
     private static async Task<IResult> HandleGetCounts(ISender sender, CancellationToken ct)

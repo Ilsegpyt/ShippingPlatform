@@ -34,7 +34,8 @@ public sealed record FtlOperationDto(
     string? ReopenedByUserId = null,
     string? ReopenReason = null,
     int? TotalTrucks = null,
-    int? TotalShipments = null);
+    int? TotalShipments = null,
+    object? Allocations = null);
 
 public sealed record FtlUserDto(
     string Id,

@@ -2065,8 +2065,8 @@ USING (VALUES
 ) AS source ([Name], [Code])
 ON target.[Name] = source.[Name]
 WHEN NOT MATCHED THEN
-    INSERT ([Id], [Name], [Code], [IsActive], [IsDeleted], [CreatedAtUtc], [CreatedByUserId], [CreatedByName])
-    VALUES (NEWID(), source.[Name], source.[Code], 1, 0, GETUTCDATE(), NEWID(), N'System');
+    INSERT ([Id], [Name], [Code], [IsActive], [IsDeleted])
+    VALUES (NEWID(), source.[Name], source.[Code], 1, 0);
 GO
 
 -- ===========================================================================
@@ -2089,8 +2089,8 @@ USING (VALUES
 ) AS source ([Name])
 ON target.[Name] = source.[Name]
 WHEN NOT MATCHED THEN
-    INSERT ([Id], [Name], [IsActive], [IsDeleted], [CreatedAtUtc], [CreatedByUserId], [CreatedByName])
-    VALUES (NEWID(), source.[Name], 1, 0, GETUTCDATE(), NEWID(), N'System');
+    INSERT ([Id], [Name], [IsActive], [IsDeleted])
+    VALUES (NEWID(), source.[Name], 1, 0);
 GO
 
 -- ===========================================================================

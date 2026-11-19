@@ -91,6 +91,11 @@ public sealed class IdentitySeeder
                     foreach (var permission in PermissionCatalog.ExecutiveMaritimeTransportationPermissions)
                         role.GrantPermission(permission);
                 }
+                else if (name == "Supervisor Maritime Transportation")
+                {
+                    foreach (var permission in PermissionCatalog.SupervisorMaritimeTransportationPermissions)
+                        role.GrantPermission(permission);
+                }
 
                 _roles.Add(role);
             }
@@ -231,6 +236,23 @@ public sealed class IdentitySeeder
             }
 
             _roles.Update(executiveMaritime);
+        }
+
+        // ---------------------------------------------------------
+        // Supervisor Maritime Transportation
+        // ---------------------------------------------------------
+        var supervisorMaritime = existingRoles
+            .FirstOrDefault(x => x.Name == "Supervisor Maritime Transportation");
+
+        if (supervisorMaritime is not null)
+        {
+            foreach (var permission in PermissionCatalog.SupervisorMaritimeTransportationPermissions)
+            {
+                if (!supervisorMaritime.HasPermission(permission))
+                    supervisorMaritime.GrantPermission(permission);
+            }
+
+            _roles.Update(supervisorMaritime);
         }
 
         await _unitOfWork.SaveChangesAsync(ct);

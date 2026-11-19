@@ -37,7 +37,25 @@ public sealed class UpdateFtlStatusCommandHandler(
         var userName = await currentUser.GetUserNameAsync(ct);
         var now = DateTime.UtcNow;
 
-        operation.UpdateStatus(targetStatus, userId, userName, now);
+        if (targetStatus == OperationStatus.Delivered)
+        {
+            if (operation.Status == OperationStatus.Open)
+            {
+                operation.MarkDelivered(userId, userName, now);
+            }
+            else
+            {
+                operation.UpdateStatus(targetStatus, userId, userName, now);
+            }
+        }
+        else if (targetStatus == OperationStatus.Open && operation.Status == OperationStatus.Delivered)
+        {
+            operation.Reopen(userId, userName, "Reopened via status update", now);
+        }
+        else
+        {
+            operation.UpdateStatus(targetStatus, userId, userName, now);
+        }
 
         await unitOfWork.SaveChangesAsync(ct);
 

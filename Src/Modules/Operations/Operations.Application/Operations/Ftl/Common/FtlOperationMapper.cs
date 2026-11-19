@@ -15,6 +15,7 @@ public static class FtlOperationMapper
         List<List<int>>? shpSpans = null;
         List<List<int>>? trkSpans = null;
         List<int>? trkOf = null;
+        object? allocations = null;
 
         if (!string.IsNullOrWhiteSpace(op.LayoutJson))
         {
@@ -42,6 +43,8 @@ public static class FtlOperationMapper
                         trkSpans = JsonSerializer.Deserialize<List<List<int>>>(tsEl.GetRawText());
                     if (doc.RootElement.TryGetProperty("trkOf", out var toEl))
                         trkOf = JsonSerializer.Deserialize<List<int>>(toEl.GetRawText());
+                    if (doc.RootElement.TryGetProperty("allocations", out var alEl))
+                        allocations = JsonSerializer.Deserialize<object>(alEl.GetRawText());
                 }
             }
             catch { /* Ignore invalid JSON */ }
@@ -195,7 +198,8 @@ public static class FtlOperationMapper
             ReopenedByUserId: reopenAudit?.UserId,
             ReopenReason: null,
             TotalTrucks: op.Trucks.Count,
-            TotalShipments: op.Shipments.Count);
+            TotalShipments: op.Shipments.Count,
+            Allocations: allocations);
     }
 
     public static Dictionary<string, string> BuildFallbackFields(

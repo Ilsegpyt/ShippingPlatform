@@ -1488,42 +1488,51 @@ GO
 
 BEGIN TRANSACTION;
 
--- Ensure FtlAirports has soft delete columns
-IF COL_LENGTH(N'[FtlAirports]', N'IsDeleted') IS NULL
-    ALTER TABLE [FtlAirports] ADD [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit);
-IF COL_LENGTH(N'[FtlAirports]', N'DeletedAtUtc') IS NULL
-    ALTER TABLE [FtlAirports] ADD [DeletedAtUtc] datetime2 NULL;
-IF COL_LENGTH(N'[FtlAirports]', N'DeletedByUserId') IS NULL
-    ALTER TABLE [FtlAirports] ADD [DeletedByUserId] uniqueidentifier NULL;
-IF COL_LENGTH(N'[FtlAirports]', N'DeletedByName') IS NULL
-    ALTER TABLE [FtlAirports] ADD [DeletedByName] nvarchar(200) NULL;
-
--- Ensure FtlTerminals has soft delete columns
-IF COL_LENGTH(N'[FtlTerminals]', N'IsDeleted') IS NULL
-    ALTER TABLE [FtlTerminals] ADD [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit);
-IF COL_LENGTH(N'[FtlTerminals]', N'DeletedAtUtc') IS NULL
-    ALTER TABLE [FtlTerminals] ADD [DeletedAtUtc] datetime2 NULL;
-IF COL_LENGTH(N'[FtlTerminals]', N'DeletedByUserId') IS NULL
-    ALTER TABLE [FtlTerminals] ADD [DeletedByUserId] uniqueidentifier NULL;
-IF COL_LENGTH(N'[FtlTerminals]', N'DeletedByName') IS NULL
-    ALTER TABLE [FtlTerminals] ADD [DeletedByName] nvarchar(200) NULL;
-
--- Ensure FtlVehicles has soft delete columns and FtlTransporterId
-IF COL_LENGTH(N'[FtlVehicles]', N'FtlTransporterId') IS NULL
+-- Ensure FtlAirports has soft delete columns if table already exists
+IF OBJECT_ID(N'[FtlAirports]', N'U') IS NOT NULL
 BEGIN
-    IF COL_LENGTH(N'[FtlVehicles]', N'TransporterId') IS NOT NULL
-        EXEC sp_rename N'[FtlVehicles].[TransporterId]', N'FtlTransporterId', N'COLUMN';
-    ELSE
-        ALTER TABLE [FtlVehicles] ADD [FtlTransporterId] uniqueidentifier NULL;
+    IF COL_LENGTH(N'[FtlAirports]', N'IsDeleted') IS NULL
+        ALTER TABLE [FtlAirports] ADD [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit);
+    IF COL_LENGTH(N'[FtlAirports]', N'DeletedAtUtc') IS NULL
+        ALTER TABLE [FtlAirports] ADD [DeletedAtUtc] datetime2 NULL;
+    IF COL_LENGTH(N'[FtlAirports]', N'DeletedByUserId') IS NULL
+        ALTER TABLE [FtlAirports] ADD [DeletedByUserId] uniqueidentifier NULL;
+    IF COL_LENGTH(N'[FtlAirports]', N'DeletedByName') IS NULL
+        ALTER TABLE [FtlAirports] ADD [DeletedByName] nvarchar(200) NULL;
 END;
-IF COL_LENGTH(N'[FtlVehicles]', N'IsDeleted') IS NULL
-    ALTER TABLE [FtlVehicles] ADD [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit);
-IF COL_LENGTH(N'[FtlVehicles]', N'DeletedAtUtc') IS NULL
-    ALTER TABLE [FtlVehicles] ADD [DeletedAtUtc] datetime2 NULL;
-IF COL_LENGTH(N'[FtlVehicles]', N'DeletedByUserId') IS NULL
-    ALTER TABLE [FtlVehicles] ADD [DeletedByUserId] uniqueidentifier NULL;
-IF COL_LENGTH(N'[FtlVehicles]', N'DeletedByName') IS NULL
-    ALTER TABLE [FtlVehicles] ADD [DeletedByName] nvarchar(200) NULL;
+
+-- Ensure FtlTerminals has soft delete columns if table already exists
+IF OBJECT_ID(N'[FtlTerminals]', N'U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH(N'[FtlTerminals]', N'IsDeleted') IS NULL
+        ALTER TABLE [FtlTerminals] ADD [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit);
+    IF COL_LENGTH(N'[FtlTerminals]', N'DeletedAtUtc') IS NULL
+        ALTER TABLE [FtlTerminals] ADD [DeletedAtUtc] datetime2 NULL;
+    IF COL_LENGTH(N'[FtlTerminals]', N'DeletedByUserId') IS NULL
+        ALTER TABLE [FtlTerminals] ADD [DeletedByUserId] uniqueidentifier NULL;
+    IF COL_LENGTH(N'[FtlTerminals]', N'DeletedByName') IS NULL
+        ALTER TABLE [FtlTerminals] ADD [DeletedByName] nvarchar(200) NULL;
+END;
+
+-- Ensure FtlVehicles has soft delete columns and FtlTransporterId if table already exists
+IF OBJECT_ID(N'[FtlVehicles]', N'U') IS NOT NULL
+BEGIN
+    IF COL_LENGTH(N'[FtlVehicles]', N'FtlTransporterId') IS NULL
+    BEGIN
+        IF COL_LENGTH(N'[FtlVehicles]', N'TransporterId') IS NOT NULL
+            EXEC sp_rename N'[FtlVehicles].[TransporterId]', N'FtlTransporterId', N'COLUMN';
+        ELSE
+            ALTER TABLE [FtlVehicles] ADD [FtlTransporterId] uniqueidentifier NULL;
+    END;
+    IF COL_LENGTH(N'[FtlVehicles]', N'IsDeleted') IS NULL
+        ALTER TABLE [FtlVehicles] ADD [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit);
+    IF COL_LENGTH(N'[FtlVehicles]', N'DeletedAtUtc') IS NULL
+        ALTER TABLE [FtlVehicles] ADD [DeletedAtUtc] datetime2 NULL;
+    IF COL_LENGTH(N'[FtlVehicles]', N'DeletedByUserId') IS NULL
+        ALTER TABLE [FtlVehicles] ADD [DeletedByUserId] uniqueidentifier NULL;
+    IF COL_LENGTH(N'[FtlVehicles]', N'DeletedByName') IS NULL
+        ALTER TABLE [FtlVehicles] ADD [DeletedByName] nvarchar(200) NULL;
+END;
 
 -- 1. Drop old Abbreviation columns if they exist
 IF COL_LENGTH(N'[Transporters]', N'Abbreviation') IS NOT NULL
