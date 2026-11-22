@@ -124,7 +124,8 @@ public sealed class GetAllOperationsQueryHandler(
                 operation.DeletedByName,
                 operation.LockedByUserId,
                 operation.LockedByName,
-                operation.LockedAtUtc
+                operation.LockedAtUtc,
+                operation.DeliveredByName
             ))
             .ToList();
 

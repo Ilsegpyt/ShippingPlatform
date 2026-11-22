@@ -48,6 +48,11 @@ public sealed class OperationConfiguration : IEntityTypeConfiguration<Operation>
         builder.Property(x => x.ShipmentNumber)
             .HasMaxLength(120);
 
+        builder.HasIndex(x => x.ShipmentNumber)
+            .IsUnique()
+            .HasDatabaseName("UX_Operations_ShipmentNumber")
+            .HasFilter("[IsDeleted] = 0 AND [ShipmentNumber] IS NOT NULL");
+
         builder.Property(x => x.CertificateNumber)
             .HasMaxLength(80);
 
@@ -64,6 +69,9 @@ public sealed class OperationConfiguration : IEntityTypeConfiguration<Operation>
 
         builder.Property(x => x.DeliveredByUserId)
             .HasMaxLength(128);
+
+        builder.Property(x => x.DeliveredByName)
+            .HasMaxLength(200);
 
         builder.Property(x => x.ReopenedByUserId)
             .HasMaxLength(128);

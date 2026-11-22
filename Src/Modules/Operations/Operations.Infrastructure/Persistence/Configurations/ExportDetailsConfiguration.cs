@@ -1,4 +1,4 @@
-﻿
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Operations.Domain.Entities;
@@ -24,6 +24,11 @@ public sealed class ExportDetailsConfiguration
         builder.Property(x => x.BookingNumber)
             .IsRequired()
             .HasMaxLength(120);
+
+        builder.HasIndex(x => x.BookingNumber)
+            .IsUnique()
+            .HasDatabaseName("UX_ExportDetails_BookingNumber")
+            .HasFilter("[BookingNumber] IS NOT NULL");
 
         builder.Property(x => x.POLId)
             .IsRequired();

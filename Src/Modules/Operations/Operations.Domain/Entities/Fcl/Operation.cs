@@ -26,6 +26,7 @@ public class Operation : Entity<Guid>, IAggregateRoot, ISoftDeletable
     public DateTime? InvoicesReceivedDate { get; private set; }
     public DateTime? DeliveredAtUtc { get; private set; }
     public string? DeliveredByUserId { get; private set; }
+    public string? DeliveredByName { get; private set; }
     public DateTime? ReopenedAtUtc { get; private set; }
     public string? ReopenedByUserId { get; private set; }
     public string? ReopenReason { get; private set; }
@@ -194,7 +195,8 @@ public class Operation : Entity<Guid>, IAggregateRoot, ISoftDeletable
 
     public void MarkDelivered(
         string deliveredByUserId,
-        DateTime deliveredAtUtc)
+        DateTime deliveredAtUtc,
+        string? deliveredByName = null)
     {
         if (Status != OperationStatus.Open)
             throw new InvalidOperationException(
@@ -212,6 +214,7 @@ public class Operation : Entity<Guid>, IAggregateRoot, ISoftDeletable
 
         Status = OperationStatus.Delivered;
         DeliveredByUserId = deliveredByUserId;
+        DeliveredByName = string.IsNullOrWhiteSpace(deliveredByName) ? null : deliveredByName.Trim();
         DeliveredAtUtc = deliveredAtUtc;
     }
 
@@ -245,6 +248,7 @@ public class Operation : Entity<Guid>, IAggregateRoot, ISoftDeletable
                 nameof(reopenedAtUtc));
 
         Status = OperationStatus.Open;
+        DeliveredByName = null;
         ReopenedByUserId = reopenedByUserId;
         ReopenedAtUtc = reopenedAtUtc;
         ReopenReason = reason.Trim();

@@ -1,11 +1,14 @@
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Operations.Infrastructure.Persistence;
 
 #nullable disable
 
 namespace Operations.Infrastructure.Migrations
 {
-    /// <inheritdoc />
+    [DbContext(typeof(OperationsDbContext))]
+    [Migration("20261118131500_AddFtlOperationDeliveryAudit")]
     public partial class AddFtlOperationDeliveryAudit : Migration
     {
         /// <inheritdoc />

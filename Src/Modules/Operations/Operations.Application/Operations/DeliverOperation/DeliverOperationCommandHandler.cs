@@ -23,7 +23,17 @@ public sealed class DeliverOperationCommandHandler(
 
         try
         {
-            operation.MarkDelivered(currentUser.UserId.ToString(), DateTime.UtcNow);
+            var userId = currentUser.UserId != Guid.Empty ? currentUser.UserId.ToString() : "u-1";
+        string? userName = null;
+        try
+        {
+            userName = await currentUser.GetUserNameAsync(ct);
+        }
+        catch
+        {
+            // Fallback if internal user not found
+        }
+        operation.MarkDelivered(userId, DateTime.UtcNow, userName);
         }
         catch (InvalidOperationException ex)
         {

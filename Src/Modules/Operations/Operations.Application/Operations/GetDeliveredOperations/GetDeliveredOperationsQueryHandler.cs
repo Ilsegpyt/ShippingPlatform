@@ -118,7 +118,8 @@ public sealed class GetDeliveredOperationsQueryHandler(
                                 update.CreatedByName))
                             .ToList()
                     ))
-                    .ToList()
+                    .ToList(),
+                DeliveredByName: operation.DeliveredByName
             ))
             .ToList();
 

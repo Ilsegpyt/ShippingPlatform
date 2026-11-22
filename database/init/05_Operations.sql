@@ -2055,3 +2055,38 @@ IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'202
 
 COMMIT;
 GO
+
+
+/* ===========================================================================
+   Added by update-db-scripts.ps1: 2026-11-22 09:55:09
+   =========================================================================== */
+
+BEGIN TRANSACTION;
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261122075144_AddUniqueIndexesForShipmentAndBooking'
+)
+BEGIN
+    EXEC(N'CREATE UNIQUE INDEX [UX_Operations_ShipmentNumber] ON [Operations] ([ShipmentNumber]) WHERE [IsDeleted] = 0 AND [ShipmentNumber] IS NOT NULL');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261122075144_AddUniqueIndexesForShipmentAndBooking'
+)
+BEGIN
+    EXEC(N'CREATE UNIQUE INDEX [UX_ExportDetails_BookingNumber] ON [ExportDetails] ([BookingNumber]) WHERE [BookingNumber] IS NOT NULL');
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261122075144_AddUniqueIndexesForShipmentAndBooking'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261122075144_AddUniqueIndexesForShipmentAndBooking', N'10.0.12');
+END;
+
+COMMIT;
+GO
+

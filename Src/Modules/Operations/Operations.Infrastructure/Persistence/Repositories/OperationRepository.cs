@@ -576,7 +576,7 @@ public sealed class OperationRepository(
         var totalContainers = await query.SelectMany(x => x.Containers).CountAsync(cancellationToken);
 
         var page = Math.Max(1, queryParams.Page);
-        var pageSize = Math.Clamp(queryParams.PageSize, 1, 200);
+        var pageSize = Math.Clamp(queryParams.PageSize, 1, 500);
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
         var items = await query

@@ -169,7 +169,8 @@ public sealed class GetPagedOperationsQueryHandler(
                 operation.DeletedByName,
                 operation.LockedByUserId,
                 operation.LockedByName,
-                operation.LockedAtUtc
+                operation.LockedAtUtc,
+                operation.DeliveredByName
             ))
             .ToList();
 

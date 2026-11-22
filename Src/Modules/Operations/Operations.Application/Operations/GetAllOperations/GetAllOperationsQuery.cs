@@ -36,7 +36,8 @@ public sealed record OperationDto(
     string? DeletedByName = null,
     Guid? LockedByUserId = null,
     string? LockedByName = null,
-    DateTime? LockedAtUtc = null);
+    DateTime? LockedAtUtc = null,
+    string? DeliveredByName = null);
 
 public sealed record ImportDetailsDto(
     Guid Id,

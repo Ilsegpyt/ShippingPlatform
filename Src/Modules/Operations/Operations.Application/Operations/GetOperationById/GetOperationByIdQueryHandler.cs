@@ -119,7 +119,8 @@ public sealed class GetOperationByIdQueryHandler(
             operation.DeletedByName,
             operation.LockedByUserId,
             operation.LockedByName,
-            operation.LockedAtUtc);
+            operation.LockedAtUtc,
+            operation.DeliveredByName);
 
         return Result.Success(response);
     }

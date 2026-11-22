@@ -130,7 +130,8 @@ public sealed class SearchOperationsQueryHandler(
                 operation.DeletedByName,
                 operation.LockedByUserId,
                 operation.LockedByName,
-                operation.LockedAtUtc
+                operation.LockedAtUtc,
+                operation.DeliveredByName
             ))
             .ToList();
 
