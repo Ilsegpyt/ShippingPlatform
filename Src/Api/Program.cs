@@ -62,11 +62,10 @@ builder.Services.AddCors(options =>
                     "http://localhost:5174",
                     "http://localhost",
                     "http://127.0.0.1:5173"
-                    
-             
                 )
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
         }
         else
         {
@@ -76,7 +75,8 @@ builder.Services.AddCors(options =>
                     "https://www.ilsegypt.com"
                 )
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
         }
     });
 });
@@ -90,6 +90,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
     options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
+    options.ForwardLimit = null; // Accept multiple hops (e.g. Cloudflare -> Nginx -> Kestrel)
 });
 
 // ==================================================
@@ -149,7 +150,7 @@ builder.Services.AddRateLimiter(options =>
                     return RateLimitPartition.GetNoLimiter("OPTIONS");
                 }
 
-                // 2. Authenticated user: partition by UserId with high burst capacity for dashboards
+                // 2. Authenticated user: partition by UserId with generous burst capacity for dashboards & multi-tabs
                 if (httpContext.User?.Identity?.IsAuthenticated == true)
                 {
                     var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
@@ -160,10 +161,10 @@ builder.Services.AddRateLimiter(options =>
                         $"user_{userId}",
                         _ => new TokenBucketRateLimiterOptions
                         {
-                            TokenLimit = 80,                             // Max burst capacity for heavy dashboard loads
-                            TokensPerPeriod = 25,                        // Tokens added per replenishment period
-                            ReplenishmentPeriod = TimeSpan.FromSeconds(2), // Rapid replenishment
-                            QueueLimit = 40,                             // Queue buffer for concurrent page bursts
+                            TokenLimit = 150,                            // High burst capacity (safely supports 8+ simultaneous dashboard tabs)
+                            TokensPerPeriod = 40,                        // Rapid replenishment (1,200 req/min continuous)
+                            ReplenishmentPeriod = TimeSpan.FromSeconds(2),
+                            QueueLimit = 50,                             // Gracefully queues unexpected spikes instead of 429
                             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                             AutoReplenishment = true
                         });
@@ -178,10 +179,10 @@ builder.Services.AddRateLimiter(options =>
                     $"ip_{ipAddress}",
                     _ => new TokenBucketRateLimiterOptions
                     {
-                        TokenLimit = 40,
-                        TokensPerPeriod = 15,
+                        TokenLimit = 50,
+                        TokensPerPeriod = 20,
                         ReplenishmentPeriod = TimeSpan.FromSeconds(3),
-                        QueueLimit = 20,
+                        QueueLimit = 25,
                         QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                         AutoReplenishment = true
                     });

@@ -35,6 +35,18 @@ public static class ImpersonationEndpoints
                     if (result.IsFailure)
                         return Results.BadRequest(result.Error);
 
+                    var isHttps = httpContext.Request.IsHttps ||
+                                  string.Equals(httpContext.Request.Headers["X-Forwarded-Proto"], "https", StringComparison.OrdinalIgnoreCase);
+
+                    httpContext.Response.Cookies.Append("refreshToken", result.Value.RefreshToken, new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = isHttps,
+                        SameSite = SameSiteMode.Lax,
+                        Expires = DateTime.UtcNow.AddDays(14),
+                        Path = "/"
+                    });
+
                     return Results.Ok(result.Value);
                 })
             .RequirePermission(
