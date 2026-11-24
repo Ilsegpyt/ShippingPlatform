@@ -1,4 +1,5 @@
 
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 
@@ -12,6 +13,7 @@ using Api.Modules.Identity;
 using Api.Modules.Notifications;
 using Api.Modules.Operations;
 using Api.Modules.Reports;
+using Api.Modules.Transporters;
 using Api.Modules.Website;
 using BuildingBlocks.Application.Abstractions;
 using BuildingBlocks.Application.Serialization;
@@ -23,6 +25,7 @@ using Identity.Application.Abstractions;
 using Identity.Application.Auth.ForgotPassword;
 using Identity.Infrastructure;
 using Identity.Infrastructure.Seeding;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Notifications.Application;
 using Notifications.Infrastructure;
@@ -30,6 +33,8 @@ using Operations.Application;
 using Operations.Infrastructure;
 using Reports.Application;
 using Reports.Infrastructure;
+using Transporters.Application;
+using Transporters.Infrastructure;
 using Website.Application;
 using Website.Infrastructure;
 
@@ -78,6 +83,16 @@ builder.Services.AddCors(options =>
 
 
 // ==================================================
+// Forwarded Headers (Reverse Proxy / Nginx Support)
+// ==================================================
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// ==================================================
 // Rate Limiting
 // ==================================================
 builder.Services.AddRateLimiter(options =>
@@ -97,11 +112,15 @@ builder.Services.AddRateLimiter(options =>
             .GetMetadata<EnableRateLimitingAttribute>()
             ?.PolicyName ?? "GlobalLimiter";
 
+        var clientIdentifier = context.HttpContext.User?.Identity?.IsAuthenticated == true
+            ? $"User:{context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? context.HttpContext.User.Identity?.Name}"
+            : $"IP:{context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"}";
+
         logger.LogWarning(
-            "RATE LIMIT REJECTED | Method: {Method} | Path: {Path} | IP: {IP} | Policy: {Policy}",
+            "RATE LIMIT REJECTED | Method: {Method} | Path: {Path} | Client: {Client} | Policy: {Policy}",
             context.HttpContext.Request.Method,
             context.HttpContext.Request.Path,
-            context.HttpContext.Connection.RemoteIpAddress?.ToString(),
+            clientIdentifier,
             policyName
         );
 
@@ -111,34 +130,64 @@ builder.Services.AddRateLimiter(options =>
         context.HttpContext.Response.ContentType =
             "application/json";
 
+        context.HttpContext.Response.Headers.RetryAfter = "3";
+
         await context.HttpContext.Response.WriteAsJsonAsync(new
         {
-            message = "You have exceeded the allowed number of requests. Please try again later."
+            message = "You have exceeded the allowed number of requests. Please try again in a few seconds."
         }, cancellationToken);
     };
 
-    // Global limit - TEMPORARILY DISABLED
-    // Disabled temporarily to investigate repeated 429 responses.
-    //options.GlobalLimiter =
-    //    PartitionedRateLimiter.Create<HttpContext, string>(
-    //        httpContext =>
-    //        {
-    //            var ipAddress =
-    //                httpContext.Connection.RemoteIpAddress?.ToString()
-    //                ?? "unknown";
+    // Global limiter with token bucket & concurrency queue
+    options.GlobalLimiter =
+        PartitionedRateLimiter.Create<HttpContext, string>(
+            httpContext =>
+            {
+                // 1. Never rate-limit CORS preflight OPTIONS requests
+                if (HttpMethods.IsOptions(httpContext.Request.Method))
+                {
+                    return RateLimitPartition.GetNoLimiter("OPTIONS");
+                }
 
-    //            return RateLimitPartition.GetFixedWindowLimiter(
-    //                ipAddress,
-    //                _ => new FixedWindowRateLimiterOptions
-    //                {
-    //                    PermitLimit = 500,
-    //                    Window = TimeSpan.FromMinutes(1),
-    //                    QueueLimit = 0,
-    //                    AutoReplenishment = true
-    //                });
-    //        });
+                // 2. Authenticated user: partition by UserId with high burst capacity for dashboards
+                if (httpContext.User?.Identity?.IsAuthenticated == true)
+                {
+                    var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                                 ?? httpContext.User.Identity?.Name
+                                 ?? "authenticated_user";
 
-    // Login limit: 5 requests per minute per IP
+                    return RateLimitPartition.GetTokenBucketLimiter(
+                        $"user_{userId}",
+                        _ => new TokenBucketRateLimiterOptions
+                        {
+                            TokenLimit = 80,                             // Max burst capacity for heavy dashboard loads
+                            TokensPerPeriod = 25,                        // Tokens added per replenishment period
+                            ReplenishmentPeriod = TimeSpan.FromSeconds(2), // Rapid replenishment
+                            QueueLimit = 40,                             // Queue buffer for concurrent page bursts
+                            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                            AutoReplenishment = true
+                        });
+                }
+
+                // 3. Anonymous / Public requests: partition by Client IP
+                var ipAddress =
+                    httpContext.Connection.RemoteIpAddress?.ToString()
+                    ?? "unknown";
+
+                return RateLimitPartition.GetTokenBucketLimiter(
+                    $"ip_{ipAddress}",
+                    _ => new TokenBucketRateLimiterOptions
+                    {
+                        TokenLimit = 40,
+                        TokensPerPeriod = 15,
+                        ReplenishmentPeriod = TimeSpan.FromSeconds(3),
+                        QueueLimit = 20,
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        AutoReplenishment = true
+                    });
+            });
+
+    // Login limit: 5 requests per minute per IP to protect against brute-force attacks
     options.AddPolicy("LoginPolicy", httpContext =>
     {
         var ipAddress =
@@ -188,6 +237,12 @@ builder.Services.AddNotificationsApplication();
 // ==================================================
 builder.Services.AddWebsiteApplication();
 builder.Services.AddWebsiteModule(builder.Configuration);
+
+// ==================================================
+// Transporters
+// ==================================================
+builder.Services.AddTransportersApplication();
+builder.Services.AddTransportersModule(builder.Configuration);
 
 // ==================================================
 // HTTP Context & Current User
@@ -254,6 +309,7 @@ if (app.Environment.IsDevelopment())
 // ==================================================
 // Middleware Pipeline
 // ==================================================
+app.UseForwardedHeaders();
 app.UseExceptionHandler();
 app.UseRouting();
 app.UseCors("Frontend");
@@ -289,11 +345,11 @@ app.Use(async (context, next) =>
     }
 });
 
-// Rate Limiting Middleware
-app.UseRateLimiter();
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Rate Limiting Middleware (placed after Authentication/Authorization so User identity is known)
+app.UseRateLimiter();
 
 // ==================================================
 // Database Seeding
@@ -316,6 +372,7 @@ app.MapNotificationsEndpoints();
 app.MapContentEndpoints();
 app.MapOperationsEndpoints();
 WebsiteEndpoints.Map(app);
+TransportersEndpoints.Map(app);
 
 // ==================================================
 // Run Application

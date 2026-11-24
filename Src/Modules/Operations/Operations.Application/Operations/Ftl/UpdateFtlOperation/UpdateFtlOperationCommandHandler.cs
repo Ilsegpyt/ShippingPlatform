@@ -95,14 +95,12 @@ public sealed class UpdateFtlOperationCommandHandler(
 
             if (existingByRef.TryGetValue(opRef, out var existingOp))
             {
-                var currentUserGuid = currentUser.UserId != Guid.Empty ? currentUser.UserId : (Guid?)null;
-                if (existingOp.IsLockActive(now, 10))
+                var currentGuid = currentUser.UserId;
+                if (existingOp.IsLockActive(now, 10) && existingOp.LockedByUserId.HasValue && existingOp.LockedByUserId.Value != currentGuid)
                 {
-                    if (currentUserGuid.HasValue && existingOp.LockedByUserId.HasValue && existingOp.LockedByUserId.Value != currentUserGuid.Value)
-                    {
-                        return Result.Failure<UpdateFtlOperationResult>(
-                            $"Operation '{opRef}' is currently locked by {existingOp.LockedByName}. Save halted to prevent conflict.");
-                    }
+                    var locker = string.IsNullOrWhiteSpace(existingOp.LockedByName) ? "another user" : existingOp.LockedByName;
+                    return Result.Failure<UpdateFtlOperationResult>(
+                        $"Operation '{opRef}' is currently locked by {locker}. Save halted to prevent conflict.");
                 }
 
                 existingOp.SetLayoutJson(layoutJson);
@@ -206,6 +204,7 @@ public sealed class UpdateFtlOperationCommandHandler(
                     var commodity = GetSpanVal(spanRows, "commodity");
                     var line = GetSpanVal(spanRows, "line", "terminal");
                     var dest = GetSpanVal(spanRows, "dest", "destination");
+                    var fullAddress = GetSpanVal(spanRows, "fullAddress", "address");
                     var aod = GetSpanVal(spanRows, "aod", "pod");
                     var customsArea = GetSpanVal(spanRows, "customsArea", "customs");
                     var transInv = GetSpanVal(spanRows, "transInv");
@@ -242,6 +241,7 @@ public sealed class UpdateFtlOperationCommandHandler(
                             string.IsNullOrWhiteSpace(commodity) ? existingShipment.Commodity : commodity,
                             string.IsNullOrWhiteSpace(line) ? existingShipment.Terminal : line,
                             string.IsNullOrWhiteSpace(dest) ? existingShipment.Destination : dest,
+                            string.IsNullOrWhiteSpace(fullAddress) ? existingShipment.FullAddress : fullAddress,
                             string.IsNullOrWhiteSpace(aod) ? existingShipment.AOD : aod,
                             invRcv ?? existingShipment.InvoicesReceivedDate,
                             string.IsNullOrWhiteSpace(transInv) ? existingShipment.TransporterInvoiceNo : transInv,
@@ -269,6 +269,7 @@ public sealed class UpdateFtlOperationCommandHandler(
                             commodity,
                             line,
                             dest,
+                            fullAddress,
                             aod,
                             invRcv,
                             transInv,
@@ -520,7 +521,10 @@ public sealed class UpdateFtlOperationCommandHandler(
                     await operationRepository.DeleteTripsAsync(tripsToRemove, ct);
                 }
 
-                existingOp.ReleaseLock();
+                if (existingOp.LockedByUserId == currentGuid)
+                {
+                    existingOp.ReleaseLock();
+                }
             }
         }
 

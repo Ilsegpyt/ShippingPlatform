@@ -58,6 +58,7 @@ public sealed class CreateFtlOperationCommandHandler(
         var commodity = shared.GetValueOrDefault("commodity");
         var line = shared.GetValueOrDefault("line");
         var dest = shared.GetValueOrDefault("dest");
+        var fullAddress = shared.GetValueOrDefault("fullAddress") ?? shared.GetValueOrDefault("address");
         var pod = shared.GetValueOrDefault("aod") ?? shared.GetValueOrDefault("pod");
         var customsArea = shared.GetValueOrDefault("customsArea") ?? shared.GetValueOrDefault("customs");
 
@@ -223,6 +224,7 @@ public sealed class CreateFtlOperationCommandHandler(
             var sCommodity = GetCreateSpanField(spanTrips, "commodity") ?? commodity;
             var sLine = GetCreateSpanField(spanTrips, "line", "terminal") ?? line;
             var sDest = GetCreateSpanField(spanTrips, "dest", "destination") ?? dest;
+            var sFullAddress = GetCreateSpanField(spanTrips, "fullAddress", "address") ?? fullAddress;
             var sPod = GetCreateSpanField(spanTrips, "aod", "pod") ?? pod;
 
             int.TryParse(GetCreateSpanField(spanTrips, "packages"), out var sPkg);
@@ -255,6 +257,7 @@ public sealed class CreateFtlOperationCommandHandler(
                 commodity: sCommodity,
                 terminal: sLine,
                 destination: sDest,
+                fullAddress: sFullAddress,
                 aod: sPod);
 
             operation.Shipments.Add(shipment);

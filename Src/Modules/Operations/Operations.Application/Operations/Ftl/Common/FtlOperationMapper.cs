@@ -199,7 +199,11 @@ public static class FtlOperationMapper
             ReopenReason: null,
             TotalTrucks: op.Trucks.Count,
             TotalShipments: op.Shipments.Count,
-            Allocations: allocations);
+            Allocations: allocations,
+            LockedByUserId: op.LockedByUserId,
+            LockedByName: op.LockedByName,
+            LockedAtUtc: op.LockedAtUtc,
+            IsLocked: op.IsLockActive(DateTime.UtcNow, 10));
     }
 
     public static Dictionary<string, string> BuildFallbackFields(
@@ -243,6 +247,7 @@ public static class FtlOperationMapper
             if (shipment.Commodity is not null) dict["commodity"] = shipment.Commodity;
             if (shipment.Terminal is not null) dict["line"] = shipment.Terminal;
             if (shipment.Destination is not null) dict["dest"] = shipment.Destination;
+            if (shipment.FullAddress is not null) dict["fullAddress"] = shipment.FullAddress;
             if (shipment.AOD is not null) dict["aod"] = shipment.AOD;
             if (shipment.InvoicesReceivedDate.HasValue) dict["invRcv"] = shipment.InvoicesReceivedDate.Value.ToString("yyyy-MM-dd");
             if (shipment.TransporterInvoiceNo is not null) dict["transInv"] = shipment.TransporterInvoiceNo;

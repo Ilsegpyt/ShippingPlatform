@@ -72,6 +72,20 @@ public static class PermissionCatalog
         PermissionKey.Of("website.branches.edit");
 
 
+    // Transporters
+    public static readonly PermissionKey TransportersView =
+        PermissionKey.Of("transporters.transporters.view");
+
+    public static readonly PermissionKey TransportersCreate =
+        PermissionKey.Of("transporters.transporters.create");
+
+    public static readonly PermissionKey TransportersEdit =
+        PermissionKey.Of("transporters.transporters.edit");
+
+    public static readonly PermissionKey TransportersApproveRates =
+        PermissionKey.Of("transporters.rates.approve");
+
+
     // Website - Contact Inquiries
     public static readonly PermissionKey ContactInquiriesCreate =
         PermissionKey.Of("website.contactinquiries.create");
@@ -328,6 +342,12 @@ public static class PermissionCatalog
         BranchesView,
         BranchesRestore,
         BranchesEdit,
+
+        // Transporters
+        TransportersView,
+        TransportersCreate,
+        TransportersEdit,
+        TransportersApproveRates,
 
         // Website - Contact Inquiries
         ContactInquiriesCreate,

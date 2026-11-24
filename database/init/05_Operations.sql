@@ -1499,6 +1499,14 @@ BEGIN
         ALTER TABLE [FtlAirports] ADD [DeletedByUserId] uniqueidentifier NULL;
     IF COL_LENGTH(N'[FtlAirports]', N'DeletedByName') IS NULL
         ALTER TABLE [FtlAirports] ADD [DeletedByName] nvarchar(200) NULL;
+    IF COL_LENGTH(N'[FtlAirports]', N'CreatedAtUtc') IS NOT NULL ALTER TABLE [FtlAirports] DROP COLUMN [CreatedAtUtc];
+    IF COL_LENGTH(N'[FtlAirports]', N'CreatedByUserId') IS NOT NULL ALTER TABLE [FtlAirports] DROP COLUMN [CreatedByUserId];
+    IF COL_LENGTH(N'[FtlAirports]', N'CreatedByName') IS NOT NULL ALTER TABLE [FtlAirports] DROP COLUMN [CreatedByName];
+    IF COL_LENGTH(N'[FtlAirports]', N'UpdatedAtUtc') IS NOT NULL ALTER TABLE [FtlAirports] DROP COLUMN [UpdatedAtUtc];
+    IF COL_LENGTH(N'[FtlAirports]', N'UpdatedByUserId') IS NOT NULL ALTER TABLE [FtlAirports] DROP COLUMN [UpdatedByUserId];
+    IF COL_LENGTH(N'[FtlAirports]', N'UpdatedByName') IS NOT NULL ALTER TABLE [FtlAirports] DROP COLUMN [UpdatedByName];
+    IF COL_LENGTH(N'[FtlAirports]', N'City') IS NOT NULL ALTER TABLE [FtlAirports] DROP COLUMN [City];
+    IF COL_LENGTH(N'[FtlAirports]', N'Country') IS NOT NULL ALTER TABLE [FtlAirports] DROP COLUMN [Country];
 END;
 
 -- Ensure FtlTerminals has soft delete columns if table already exists
@@ -1512,6 +1520,14 @@ BEGIN
         ALTER TABLE [FtlTerminals] ADD [DeletedByUserId] uniqueidentifier NULL;
     IF COL_LENGTH(N'[FtlTerminals]', N'DeletedByName') IS NULL
         ALTER TABLE [FtlTerminals] ADD [DeletedByName] nvarchar(200) NULL;
+    IF COL_LENGTH(N'[FtlTerminals]', N'CreatedAtUtc') IS NOT NULL ALTER TABLE [FtlTerminals] DROP COLUMN [CreatedAtUtc];
+    IF COL_LENGTH(N'[FtlTerminals]', N'CreatedByUserId') IS NOT NULL ALTER TABLE [FtlTerminals] DROP COLUMN [CreatedByUserId];
+    IF COL_LENGTH(N'[FtlTerminals]', N'CreatedByName') IS NOT NULL ALTER TABLE [FtlTerminals] DROP COLUMN [CreatedByName];
+    IF COL_LENGTH(N'[FtlTerminals]', N'UpdatedAtUtc') IS NOT NULL ALTER TABLE [FtlTerminals] DROP COLUMN [UpdatedAtUtc];
+    IF COL_LENGTH(N'[FtlTerminals]', N'UpdatedByUserId') IS NOT NULL ALTER TABLE [FtlTerminals] DROP COLUMN [UpdatedByUserId];
+    IF COL_LENGTH(N'[FtlTerminals]', N'UpdatedByName') IS NOT NULL ALTER TABLE [FtlTerminals] DROP COLUMN [UpdatedByName];
+    IF COL_LENGTH(N'[FtlTerminals]', N'AirportId') IS NOT NULL ALTER TABLE [FtlTerminals] DROP COLUMN [AirportId];
+    IF COL_LENGTH(N'[FtlTerminals]', N'Code') IS NOT NULL ALTER TABLE [FtlTerminals] DROP COLUMN [Code];
 END;
 
 -- Ensure FtlVehicles has soft delete columns and FtlTransporterId if table already exists
@@ -1532,6 +1548,12 @@ BEGIN
         ALTER TABLE [FtlVehicles] ADD [DeletedByUserId] uniqueidentifier NULL;
     IF COL_LENGTH(N'[FtlVehicles]', N'DeletedByName') IS NULL
         ALTER TABLE [FtlVehicles] ADD [DeletedByName] nvarchar(200) NULL;
+    IF COL_LENGTH(N'[FtlVehicles]', N'CreatedAtUtc') IS NOT NULL ALTER TABLE [FtlVehicles] DROP COLUMN [CreatedAtUtc];
+    IF COL_LENGTH(N'[FtlVehicles]', N'CreatedByUserId') IS NOT NULL ALTER TABLE [FtlVehicles] DROP COLUMN [CreatedByUserId];
+    IF COL_LENGTH(N'[FtlVehicles]', N'CreatedByName') IS NOT NULL ALTER TABLE [FtlVehicles] DROP COLUMN [CreatedByName];
+    IF COL_LENGTH(N'[FtlVehicles]', N'UpdatedAtUtc') IS NOT NULL ALTER TABLE [FtlVehicles] DROP COLUMN [UpdatedAtUtc];
+    IF COL_LENGTH(N'[FtlVehicles]', N'UpdatedByUserId') IS NOT NULL ALTER TABLE [FtlVehicles] DROP COLUMN [UpdatedByUserId];
+    IF COL_LENGTH(N'[FtlVehicles]', N'UpdatedByName') IS NOT NULL ALTER TABLE [FtlVehicles] DROP COLUMN [UpdatedByName];
 END;
 
 -- 1. Drop old Abbreviation columns if they exist
@@ -1880,6 +1902,7 @@ BEGIN
         [Commodity] nvarchar(300) NULL,
         [Terminal] nvarchar(200) NULL,
         [Destination] nvarchar(200) NULL,
+        [FullAddress] nvarchar(500) NULL,
         [AOD] nvarchar(50) NULL,
         [InvoicesReceivedDate] date NULL,
         [TransporterInvoiceNo] nvarchar(100) NULL,
@@ -1889,6 +1912,9 @@ BEGIN
         CONSTRAINT [FK_FtlShipments_FtlOperations_FtlOperationId] FOREIGN KEY ([FtlOperationId]) REFERENCES [FtlOperations] ([Id]) ON DELETE CASCADE
     );
 END;
+
+IF OBJECT_ID(N'[FtlShipments]', N'U') IS NOT NULL AND COL_LENGTH(N'[FtlShipments]', N'FullAddress') IS NULL
+    ALTER TABLE [FtlShipments] ADD [FullAddress] nvarchar(500) NULL;
 
 IF COL_LENGTH(N'[FtlTrucks]', N'ArrivalDate') IS NULL
     ALTER TABLE [FtlTrucks] ADD [ArrivalDate] date NULL;

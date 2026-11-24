@@ -30,6 +30,8 @@ public sealed class FtlOperationConfiguration : IEntityTypeConfiguration<FtlOper
             .HasDefaultValue(1);
 
         // Concurrency Lock
+        builder.Property(x => x.LockedByUserId);
+
         builder.Property(x => x.LockedByName)
             .HasMaxLength(200);
 

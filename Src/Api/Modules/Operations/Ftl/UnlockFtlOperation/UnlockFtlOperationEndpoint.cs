@@ -19,10 +19,11 @@ public static class UnlockFtlOperationEndpoint
 
     private static async Task<IResult> HandleUnlock(
         string reference,
+        UnlockFtlOperationRequest? request,
         ISender sender,
         CancellationToken ct)
     {
-        var command = new UnlockFtlOperationCommand(reference);
+        var command = new UnlockFtlOperationCommand(reference, request?.Force ?? false);
         var result = await sender.Send(command, ct);
 
         return result.IsSuccess
@@ -30,4 +31,6 @@ public static class UnlockFtlOperationEndpoint
             : Results.BadRequest(new { error = result.Error });
     }
 }
+
+public sealed record UnlockFtlOperationRequest(bool Force = false);
 

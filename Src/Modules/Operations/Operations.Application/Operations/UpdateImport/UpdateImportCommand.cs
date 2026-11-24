@@ -44,5 +44,7 @@ public sealed record UpdateImportContainerItem(
     // Editable per container
     string? Destination,
     DateOnly? FreeTimeTill,
-    string? CarNumber = null
+    string? CarNumber = null,
+    string? DriverName = null,
+    string? DriverMobile = null
 );

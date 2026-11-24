@@ -34,5 +34,7 @@ public sealed record UpdateExportContainerItem(
     Guid? DriverId = null,
     string? MissingDocs = null,
     DateOnly? MissingDocsReceivedDate = null,
-    string? CarNumber = null
+    string? CarNumber = null,
+    string? DriverName = null,
+    string? DriverMobile = null
 );

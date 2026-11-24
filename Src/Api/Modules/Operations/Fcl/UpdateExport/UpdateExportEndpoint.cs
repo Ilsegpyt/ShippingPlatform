@@ -38,7 +38,9 @@ public static class UpdateExportEndpoint
                         x.DriverId,
                         x.MissingDocs,
                         x.MissingDocsReceivedDate,
-                        x.CarNumber))
+                        x.CarNumber,
+                        x.DriverName,
+                        x.DriverMobile))
                     .ToArray(),
                 request.POLId,
                 request.PODId,
@@ -86,5 +88,7 @@ public sealed record UpdateExportContainerRequest(
     Guid? DriverId = null,
     string? MissingDocs = null,
     DateOnly? MissingDocsReceivedDate = null,
-    string? CarNumber = null
+    string? CarNumber = null,
+    string? DriverName = null,
+    string? DriverMobile = null
 );

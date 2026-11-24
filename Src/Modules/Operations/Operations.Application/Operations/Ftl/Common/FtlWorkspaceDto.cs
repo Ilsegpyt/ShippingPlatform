@@ -35,7 +35,11 @@ public sealed record FtlOperationDto(
     string? ReopenReason = null,
     int? TotalTrucks = null,
     int? TotalShipments = null,
-    object? Allocations = null);
+    object? Allocations = null,
+    Guid? LockedByUserId = null,
+    string? LockedByName = null,
+    DateTime? LockedAtUtc = null,
+    bool IsLocked = false);
 
 public sealed record FtlUserDto(
     string Id,

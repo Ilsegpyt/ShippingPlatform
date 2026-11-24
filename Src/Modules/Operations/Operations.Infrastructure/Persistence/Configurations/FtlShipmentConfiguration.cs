@@ -53,6 +53,9 @@ public sealed class FtlShipmentConfiguration : IEntityTypeConfiguration<FtlShipm
         builder.Property(x => x.Destination)
             .HasMaxLength(200);
 
+        builder.Property(x => x.FullAddress)
+            .HasMaxLength(500);
+
         builder.Property(x => x.AOD)
             .HasMaxLength(50);
 

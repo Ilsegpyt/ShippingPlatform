@@ -2,6 +2,7 @@ using BuildingBlocks.Application;
 using BuildingBlocks.Application.Abstractions;
 using MediatR;
 using Operations.Application.Abstractions;
+using Operations.Domain.Enums;
 
 namespace Operations.Application.Operations.Ftl.LockFtlOperation;
 
@@ -19,19 +20,29 @@ public sealed class LockFtlOperationCommandHandler(
         if (operation is null)
             return Result.Failure<LockFtlOperationResult>($"Operation '{command.Ref}' not found.");
 
-        var userId = currentUser.UserId != Guid.Empty ? currentUser.UserId : Guid.NewGuid();
+        if (operation.Status == OperationStatus.Delivered)
+            return Result.Failure<LockFtlOperationResult>("Delivered operations cannot be edited.");
+
+        var userId = currentUser.UserId;
+        if (userId == Guid.Empty)
+            return Result.Failure<LockFtlOperationResult>("User authentication is required to lock operation.");
+
         var userName = await currentUser.GetUserNameAsync(ct);
         var now = DateTime.UtcNow;
 
-        if (operation.IsLockActive(now) && operation.LockedByUserId != userId)
+        if (operation.IsLockActive(now, 10))
         {
-            return Result.Failure<LockFtlOperationResult>(
-                $"Operation is currently locked by {operation.LockedByName}.");
+            if (operation.LockedByUserId.HasValue && operation.LockedByUserId.Value != userId)
+            {
+                var lockerName = string.IsNullOrWhiteSpace(operation.LockedByName) ? "another user" : operation.LockedByName;
+                return Result.Failure<LockFtlOperationResult>(
+                    $"Operation is currently locked by {lockerName}.");
+            }
         }
 
-        operation.AcquireLock(userId, userName, now);
+        operation.AcquireLock(userId, userName ?? "User", now);
         await unitOfWork.SaveChangesAsync(ct);
 
-        return Result.Success(new LockFtlOperationResult(true, operation.LockedByName, operation.LockedAtUtc));
+        return Result.Success(new LockFtlOperationResult(true, operation.LockedByName, operation.LockedAtUtc, operation.LockedByUserId));
     }
 }

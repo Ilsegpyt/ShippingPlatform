@@ -62,6 +62,7 @@ using Api.Modules.Operations.Ftl.GetFtlOperationsCounts;
 using Api.Modules.Operations.Ftl.GetFtlUserMe;
 using Api.Modules.Operations.Ftl.ImportFtlTrips;
 using Api.Modules.Operations.Ftl.LockFtlOperation;
+using Api.Modules.Operations.Ftl.TakeOverFtlOperation;
 using Api.Modules.Operations.Ftl.ReopenFtlOperation;
 using Api.Modules.Operations.Ftl.UnlockFtlOperation;
 using Api.Modules.Operations.Ftl.UpdateFtlOperation;
@@ -84,6 +85,10 @@ using Api.Modules.Operations.Ftl.CreateFtlAirport;
 using Api.Modules.Operations.Ftl.DeactivateFtlAirport;
 using Api.Modules.Operations.Ftl.GetFtlAirports;
 using Api.Modules.Operations.Ftl.UpdateFtlAirport;
+using Api.Modules.Operations.Ftl.CreateFtlTerminal;
+using Api.Modules.Operations.Ftl.DeactivateFtlTerminal;
+using Api.Modules.Operations.Ftl.GetFtlTerminals;
+using Api.Modules.Operations.Ftl.UpdateFtlTerminal;
 
 namespace Api.Modules.Operations;
 
@@ -171,6 +176,7 @@ public static class OperationsEndpoints
         UpdateFtlStatusEndpoint.Map(app);
         DeleteFtlOperationEndpoint.Map(app);
         LockFtlOperationEndpoint.Map(app);
+        TakeOverFtlOperationEndpoint.Map(app);
         UnlockFtlOperationEndpoint.Map(app);
         AddFtlTruckUpdateEndpoint.Map(app);
         ImportFtlTripsEndpoint.Map(app);
@@ -198,5 +204,10 @@ public static class OperationsEndpoints
         UpdateFtlAirportEndpoint.Map(app);
         DeactivateFtlAirportEndpoint.Map(app);
         GetFtlAirportsEndpoint.Map(app);
+
+        CreateFtlTerminalEndpoint.Map(app);
+        UpdateFtlTerminalEndpoint.Map(app);
+        DeactivateFtlTerminalEndpoint.Map(app);
+        GetFtlTerminalsEndpoint.Map(app);
     }
 }

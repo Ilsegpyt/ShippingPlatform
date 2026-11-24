@@ -19,9 +19,28 @@ public sealed class UnlockFtlOperationCommandHandler(
         if (operation is null)
             return Result.Failure<bool>($"Operation '{command.Ref}' not found.");
 
-        operation.ReleaseLock();
-        await unitOfWork.SaveChangesAsync(ct);
+        var now = DateTime.UtcNow;
+        var userId = currentUser.UserId;
 
-        return Result.Success(true);
+        // If not locked or lock is already expired, consider it unlocked
+        if (!operation.IsLockActive(now, 10))
+        {
+            if (operation.LockedByUserId.HasValue)
+            {
+                operation.ReleaseLock();
+                await unitOfWork.SaveChangesAsync(ct);
+            }
+            return Result.Success(true);
+        }
+
+        // If held by current user or forced by caller
+        if (operation.LockedByUserId == userId || command.Force)
+        {
+            operation.ReleaseLock();
+            await unitOfWork.SaveChangesAsync(ct);
+            return Result.Success(true);
+        }
+
+        return Result.Failure<bool>($"Cannot unlock operation locked by {operation.LockedByName}.");
     }
 }

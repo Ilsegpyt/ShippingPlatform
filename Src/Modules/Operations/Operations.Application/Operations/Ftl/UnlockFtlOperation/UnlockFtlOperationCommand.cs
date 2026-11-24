@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Operations.Application.Operations.Ftl.UnlockFtlOperation;
 
-public sealed record UnlockFtlOperationCommand(string Ref) : IRequest<Result<bool>>;
+public sealed record UnlockFtlOperationCommand(string Ref, bool Force = false) : IRequest<Result<bool>>;

@@ -28,6 +28,7 @@ public class FtlShipment : Entity<Guid>
 
     public string? Terminal { get; private set; }
     public string? Destination { get; private set; }
+    public string? FullAddress { get; private set; }
     public string? AOD { get; private set; }
 
     public DateOnly? InvoicesReceivedDate { get; private set; }
@@ -54,6 +55,7 @@ public class FtlShipment : Entity<Guid>
         string? commodity = null,
         string? terminal = null,
         string? destination = null,
+        string? fullAddress = null,
         string? aod = null,
         DateOnly? invoicesReceivedDate = null,
         string? transporterInvoiceNo = null,
@@ -81,6 +83,7 @@ public class FtlShipment : Entity<Guid>
             commodity,
             terminal,
             destination,
+            fullAddress,
             aod,
             invoicesReceivedDate,
             transporterInvoiceNo,
@@ -103,6 +106,7 @@ public class FtlShipment : Entity<Guid>
         string? commodity,
         string? terminal,
         string? destination,
+        string? fullAddress,
         string? aod,
         DateOnly? invoicesReceivedDate,
         string? transporterInvoiceNo,
@@ -123,6 +127,7 @@ public class FtlShipment : Entity<Guid>
         Commodity = string.IsNullOrWhiteSpace(commodity) ? null : commodity.Trim();
         Terminal = string.IsNullOrWhiteSpace(terminal) ? null : terminal.Trim();
         Destination = string.IsNullOrWhiteSpace(destination) ? null : destination.Trim();
+        FullAddress = string.IsNullOrWhiteSpace(fullAddress) ? null : fullAddress.Trim();
         AOD = string.IsNullOrWhiteSpace(aod) ? null : aod.Trim();
         InvoicesReceivedDate = invoicesReceivedDate;
         TransporterInvoiceNo = IdentifierNormalizer.Normalize(transporterInvoiceNo);

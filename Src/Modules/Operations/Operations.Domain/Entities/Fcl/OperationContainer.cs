@@ -45,6 +45,10 @@ public class OperationContainer : Entity<Guid>
 
     public Driver? Driver { get; private set; }
 
+    public string? DriverName { get; private set; }
+
+    public string? DriverMobile { get; private set; }
+
     public Guid? VehicleId { get; private set; }
 
     public Vehicle? Vehicle { get; private set; }

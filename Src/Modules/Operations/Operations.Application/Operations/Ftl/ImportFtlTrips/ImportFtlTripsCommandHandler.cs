@@ -224,6 +224,7 @@ public sealed class ImportFtlTripsCommandHandler(
                     commodity,
                     line,
                     dest,
+                    fields.GetValueOrDefault("fullAddress") ?? fields.GetValueOrDefault("address"),
                     aod,
                     invRcv,
                     transInv,

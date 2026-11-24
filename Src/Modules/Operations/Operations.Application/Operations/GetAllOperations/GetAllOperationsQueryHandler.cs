@@ -101,8 +101,8 @@ public sealed class GetAllOperationsQueryHandler(
                         container.Transporter?.Name,
                         container.DriverId,
                         container.Driver?.DriverNumber,
-                        container.Driver?.Name,
-                        container.Driver?.MobileNumber,
+                        container.DriverName ?? container.Driver?.Name,
+                        container.DriverMobile ?? container.Driver?.MobileNumber,
                         container.VehicleId,
                         container.Vehicle?.CarNumber,
 
