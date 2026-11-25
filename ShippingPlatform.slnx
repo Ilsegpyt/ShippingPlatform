@@ -52,6 +52,11 @@
     <Project Path="Src/Modules/Transporters/Transporters.Domain/Transporters.Domain.csproj" />
     <Project Path="Src/Modules/Transporters/Transporters.Infrastructure/Transporters.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/Src/Modules/CustomsClearance/">
+    <Project Path="Src/Modules/CustomsClearance/CustomsClearance.Application/CustomsClearance.Application.csproj" />
+    <Project Path="Src/Modules/CustomsClearance/CustomsClearance.Domain/CustomsClearance.Domain.csproj" />
+    <Project Path="Src/Modules/CustomsClearance/CustomsClearance.Infrastructure/CustomsClearance.Infrastructure.csproj" />
+  </Folder>
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>

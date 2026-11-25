@@ -39,6 +39,7 @@ public static class GetAllFtlOperationsEndpoint
         string? dateTo,
         string? sortBy,
         string? sortDirection,
+        string? rulesJson,
         ISender sender,
         CancellationToken ct)
     {
@@ -60,14 +61,15 @@ public static class GetAllFtlOperationsEndpoint
                 DateFrom: dateFrom,
                 DateTo: dateTo,
                 SortBy: sortBy,
-                SortDirection: sortDirection ?? "desc"), ct);
+                SortDirection: sortDirection ?? "desc",
+                RulesJson: rulesJson), ct);
 
             return pagedResult.IsSuccess
                 ? Results.Ok(pagedResult.Value)
                 : Results.BadRequest(new { error = pagedResult.Error });
         }
 
-        var result = await sender.Send(new GetAllFtlOperationsQuery(), ct);
+        var result = await sender.Send(new GetAllFtlOperationsQuery(operationType, onlyActive ?? false), ct);
         return result.IsSuccess
             ? Results.Ok(result.Value)
             : Results.BadRequest(new { error = result.Error });

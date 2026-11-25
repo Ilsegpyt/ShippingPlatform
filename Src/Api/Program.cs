@@ -13,6 +13,7 @@ using Api.Modules.Identity;
 using Api.Modules.Notifications;
 using Api.Modules.Operations;
 using Api.Modules.Reports;
+using Api.Modules.CustomsClearance;
 using Api.Modules.Transporters;
 using Api.Modules.Website;
 using BuildingBlocks.Application.Abstractions;
@@ -31,6 +32,8 @@ using Notifications.Application;
 using Notifications.Infrastructure;
 using Operations.Application;
 using Operations.Infrastructure;
+using CustomsClearance.Application;
+using CustomsClearance.Infrastructure;
 using Reports.Application;
 using Reports.Infrastructure;
 using Transporters.Application;
@@ -246,6 +249,12 @@ builder.Services.AddTransportersApplication();
 builder.Services.AddTransportersModule(builder.Configuration);
 
 // ==================================================
+// Customs Clearance
+// ==================================================
+builder.Services.AddCustomsClearanceApplication();
+builder.Services.AddCustomsClearanceModule(builder.Configuration);
+
+// ==================================================
 // HTTP Context & Current User
 // ==================================================
 builder.Services.AddHttpContextAccessor();
@@ -374,6 +383,7 @@ app.MapContentEndpoints();
 app.MapOperationsEndpoints();
 WebsiteEndpoints.Map(app);
 TransportersEndpoints.Map(app);
+CustomsClearanceEndpoints.Map(app);
 
 // ==================================================
 // Run Application

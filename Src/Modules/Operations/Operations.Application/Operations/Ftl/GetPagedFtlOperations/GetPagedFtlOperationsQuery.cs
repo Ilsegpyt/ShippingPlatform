@@ -28,5 +28,6 @@ public sealed record GetPagedFtlOperationsQuery(
     string? DateFrom = null,
     string? DateTo = null,
     string? SortBy = null,
-    string? SortDirection = "desc")
+    string? SortDirection = "desc",
+    string? RulesJson = null)
     : IRequest<Result<PagedFtlOperationsResponseDto>>;

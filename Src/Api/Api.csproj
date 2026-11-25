@@ -47,6 +47,9 @@
 		<ProjectReference Include="..\Modules\Transporters\Transporters.Application\Transporters.Application.csproj" />
 		<ProjectReference Include="..\Modules\Transporters\Transporters.Infrastructure\Transporters.Infrastructure.csproj" />
 
+		<ProjectReference Include="..\Modules\CustomsClearance\CustomsClearance.Application\CustomsClearance.Application.csproj" />
+		<ProjectReference Include="..\Modules\CustomsClearance\CustomsClearance.Infrastructure\CustomsClearance.Infrastructure.csproj" />
+
 		<!--<ProjectReference Include="..\Modules\Schedules\Schedules.Application\Schedules.Application.csproj" />-->
 		<!--<ProjectReference Include="..\Modules\Schedules\Schedules.infrastructure\Schedules.Infrastructure.csproj" />-->
 		<!--<ProjectReference Include="..\Modules\Shipments\Shipments.Infrastructure\Shipments.Infrastructure.csproj" />-->

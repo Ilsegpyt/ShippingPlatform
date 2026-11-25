@@ -5,7 +5,14 @@ namespace Operations.Application.Abstractions;
 public interface IFtlOperationRepository
 {
     Task<IReadOnlyList<FtlOperation>> GetAllActiveWithDetailsAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<FtlOperation>> GetWorkspaceWithDetailsAsync(string? operationType = null, bool onlyActive = false, CancellationToken ct = default);
     Task<FtlOperationsCountsDto> GetCountsAsync(CancellationToken ct = default);
+    Task<FtlFilterOptionsDto> GetFilterOptionsAsync(
+        string? operationType = null,
+        string? status = null,
+        bool onlyActive = false,
+        bool isDeleted = false,
+        CancellationToken ct = default);
     Task<PagedFtlOperationsResult> GetPagedAsync(FtlOperationQueryParams queryParams, CancellationToken ct = default);
     Task<FtlOperation?> GetByIdForUpdateAsync(Guid id, CancellationToken ct = default);
     Task<FtlOperation?> GetByRefAsync(string reference, bool includeDetails = true, CancellationToken ct = default);

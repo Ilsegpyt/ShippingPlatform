@@ -18,7 +18,8 @@ public sealed record FtlOperationQueryParams(
     string? DateFrom = null,
     string? DateTo = null,
     string? SortBy = null,
-    string? SortDirection = "desc");
+    string? SortDirection = "desc",
+    string? RulesJson = null);
 
 public sealed record PagedFtlOperationsResult(
     IReadOnlyList<FtlOperation> Items,
@@ -27,3 +28,9 @@ public sealed record PagedFtlOperationsResult(
     int Page,
     int PageSize,
     int TotalPages);
+
+public sealed record FtlFilterOptionsDto(
+    IReadOnlyList<string> Clients,
+    IReadOnlyList<string> Transporters,
+    IReadOnlyList<string> Terminals,
+    IReadOnlyList<string> Users);

@@ -29,7 +29,8 @@ public sealed class GetPagedFtlOperationsQueryHandler(
             DateFrom: query.DateFrom,
             DateTo: query.DateTo,
             SortBy: query.SortBy,
-            SortDirection: query.SortDirection);
+            SortDirection: query.SortDirection,
+            RulesJson: query.RulesJson);
 
         var result = await repository.GetPagedAsync(queryParams, ct);
 

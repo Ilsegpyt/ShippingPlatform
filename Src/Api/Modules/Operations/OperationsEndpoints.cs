@@ -57,6 +57,7 @@ using Api.Modules.Operations.Ftl.CreateFtlOperation;
 using Api.Modules.Operations.Ftl.DeleteFtlOperation;
 using Api.Modules.Operations.Ftl.DeliverFtlOperation;
 using Api.Modules.Operations.Ftl.GetAllFtlOperations;
+using Api.Modules.Operations.Ftl.GetFtlFilterOptions;
 using Api.Modules.Operations.Ftl.GetFtlMaster;
 using Api.Modules.Operations.Ftl.GetFtlOperationsCounts;
 using Api.Modules.Operations.Ftl.GetFtlUserMe;
@@ -170,6 +171,7 @@ public static class OperationsEndpoints
         CreateFtlOperationEndpoint.Map(app);
         GetAllFtlOperationsEndpoint.Map(app);
         GetFtlOperationsCountsEndpoint.Map(app);
+        GetFtlFilterOptionsEndpoint.Map(app);
         DeliverFtlOperationEndpoint.Map(app);
         ReopenFtlOperationEndpoint.Map(app);
         UpdateFtlOperationEndpoint.Map(app);

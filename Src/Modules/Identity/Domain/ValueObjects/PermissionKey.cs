@@ -86,6 +86,20 @@ public static class PermissionCatalog
         PermissionKey.Of("transporters.rates.approve");
 
 
+    // Customs Clearance
+    public static readonly PermissionKey CustomsShipmentsView =
+        PermissionKey.Of("customsclearance.shipments.view");
+
+    public static readonly PermissionKey CustomsShipmentsCreate =
+        PermissionKey.Of("customsclearance.shipments.create");
+
+    public static readonly PermissionKey CustomsShipmentsEdit =
+        PermissionKey.Of("customsclearance.shipments.edit");
+
+    public static readonly PermissionKey CustomsShipmentsClose =
+        PermissionKey.Of("customsclearance.shipments.close");
+
+
     // Website - Contact Inquiries
     public static readonly PermissionKey ContactInquiriesCreate =
         PermissionKey.Of("website.contactinquiries.create");
@@ -348,6 +362,12 @@ public static class PermissionCatalog
         TransportersCreate,
         TransportersEdit,
         TransportersApproveRates,
+
+        // Customs Clearance
+        CustomsShipmentsView,
+        CustomsShipmentsCreate,
+        CustomsShipmentsEdit,
+        CustomsShipmentsClose,
 
         // Website - Contact Inquiries
         ContactInquiriesCreate,

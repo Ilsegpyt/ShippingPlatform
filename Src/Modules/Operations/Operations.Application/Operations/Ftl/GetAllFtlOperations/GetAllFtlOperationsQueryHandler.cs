@@ -11,7 +11,10 @@ public sealed class GetAllFtlOperationsQueryHandler(
 {
     public async Task<Result<FtlWorkspaceDto>> Handle(GetAllFtlOperationsQuery query, CancellationToken ct)
     {
-        var operations = await operationRepository.GetAllActiveWithDetailsAsync(ct);
+        var operations = await operationRepository.GetWorkspaceWithDetailsAsync(
+            query.OperationType,
+            query.OnlyActive,
+            ct);
 
         var shipmentDtos = operations
             .Select(FtlOperationMapper.MapToDto)
