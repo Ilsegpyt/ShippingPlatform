@@ -36,11 +36,13 @@ public static class GetCustomsLookupsEndpoint
             async (
                 ICustomerQueries customerQueries,
                 IPortRepository portRepository,
+                IPortTerminalRepository portTerminalRepository,
                 IShippingLineRepository shippingLineRepository,
                 CancellationToken ct) =>
             {
                 var customers = await customerQueries.GetAllForOperationsAsync(ct);
                 var ports = await portRepository.GetAllAsync(false, ct);
+                var portTerminals = await portTerminalRepository.GetAllAsync(null, false, ct);
                 var shippingLines = await shippingLineRepository.GetAllAsync(false, ct);
 
                 return Results.Ok(new
@@ -54,8 +56,18 @@ public static class GetCustomsLookupsEndpoint
                     shippingLines = shippingLines
                         .Select(x => new { id = x.Id, name = x.Name, abbreviation = x.Abbreviation })
                         .OrderBy(x => x.name),
-                    // FTL terminals are not sea-port terminals, so customs has no terminal source yet.
-                    terminals = Array.Empty<object>(),
+                    terminals = portTerminals
+                        .Select(x => new
+                        {
+                            id = x.Id,
+                            name = x.Name,
+                            code = x.Code,
+                            arabicName = x.ArabicName,
+                            portId = x.PortId,
+                            portName = x.Port?.Name,
+                            portCode = x.Port?.Code
+                        })
+                        .OrderBy(x => x.name),
                     containerTypes = ContainerTypes,
                     clearanceTypes = ClearanceTypes
                 });

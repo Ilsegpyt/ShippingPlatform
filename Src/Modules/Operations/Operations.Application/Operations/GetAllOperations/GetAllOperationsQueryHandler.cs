@@ -57,7 +57,10 @@ public sealed class GetAllOperationsQueryHandler(
                         importDetails.POD.Name,
                         importDetails.POD.Code,
                         importDetails.RequiredOffloadingDate,
-                        importDetails.RequiredOffloadingTime)
+                        importDetails.RequiredOffloadingTime,
+                        importDetails.TerminalId,
+                        importDetails.Terminal?.Name,
+                        importDetails.Terminal?.Code)
                     : null,
 
                 operation.ExportDetails is { } exportDetails
@@ -73,9 +76,12 @@ public sealed class GetAllOperationsQueryHandler(
                         exportDetails.POW?.Code,
                         exportDetails.CutOffDate,
                         exportDetails.Customs,
-                exportDetails.PODId,
-                exportDetails.POD?.Name,
-                exportDetails.POD?.Code)
+                        exportDetails.PODId,
+                        exportDetails.POD?.Name,
+                        exportDetails.POD?.Code,
+                        exportDetails.TerminalId,
+                        exportDetails.Terminal?.Name,
+                        exportDetails.Terminal?.Code)
                     : null,
 
                 operation.Containers

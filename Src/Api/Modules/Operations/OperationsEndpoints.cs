@@ -14,10 +14,12 @@ using Api.Modules.Operations.Fcl.ApproveFclSuggestion;
 using Api.Modules.Operations.Fcl.CreateDriver;
 using Api.Modules.Operations.Fcl.CreateOperation;
 using Api.Modules.Operations.Fcl.CreatePort;
+using Api.Modules.Operations.Fcl.CreatePortTerminal;
 using Api.Modules.Operations.Fcl.CreateTransporter;
 using Api.Modules.Operations.Fcl.CreateVehicle;
 using Api.Modules.Operations.Fcl.DeactivateDriver;
 using Api.Modules.Operations.Fcl.DeactivatePort;
+using Api.Modules.Operations.Fcl.DeactivatePortTerminal;
 using Api.Modules.Operations.Fcl.DeactivateTransporter;
 using Api.Modules.Operations.Fcl.DeactivateVehicle;
 using Api.Modules.Operations.Fcl.DeleteOperation;
@@ -35,6 +37,7 @@ using Api.Modules.Operations.Fcl.GetOperationById;
 using Api.Modules.Operations.Fcl.GetOperationCustomers;
 using Api.Modules.Operations.Fcl.GetOperationDrivers;
 using Api.Modules.Operations.Fcl.GetOperationPorts;
+using Api.Modules.Operations.Fcl.GetOperationPortTerminals;
 using Api.Modules.Operations.Fcl.GetOperationsCounts;
 using Api.Modules.Operations.Fcl.GetOperationTransporters;
 using Api.Modules.Operations.Fcl.GetOperationVehicles;
@@ -47,6 +50,7 @@ using Api.Modules.Operations.Fcl.UpdateDriver;
 using Api.Modules.Operations.Fcl.UpdateExport;
 using Api.Modules.Operations.Fcl.UpdateImport;
 using Api.Modules.Operations.Fcl.UpdatePort;
+using Api.Modules.Operations.Fcl.UpdatePortTerminal;
 using Api.Modules.Operations.Fcl.UpdateTransporter;
 using Api.Modules.Operations.Fcl.UpdateVehicle;
 
@@ -144,11 +148,16 @@ public static class OperationsEndpoints
         UnlockOperationEndpoint.Map(app);
         TakeOverOperationEndpoint.Map(app);
 
-        // FCL Master Data (Ports, Drivers, Transporters, Vehicles)
+        // FCL Master Data (Ports, Port Terminals, Drivers, Transporters, Vehicles)
         CreatePortEndpoint.Map(app);
         UpdatePortEndpoint.Map(app);
         DeactivatePortEndpoint.Map(app);
         GetOperationPortsEndpoint.Map(app);
+
+        CreatePortTerminalEndpoint.Map(app);
+        UpdatePortTerminalEndpoint.Map(app);
+        DeactivatePortTerminalEndpoint.Map(app);
+        GetOperationPortTerminalsEndpoint.Map(app);
 
         CreateDriverEndpoint.Map(app);
         UpdateDriverEndpoint.Map(app);

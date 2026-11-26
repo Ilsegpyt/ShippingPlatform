@@ -27,6 +27,7 @@ public static class OperationsModuleServiceCollectionExtensions
         services.AddScoped<IOperationRepository, OperationRepository>();
         services.AddScoped<IFclRepository, FclRepository>();
         services.AddScoped<IPortRepository, PortRepository>();
+        services.AddScoped<IPortTerminalRepository, PortTerminalRepository>();
         services.AddScoped<IDestinationRepository, DestinationRepository>();
         services.AddScoped<IDriverRepository, DriverRepository>();
         services.AddScoped<IShippingLineRepository, ShippingLineRepository>();

@@ -15,7 +15,9 @@ public sealed record UpdateExportCommand(
     Guid? POWId = null,
     DateTime? InvoicesReceivedDate = null,
     bool ClearPOD = false,
-    bool ClearPOW = false
+    bool ClearPOW = false,
+    Guid? TerminalId = null,
+    bool ClearTerminal = false
 ) : IRequest<Result<bool>>;
 
 public sealed record UpdateExportContainerItem(

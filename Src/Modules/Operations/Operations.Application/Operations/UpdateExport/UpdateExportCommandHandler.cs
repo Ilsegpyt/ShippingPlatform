@@ -170,6 +170,33 @@ public sealed class UpdateExportCommandHandler(
             operation.ExportDetails.UpdatePOL(command.POLId.Value);
         }
 
+        if (command.TerminalId.HasValue)
+        {
+            if (!await operationRepository.ActivePortTerminalExistsAsync(
+                    command.TerminalId.Value,
+                    operation.ExportDetails.POLId,
+                    ct))
+            {
+                return Result.Failure<bool>(
+                    "Selected terminal does not exist, is inactive, or does not belong to this operation's POL port.");
+            }
+            operation.ExportDetails.UpdateTerminal(command.TerminalId.Value);
+        }
+        else if (command.ClearTerminal)
+        {
+            operation.ExportDetails.UpdateTerminal(null);
+        }
+        else if (command.POLId.HasValue && operation.ExportDetails.TerminalId.HasValue)
+        {
+            if (!await operationRepository.ActivePortTerminalExistsAsync(
+                    operation.ExportDetails.TerminalId.Value,
+                    operation.ExportDetails.POLId,
+                    ct))
+            {
+                operation.ExportDetails.UpdateTerminal(null);
+            }
+        }
+
         if (command.PODId.HasValue)
         {
             if (!await operationRepository.ActivePortExistsAsync(command.PODId.Value, ct))

@@ -29,6 +29,7 @@ public sealed class OperationsDbContext : DbContext, IOperationsUnitOfWork
     public DbSet<ContainerUpdate> ContainerUpdates => Set<ContainerUpdate>();
     public DbSet<ShippingLine> ShippingLines => Set<ShippingLine>();
     public DbSet<Port> Ports => Set<Port>();
+    public DbSet<PortTerminal> PortTerminals => Set<PortTerminal>();
     public DbSet<Transporter> Transporters => Set<Transporter>();
     public DbSet<Driver> Drivers => Set<Driver>();
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();

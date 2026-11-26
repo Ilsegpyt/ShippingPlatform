@@ -2116,3 +2116,60 @@ END;
 COMMIT;
 GO
 
+
+/* ===========================================================================
+   Migration: 20261125131100_AddFclPortTerminals
+   Adds PortTerminals table and nullable TerminalId columns on ImportDetails / ExportDetails
+   =========================================================================== */
+
+BEGIN TRANSACTION;
+
+IF OBJECT_ID(N'[PortTerminals]', N'U') IS NULL
+BEGIN
+    CREATE TABLE [PortTerminals] (
+        [Id] uniqueidentifier NOT NULL,
+        [PortId] uniqueidentifier NOT NULL,
+        [Name] nvarchar(200) NOT NULL,
+        [Code] nvarchar(40) NULL,
+        [ArabicName] nvarchar(200) NULL,
+        [IsActive] bit NOT NULL DEFAULT CAST(1 AS bit),
+        [IsDeleted] bit NOT NULL DEFAULT CAST(0 AS bit),
+        [DeletedAtUtc] datetime2 NULL,
+        [DeletedByUserId] uniqueidentifier NULL,
+        [DeletedByName] nvarchar(200) NULL,
+        CONSTRAINT [PK_PortTerminals] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_PortTerminals_Ports_PortId] FOREIGN KEY ([PortId]) REFERENCES [Ports] ([Id]) ON DELETE NO ACTION
+    );
+END;
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_PortTerminals_PortId_Name' AND object_id = OBJECT_ID(N'[PortTerminals]'))
+    EXEC(N'CREATE UNIQUE INDEX [IX_PortTerminals_PortId_Name] ON [PortTerminals] ([PortId], [Name]) WHERE [IsDeleted] = 0');
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_PortTerminals_PortId_Code' AND object_id = OBJECT_ID(N'[PortTerminals]'))
+    EXEC(N'CREATE UNIQUE INDEX [IX_PortTerminals_PortId_Code] ON [PortTerminals] ([PortId], [Code]) WHERE [Code] IS NOT NULL AND [IsDeleted] = 0');
+
+IF COL_LENGTH(N'[ImportDetails]', N'TerminalId') IS NULL
+    ALTER TABLE [ImportDetails] ADD [TerminalId] uniqueidentifier NULL;
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ImportDetails_TerminalId' AND object_id = OBJECT_ID(N'[ImportDetails]'))
+    CREATE INDEX [IX_ImportDetails_TerminalId] ON [ImportDetails] ([TerminalId]);
+
+IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ImportDetails_PortTerminals_TerminalId' AND parent_object_id = OBJECT_ID(N'[ImportDetails]'))
+    ALTER TABLE [ImportDetails] ADD CONSTRAINT [FK_ImportDetails_PortTerminals_TerminalId] FOREIGN KEY ([TerminalId]) REFERENCES [PortTerminals] ([Id]) ON DELETE NO ACTION;
+
+IF COL_LENGTH(N'[ExportDetails]', N'TerminalId') IS NULL
+    ALTER TABLE [ExportDetails] ADD [TerminalId] uniqueidentifier NULL;
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ExportDetails_TerminalId' AND object_id = OBJECT_ID(N'[ExportDetails]'))
+    CREATE INDEX [IX_ExportDetails_TerminalId] ON [ExportDetails] ([TerminalId]);
+
+IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = N'FK_ExportDetails_PortTerminals_TerminalId' AND parent_object_id = OBJECT_ID(N'[ExportDetails]'))
+    ALTER TABLE [ExportDetails] ADD CONSTRAINT [FK_ExportDetails_PortTerminals_TerminalId] FOREIGN KEY ([TerminalId]) REFERENCES [PortTerminals] ([Id]) ON DELETE NO ACTION;
+
+IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'20261125131100_AddFclPortTerminals')
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261125131100_AddFclPortTerminals', N'10.0.12');
+
+COMMIT;
+GO
+

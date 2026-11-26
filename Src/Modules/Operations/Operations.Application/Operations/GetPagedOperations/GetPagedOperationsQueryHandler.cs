@@ -101,7 +101,10 @@ public sealed class GetPagedOperationsQueryHandler(
                         importDetails.POD.Name,
                         importDetails.POD.Code,
                         importDetails.RequiredOffloadingDate,
-                        importDetails.RequiredOffloadingTime)
+                        importDetails.RequiredOffloadingTime,
+                        importDetails.TerminalId,
+                        importDetails.Terminal?.Name,
+                        importDetails.Terminal?.Code)
                     : null,
 
                 operation.ExportDetails is { } exportDetails
@@ -119,7 +122,10 @@ public sealed class GetPagedOperationsQueryHandler(
                         exportDetails.Customs,
                         exportDetails.PODId,
                         exportDetails.POD?.Name,
-                        exportDetails.POD?.Code)
+                        exportDetails.POD?.Code,
+                        exportDetails.TerminalId,
+                        exportDetails.Terminal?.Name,
+                        exportDetails.Terminal?.Code)
                     : null,
 
                 operation.Containers

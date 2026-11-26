@@ -17,7 +17,9 @@ public sealed record UpdateImportCommand(
     IReadOnlyCollection<UpdateImportContainerItem> Containers,
 
     DateOnly? RequiredOffloadingDate = null,
-    TimeOnly? RequiredOffloadingTime = null
+    TimeOnly? RequiredOffloadingTime = null,
+    Guid? TerminalId = null,
+    bool ClearTerminal = false
 ) : IRequest<Result<bool>>;
 
 public sealed record UpdateImportContainerItem(

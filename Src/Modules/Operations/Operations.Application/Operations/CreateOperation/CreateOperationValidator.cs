@@ -26,6 +26,11 @@ public sealed class CreateOperationValidator
             .InclusiveBetween(1, 200)
             .WithMessage("Number of containers must be between 1 and 200.");
 
+        RuleFor(x => x.TerminalId)
+            .Must(id => id != Guid.Empty)
+            .When(x => x.TerminalId.HasValue)
+            .WithMessage("Invalid terminal ID.");
+
         // Import
         When(x => x.OperationType == OperationType.Import, () =>
         {

@@ -1,4 +1,3 @@
-
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
@@ -44,7 +43,9 @@ public static class UpdateImportEndpoint
                             x.CarNumber))
                         .ToList(),
                     request.RequiredOffloadingDate,
-                    request.RequiredOffloadingTime);
+                    request.RequiredOffloadingTime,
+                    request.TerminalId,
+                    request.ClearTerminal);
 
                 var result = await sender.Send(command, ct);
 
@@ -62,7 +63,9 @@ public sealed record UpdateImportRequest(
     DateTime? InvoicesReceivedDate,
     IReadOnlyCollection<UpdateImportContainerRequest> Containers,
     DateOnly? RequiredOffloadingDate = null,
-    TimeOnly? RequiredOffloadingTime = null);
+    TimeOnly? RequiredOffloadingTime = null,
+    Guid? TerminalId = null,
+    bool ClearTerminal = false);
 
 public sealed record UpdateImportContainerRequest(
     Guid ContainerId,
@@ -90,4 +93,3 @@ public sealed record UpdateImportContainerRequest(
     string? CarNumber = null,
     string? DriverName = null,
     string? DriverMobile = null);
-

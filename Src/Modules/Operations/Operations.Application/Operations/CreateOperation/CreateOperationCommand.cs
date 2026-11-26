@@ -1,4 +1,4 @@
-﻿using BuildingBlocks.Application;
+using BuildingBlocks.Application;
 using MediatR;
 using Operations.Domain.Enums;
 
@@ -25,6 +25,7 @@ public sealed record CreateOperationCommand(
     Guid? POLId,
     Guid? POWId,
     DateOnly? CutOffDate,
-    string? ExportDestination
+    string? ExportDestination,
+    Guid? TerminalId = null
 
 ) : IRequest<Result<Guid>>;

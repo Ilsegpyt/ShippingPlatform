@@ -63,7 +63,10 @@ public sealed class SearchOperationsQueryHandler(
                         importDetails.POD.Name,
                         importDetails.POD.Code,
                         importDetails.RequiredOffloadingDate,
-                        importDetails.RequiredOffloadingTime)
+                        importDetails.RequiredOffloadingTime,
+                        importDetails.TerminalId,
+                        importDetails.Terminal?.Name,
+                        importDetails.Terminal?.Code)
                     : null,
 
                 operation.ExportDetails is { } exportDetails
@@ -79,9 +82,12 @@ public sealed class SearchOperationsQueryHandler(
                         exportDetails.POW?.Code,
                         exportDetails.CutOffDate,
                         exportDetails.Customs,
-                exportDetails.PODId,
-                exportDetails.POD?.Name,
-                exportDetails.POD?.Code)
+                        exportDetails.PODId,
+                        exportDetails.POD?.Name,
+                        exportDetails.POD?.Code,
+                        exportDetails.TerminalId,
+                        exportDetails.Terminal?.Name,
+                        exportDetails.Terminal?.Code)
                     : null,
 
                 operation.Containers
@@ -134,7 +140,6 @@ public sealed class SearchOperationsQueryHandler(
                 operation.DeliveredByName
             ))
             .ToList();
-
 
         var page = Math.Max(1, query.Request.Page);
         var pageSize = Math.Clamp(query.Request.PageSize, 1, 200);

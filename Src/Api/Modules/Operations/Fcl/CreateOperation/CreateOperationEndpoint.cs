@@ -1,4 +1,4 @@
-﻿
+
 using Identity.Domain.ValueObjects;
 using Identity.Infrastructure.Authorization;
 using MediatR;
@@ -38,7 +38,8 @@ public static class CreateOperationEndpoint
                 request.POLId,
                 request.POWId,
                 request.CutOffDate,
-                request.ExportDestination // الإضافة المطلوبة
+                request.ExportDestination, // الإضافة المطلوبة
+                request.TerminalId
             );
 
             var result = await sender.Send(command, ct);
@@ -71,5 +72,6 @@ public sealed record CreateOperationRequest(
     Guid? POLId,
     Guid? POWId,
     DateOnly? CutOffDate,
-    string? ExportDestination = null
+    string? ExportDestination = null,
+    Guid? TerminalId = null
 );

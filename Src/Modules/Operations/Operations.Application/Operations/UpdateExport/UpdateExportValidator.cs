@@ -12,6 +12,15 @@ public sealed class UpdateExportValidator : AbstractValidator<UpdateExportComman
             .NotEmpty()
             .WithMessage("Operation is required.");
 
+        RuleFor(x => x.TerminalId)
+            .Must(id => id != Guid.Empty)
+            .When(x => x.TerminalId.HasValue)
+            .WithMessage("Invalid terminal ID.");
+
+        RuleFor(x => x)
+            .Must(x => !(x.TerminalId.HasValue && x.ClearTerminal))
+            .WithMessage("Cannot specify TerminalId and ClearTerminal at the same time.");
+
         RuleFor(x => x.ShipmentNumber)
             .MaximumLength(120)
             .When(x => x.ShipmentNumber is not null)

@@ -34,6 +34,8 @@ internal static class AdvancedOperationQueryBuilder
             ["destination"] = new("Containers.Destination", typeof(string), true),
             ["Destination"] = new("Containers.Destination", typeof(string), true),
             ["POD"] = new("ImportDetails.POD.Name", typeof(string)),
+            ["ImportTerminal"] = new("ImportDetails.Terminal.Name", typeof(string)),
+            ["ExportTerminal"] = new("ExportDetails.Terminal.Name", typeof(string)),
             ["Required Offloading Date"] = new("ImportDetails.RequiredOffloadingDate", typeof(DateOnly)),
             ["Required Offloading Time"] = new("ImportDetails.RequiredOffloadingTime", typeof(TimeOnly)),
             ["free time till"] = new("Containers.FreeTimeTill", typeof(DateOnly), true),

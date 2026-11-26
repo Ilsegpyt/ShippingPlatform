@@ -102,6 +102,27 @@ public sealed class UpdateImportCommandHandler(
             command.RequiredOffloadingDate,
             command.RequiredOffloadingTime);
 
+        if (operation.ImportDetails is not null)
+        {
+            if (command.TerminalId.HasValue)
+            {
+                if (!await operationRepository.ActivePortTerminalExistsAsync(
+                        command.TerminalId.Value,
+                        operation.ImportDetails.PODId,
+                        ct))
+                {
+                    return Result.Failure<bool>(
+                        "Selected terminal does not exist, is inactive, or does not belong to this operation's POD port.");
+                }
+
+                operation.ImportDetails.UpdateTerminal(command.TerminalId.Value);
+            }
+            else if (command.ClearTerminal)
+            {
+                operation.ImportDetails.UpdateTerminal(null);
+            }
+        }
+
         if (!string.IsNullOrWhiteSpace(command.ShipmentNumber) &&
             await operationRepository.ShipmentNumberExistsAsync(command.ShipmentNumber, operation.Id, ct))
         {

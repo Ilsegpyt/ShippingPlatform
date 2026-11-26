@@ -78,6 +78,11 @@ public interface IOperationRepository
         Guid portId,
         CancellationToken cancellationToken = default);
 
+    Task<bool> ActivePortTerminalExistsAsync(
+        Guid terminalId,
+        Guid? portId = null,
+        CancellationToken cancellationToken = default);
+
     Task<bool> ActiveTransporterExistsAsync(
         Guid id,
         CancellationToken cancellationToken = default);

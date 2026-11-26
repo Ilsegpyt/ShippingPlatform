@@ -22,6 +22,9 @@ public sealed class ImportDetailsConfiguration
         builder.Property(x => x.PODId)
             .IsRequired();
 
+        builder.Property(x => x.TerminalId)
+            .IsRequired(false);
+
         builder.Property(x => x.RequiredOffloadingDate)
             .IsRequired()
             .HasColumnType("date");
@@ -40,6 +43,13 @@ public sealed class ImportDetailsConfiguration
             .WithMany()
             .HasForeignKey(x => x.PODId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.Terminal)
+            .WithMany()
+            .HasForeignKey(x => x.TerminalId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(x => x.TerminalId);
 
         builder.HasIndex(x => x.OperationId)
             .IsUnique();

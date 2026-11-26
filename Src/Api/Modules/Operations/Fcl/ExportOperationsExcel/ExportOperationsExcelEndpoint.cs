@@ -72,6 +72,8 @@ public static class ExportOperationsExcelEndpoint
 
             ["POD"] = "POD",
 
+            ["Terminal"] = "Terminal",
+
             ["RequiredOffloadingDate"] = "Required Offloading Date",
 
             ["RequiredOffloadingTime"] = "Required Offloading Time",
@@ -476,7 +478,13 @@ public static class ExportOperationsExcelEndpoint
 
             "MBLNumber" => o.ImportDetails?.MBLNumber,
 
-            "POD" => o.ImportDetails?.POD?.Name,
+            "POD" => o.OperationType == global::Operations.Domain.Enums.OperationType.Import
+                ? o.ImportDetails?.POD?.Name
+                : o.ExportDetails?.POD?.Name,
+
+            "Terminal" => o.OperationType == global::Operations.Domain.Enums.OperationType.Import
+                ? o.ImportDetails?.Terminal?.Name
+                : o.ExportDetails?.Terminal?.Name,
 
             "RequiredOffloadingDate" =>
 

@@ -26,6 +26,7 @@ public static class ImportTripsEndpoint
             ICustomerQueries customerQueries,
             IShippingLineRepository shippingLineRepo,
             IPortRepository portRepo,
+            IPortTerminalRepository portTerminalRepo,
             ITransporterRepository transporterRepo,
             IDriverRepository driverRepo,
             IVehicleRepository vehicleRepo,
@@ -38,6 +39,7 @@ public static class ImportTripsEndpoint
             var customers = await customerQueries.GetAllForOperationsAsync(ct);
             var shippingLines = await shippingLineRepo.GetAllAsync(false, ct);
             var ports = await portRepo.GetAllAsync(false, ct);
+            var portTerminals = await portTerminalRepo.GetAllAsync(null, false, ct);
             var transporters = await transporterRepo.GetAllAsync(false, ct);
             var drivers = await driverRepo.GetAllAsync(false, ct);
             var vehicles = await vehicleRepo.GetAllAsync(false, ct);
@@ -83,6 +85,12 @@ public static class ImportTripsEndpoint
                 {
                     var podName = Get(first, "pod");
                     var pod = FindPort(ports, podName);
+                    var terminalName = Get(first, "terminal");
+                    var terminal = (!string.IsNullOrWhiteSpace(terminalName) && pod is not null)
+                        ? FindPortTerminal(portTerminals, pod.Id, terminalName)
+                        : null;
+                    if (!string.IsNullOrWhiteSpace(terminalName) && pod is not null && terminal is null)
+                        errors.Add($"Group '{group.Key.Group}': active Terminal '{terminalName}' was not found for POD '{pod.Name}'.");
                     var free = ParseDate(Get(first, "free"));
                     var reqDate = ParseDate(Get(first, "reqDate"));
                     var reqTime = ParseTime(Get(first, "reqTime"));
@@ -93,12 +101,18 @@ public static class ImportTripsEndpoint
                     if (string.IsNullOrWhiteSpace(Get(first, "dest"))) errors.Add($"Group '{group.Key.Group}': Destination is required.");
                     prepared.Add(new PreparedOperation(group.Key.Group, direction.Value, rows, clientId, lineId,
                         Get(first, "bl"), Get(first, "dest"), pod?.Id, free, reqDate, reqTime,
-                        null, null, null, null, null, null, shippingLines, ports, transporters, drivers, vehicles));
+                        null, null, null, null, null, null, terminal?.Id, shippingLines, ports, transporters, drivers, vehicles));
                 }
                 else
                 {
                     var polName = Get(first, "pol");
                     var pol = FindPort(ports, polName);
+                    var terminalName = Get(first, "terminal");
+                    var terminal = (!string.IsNullOrWhiteSpace(terminalName) && pol is not null)
+                        ? FindPortTerminal(portTerminals, pol.Id, terminalName)
+                        : null;
+                    if (!string.IsNullOrWhiteSpace(terminalName) && pol is not null && terminal is null)
+                        errors.Add($"Group '{group.Key.Group}': active Terminal '{terminalName}' was not found for POL '{pol.Name}'.");
                     var powName = Get(first, "pow");
                     var pow = string.IsNullOrWhiteSpace(powName) ? null : FindPort(ports, powName);
                     var clearance = ParseClearance(Get(first, "clrType"));
@@ -111,7 +125,7 @@ public static class ImportTripsEndpoint
                     if (clearance == ClearanceType.Bosla && !string.IsNullOrWhiteSpace(Get(first, "cert"))) errors.Add($"Group '{group.Key.Group}': Certificate Number must be empty for BOSLA.");
                     prepared.Add(new PreparedOperation(group.Key.Group, direction.Value, rows, clientId, lineId,
                         null, null, null, null, null, null,
-                        clearance, Get(first, "booking"), pol?.Id, pow?.Id, cut, Get(first, "dest"), shippingLines, ports, transporters, drivers, vehicles));
+                        clearance, Get(first, "booking"), pol?.Id, pow?.Id, cut, Get(first, "dest"), terminal?.Id, shippingLines, ports, transporters, drivers, vehicles));
                 }
             }
 
@@ -148,7 +162,8 @@ public static class ImportTripsEndpoint
                         item.Direction == OperationType.Import ? item.Destination : null,
                         item.PodId, item.FreeTime, item.RequiredDate, item.RequiredTime,
                         item.ClearanceType, item.BookingNumber, item.PolId, item.PowId, item.CutOffDate,
-                        item.Direction == OperationType.Export ? item.ExportDestination : null);
+                        item.Direction == OperationType.Export ? item.ExportDestination : null,
+                        item.TerminalId);
                     var created = await sender.Send(create, ct);
                     if (!created.IsSuccess)
                         throw new ImportRejectedException($"Group '{item.Group}': {created.Error}");
@@ -244,6 +259,11 @@ public static class ImportTripsEndpoint
     private static Port? FindPort(IEnumerable<Port> ports, string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : ports.FirstOrDefault(x => Same(x.Name, value) || Same(x.Code, value));
 
+    private static PortTerminal? FindPortTerminal(IEnumerable<PortTerminal> terminals, Guid portId, string? value) =>
+        string.IsNullOrWhiteSpace(value)
+            ? null
+            : terminals.FirstOrDefault(x => x.PortId == portId && (Same(x.Name, value) || Same(x.Code, value) || Same(x.ArabicName, value)));
+
     private static Driver? FindDriver(IEnumerable<Driver> drivers, string? mobile, string? name) =>
         drivers.FirstOrDefault(x => !string.IsNullOrWhiteSpace(mobile) && Same(x.MobileNumber, mobile)) ??
         drivers.FirstOrDefault(x => !string.IsNullOrWhiteSpace(name) && Same(x.Name, name));
@@ -275,7 +295,7 @@ public static class ImportTripsEndpoint
     private sealed record PreparedOperation(
         string Group, OperationType Direction, List<ImportTrip> Rows, Guid? ClientId, Guid? ShippingLineId,
         string? MblNumber, string? Destination, Guid? PodId, DateOnly? FreeTime, DateOnly? RequiredDate, TimeOnly? RequiredTime,
-        ClearanceType? ClearanceType, string? BookingNumber, Guid? PolId, Guid? PowId, DateOnly? CutOffDate, string? ExportDestination,
+        ClearanceType? ClearanceType, string? BookingNumber, Guid? PolId, Guid? PowId, DateOnly? CutOffDate, string? ExportDestination, Guid? TerminalId,
         IReadOnlyList<ShippingLine> ShippingLines, IReadOnlyList<Port> Ports, IReadOnlyList<Transporter> Transporters,
         IReadOnlyList<Driver> Drivers, IReadOnlyList<Vehicle> Vehicles);
 

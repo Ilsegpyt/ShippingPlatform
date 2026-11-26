@@ -1,4 +1,3 @@
-
 using BuildingBlocks.Application;
 using MediatR;
 using Operations.Application.Abstractions;
@@ -58,6 +57,14 @@ public sealed class CreateOperationCommandHandler(
                 return Result.Failure<Guid>(
                     "POD does not exist or is inactive.");
             }
+
+            if (command.TerminalId.HasValue &&
+                !await operationRepository.ActivePortTerminalExistsAsync(
+                    command.TerminalId.Value, command.PODId.Value, ct))
+            {
+                return Result.Failure<Guid>(
+                    "Selected terminal does not exist, is inactive, or does not belong to the selected POD port.");
+            }
         }
 
         if (command.OperationType == OperationType.Export)
@@ -75,6 +82,14 @@ public sealed class CreateOperationCommandHandler(
             {
                 return Result.Failure<Guid>(
                     "POL does not exist or is inactive.");
+            }
+
+            if (command.TerminalId.HasValue &&
+                !await operationRepository.ActivePortTerminalExistsAsync(
+                    command.TerminalId.Value, command.POLId.Value, ct))
+            {
+                return Result.Failure<Guid>(
+                    "Selected terminal does not exist, is inactive, or does not belong to the selected POL port.");
             }
 
             if (command.POWId.HasValue &&
@@ -128,7 +143,8 @@ public sealed class CreateOperationCommandHandler(
                 command.MBLNumber!,
                 command.PODId!.Value,
                 command.RequiredOffloadingDate!.Value,
-                command.RequiredOffloadingTime!.Value);
+                command.RequiredOffloadingTime!.Value,
+                command.TerminalId);
 
             operation.SetImportDetails(importDetails);
         }
@@ -139,7 +155,9 @@ public sealed class CreateOperationCommandHandler(
                 command.BookingNumber!,
                 command.POLId!.Value,
                 command.POWId,
-                command.CutOffDate);
+                command.CutOffDate,
+                null,
+                command.TerminalId);
 
             operation.SetExportDetails(exportDetails);
         }

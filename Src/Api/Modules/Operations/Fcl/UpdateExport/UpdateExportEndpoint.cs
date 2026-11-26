@@ -47,7 +47,9 @@ public static class UpdateExportEndpoint
                 request.POWId,
                 request.InvoicesReceivedDate,
                 request.ClearPOD,
-                request.ClearPOW
+                request.ClearPOW,
+                request.TerminalId,
+                request.ClearTerminal
             );
 
             var result = await sender.Send(command, ct);
@@ -69,7 +71,9 @@ public sealed record UpdateExportRequest(
     Guid? POWId = null,
     DateTime? InvoicesReceivedDate = null,
     bool ClearPOD = false,
-    bool ClearPOW = false
+    bool ClearPOW = false,
+    Guid? TerminalId = null,
+    bool ClearTerminal = false
 );
 
 public sealed record UpdateExportContainerRequest(

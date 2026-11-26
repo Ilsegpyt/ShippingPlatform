@@ -1978,10 +1978,8 @@ VALUES
     (NEWID(), N'DEKHELA', N'EGEDK'),
     (NEWID(), N'El Suweis [= Suez]', N'EGSUZ'),
     (NEWID(), N'AL ARISH', N'EGAAC'),
-    (NEWID(), N'SOKHNA PORT', N'EGSOK'),
     (NEWID(), N'Hurghada', N'EGHRG'),
     (NEWID(), N'Kosseir', N'EGKOS'),
-    (NEWID(), N'Port Said', N'EGPSD'),
     (NEWID(), N'Halaib', N'EGHAL'),
     (NEWID(), N'Damietta', N'EGDAM'),
     (NEWID(), N'Geisum Terminal', N'EGGEI'),
@@ -2011,7 +2009,6 @@ VALUES
     (NEWID(), N'ELDABAA', N'EGMNP'),
     (NEWID(), N'EL ZAETEAT', N'EGPTD'),
     (NEWID(), N'SUMED SIDI KRIR', N'EGSSK'),
-    (NEWID(), N'SUMED AIN SUKHNA', N'EGSKN'),
     (NEWID(), N'EDCO FOR NATURAL GAS', N'EGENG'),
     (NEWID(), N'PETROJET -MADIA PORT', N'EGPTR'),
     (NEWID(), N'PETROJET -KHALIG EL ZEUT', N'EGZPT'),
@@ -2023,7 +2020,8 @@ VALUES
     (NEWID(), N'Ras sudr', N'EGRSU'),
     (NEWID(), N'EL ZEIT EAST', N'EGZET'),
     (NEWID(), N'MERSA RAS BADRAN', N'EGRAB'),
-    (NEWID(), N'AIN SUKHNA', N'EGAIS')
+    (NEWID(), N'AIN SUKHNA', N'EGAIS'),
+    (NEWID(), N'Port Said West', N'EGPSW')
 ;
 
 -- 5.1 Insert missing ports from target list
@@ -2115,4 +2113,47 @@ ON target.[Name] = source.[Name]
 WHEN NOT MATCHED THEN
     INSERT ([Id], [Name], [IsActive], [IsDeleted])
     VALUES (NEWID(), source.[Name], 1, 0);
+GO
+
+-- ===========================================================================
+-- 9. Seed PortTerminals (FCL Sea Port Terminals)
+-- ===========================================================================
+PRINT 'Seeding PortTerminals...';
+MERGE INTO [PortTerminals] AS target
+USING (
+    SELECT p.[Id] AS [PortId], v.[Name], v.[Code], v.[ArabicName]
+    FROM (VALUES
+        -- Alexandria (EGALY)
+        (N'EGALY', N'Trans Misr Terminal', N'TMT', N'محطة تحيا مصر متعددة الأغراض'),
+        (N'EGALY', N'Alexandria Container & Cargo Handling', N'ACCHC / ALCN', N'محطة حاويات الإسكندرية - شركة الإسكندرية لتداول الحاويات والبضائع'),
+        (N'EGALY', N'Alexandria International Container Terminals', N'AICT', N'محطة حاويات الإسكندرية الدولية'),
+        -- Dekheila (EGEDK)
+        (N'EGEDK', N'Dekheila Container Terminal (ACCHC / ALCN)', N'ACCHC / ALCN', N'محطة حاويات الدخيلة'),
+        (N'EGEDK', N'Dekheila Container Terminal (Hutchison Ports)', N'AICT', N'محطة حاويات الدخيلة - هاتشيسون'),
+        (N'EGEDK', N'Trans Misr Terminal', N'TMT', N'محطة تحيا مصر متعددة الأغراض'),
+        -- Ain Sukhna (EGAIS)
+        (N'EGAIS', N'DP World Sokhna', N'DPW', N'موانئ دبي العالمية - السخنة'),
+        (N'EGAIS', N'Red Sea Container Terminals', N'RSCT', N'محطة البحر الأحمر لتداول الحاويات - رقم 1'),
+        (N'EGAIS', N'Trans Cargo Terminal', N'TCT', N'محطة ترانس كارجو'),
+        (N'EGAIS', N'Sonker Bulk Liquids Terminal', N'SBLT', N'محطة سونكر للصب السائل'),
+        -- Port Said East / Esat Tafreaa (EGPSE)
+        (N'EGPSE', N'Suez Canal Container Terminal (APM Terminals)', N'SCCT', N'محطة حاويات قناة السويس - إي بي إم'),
+        (N'EGPSE', N'Suez Canal Automotive Terminal', N'SCAT', N'محطة قناة السويس للسيارات / الرورو'),
+        -- Port Said West (EGPSW)
+        (N'EGPSW', N'Port Said Container & Cargo Handling', N'PSCCHC', N'محطة حاويات وبضائع غرب بورسعيد'),
+        -- Damietta (EGDAM)
+        (N'EGDAM', N'Damietta Container & Cargo Handling', N'DCHC', N'محطة حاويات دمياط'),
+        (N'EGDAM', N'Damietta Alliance Container Terminal (Tahya Misr 1)', N'DACT', N'محطة حاويات تحيا مصر 1')
+    ) AS v ([PortCode], [Name], [Code], [ArabicName])
+    INNER JOIN [Ports] p ON p.[Code] = v.[PortCode]
+) AS source
+ON target.[PortId] = source.[PortId] AND target.[Name] = source.[Name] AND target.[IsDeleted] = 0
+WHEN MATCHED THEN
+    UPDATE SET
+        [Code] = source.[Code],
+        [ArabicName] = source.[ArabicName],
+        [IsActive] = 1
+WHEN NOT MATCHED THEN
+    INSERT ([Id], [PortId], [Name], [Code], [ArabicName], [IsActive], [IsDeleted])
+    VALUES (NEWID(), source.[PortId], source.[Name], source.[Code], source.[ArabicName], 1, 0);
 GO

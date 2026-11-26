@@ -46,7 +46,10 @@ public sealed record ImportDetailsDto(
     string PODName,
     string? PODCode,
     DateOnly RequiredOffloadingDate,
-    TimeOnly RequiredOffloadingTime);
+    TimeOnly RequiredOffloadingTime,
+    Guid? TerminalId = null,
+    string? TerminalName = null,
+    string? TerminalCode = null);
 
 public sealed record ExportDetailsDto(
     Guid Id,
@@ -62,7 +65,10 @@ public sealed record ExportDetailsDto(
     string? Customs,
     Guid? PODId = null,
     string? PODName = null,
-    string? PODCode = null);
+    string? PODCode = null,
+    Guid? TerminalId = null,
+    string? TerminalName = null,
+    string? TerminalCode = null);
 
 public sealed record OperationContainerDto(
     Guid Id,

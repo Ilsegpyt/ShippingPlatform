@@ -16,6 +16,10 @@ public class ExportDetails : Entity<Guid>
 
     public Port POL { get; private set; } = null!;
 
+    public Guid? TerminalId { get; private set; }
+
+    public PortTerminal? Terminal { get; private set; }
+
     public Guid? PODId { get; private set; }
 
     public Port? POD { get; private set; }
@@ -56,17 +60,24 @@ public class ExportDetails : Entity<Guid>
         POWId = powId;
     }
 
+    public void UpdateTerminal(Guid? terminalId)
+    {
+        TerminalId = terminalId;
+    }
+
     public ExportDetails(
         ClearanceType clearanceType,
         string bookingNumber,
         Guid polId,
         Guid? powId,
         DateOnly? cutOffDate,
-        Guid? podId = null)
+        Guid? podId = null,
+        Guid? terminalId = null)
     {
         ClearanceType = clearanceType;
         BookingNumber = IdentifierNormalizer.Normalize(bookingNumber) ?? string.Empty;
         POLId = polId;
+        TerminalId = terminalId;
         POWId = powId;
         CutOffDate = cutOffDate;
         PODId = podId;

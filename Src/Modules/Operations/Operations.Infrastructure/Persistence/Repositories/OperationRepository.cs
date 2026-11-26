@@ -106,8 +106,12 @@ public sealed class OperationRepository(
             .Include(x => x.ShippingLine)
             .Include(x => x.ImportDetails)
                 .ThenInclude(x => x!.POD)
+            .Include(x => x.ImportDetails)
+                .ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POD)
             .Include(x => x.ExportDetails)
@@ -140,8 +144,12 @@ public sealed class OperationRepository(
             .Include(x => x.ShippingLine)
             .Include(x => x.ImportDetails)
                 .ThenInclude(x => x!.POD)
+            .Include(x => x.ImportDetails)
+                .ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POD)
             .Include(x => x.ExportDetails)
@@ -170,8 +178,12 @@ public sealed class OperationRepository(
             .Include(x => x.ShippingLine)
             .Include(x => x.ImportDetails)
                 .ThenInclude(x => x!.POD)
+            .Include(x => x.ImportDetails)
+                .ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POD)
             .Include(x => x.ExportDetails)
@@ -219,8 +231,12 @@ public sealed class OperationRepository(
             .Include(x => x.ShippingLine)
             .Include(x => x.ImportDetails)
                 .ThenInclude(x => x!.POD)
+            .Include(x => x.ImportDetails)
+                .ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POD)
             .Include(x => x.ExportDetails)
@@ -279,7 +295,9 @@ public sealed class OperationRepository(
         return await query
             .Include(x => x.ShippingLine)
             .Include(x => x.ImportDetails).ThenInclude(x => x!.POD)
+            .Include(x => x.ImportDetails).ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails).ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails).ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails).ThenInclude(x => x!.POD).Include(x => x.ExportDetails).ThenInclude(x => x!.POW)
             .Include(x => x.Containers).ThenInclude(x => x.Transporter)
             .Include(x => x.Containers).ThenInclude(x => x.Driver)
@@ -306,8 +324,12 @@ public sealed class OperationRepository(
             .Include(x => x.ShippingLine)
             .Include(x => x.ImportDetails)
                 .ThenInclude(x => x!.POD)
+            .Include(x => x.ImportDetails)
+                .ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POD)
             .Include(x => x.ExportDetails)
@@ -559,7 +581,9 @@ public sealed class OperationRepository(
                 (x.ShippingLine != null && EF.Functions.Like(x.ShippingLine.Name, $"%{term}%")) ||
                 (x.ShippingLine != null && x.ShippingLine.Abbreviation != null && EF.Functions.Like(x.ShippingLine.Abbreviation, $"%{term}%")) ||
                 (x.ImportDetails != null && EF.Functions.Like(x.ImportDetails.MBLNumber, $"%{term}%")) ||
+                (x.ImportDetails != null && x.ImportDetails.Terminal != null && (EF.Functions.Like(x.ImportDetails.Terminal.Name, $"%{term}%") || (x.ImportDetails.Terminal.Code != null && EF.Functions.Like(x.ImportDetails.Terminal.Code, $"%{term}%")))) ||
                 (x.ExportDetails != null && EF.Functions.Like(x.ExportDetails.BookingNumber, $"%{term}%")) ||
+                (x.ExportDetails != null && x.ExportDetails.Terminal != null && (EF.Functions.Like(x.ExportDetails.Terminal.Name, $"%{term}%") || (x.ExportDetails.Terminal.Code != null && EF.Functions.Like(x.ExportDetails.Terminal.Code, $"%{term}%")))) ||
                 (x.ExportDetails != null && x.ExportDetails.Customs != null && EF.Functions.Like(x.ExportDetails.Customs, $"%{term}%")) ||
                 x.Containers.Any(c =>
                     (c.ContainerNumber != null && EF.Functions.Like(c.ContainerNumber, $"%{term}%")) ||
@@ -586,8 +610,12 @@ public sealed class OperationRepository(
             .Include(x => x.ShippingLine)
             .Include(x => x.ImportDetails)
                 .ThenInclude(x => x!.POD)
+            .Include(x => x.ImportDetails)
+                .ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POL)
+            .Include(x => x.ExportDetails)
+                .ThenInclude(x => x!.Terminal)
             .Include(x => x.ExportDetails)
                 .ThenInclude(x => x!.POD)
             .Include(x => x.ExportDetails)
@@ -621,6 +649,19 @@ public sealed class OperationRepository(
     {
         return dbContext.Ports.AnyAsync(
             x => x.Id == portId && x.IsActive,
+            cancellationToken);
+    }
+
+    public Task<bool> ActivePortTerminalExistsAsync(
+        Guid terminalId,
+        Guid? portId = null,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.PortTerminals.AnyAsync(
+            x => x.Id == terminalId &&
+                 x.IsActive &&
+                 !x.IsDeleted &&
+                 (!portId.HasValue || x.PortId == portId.Value),
             cancellationToken);
     }
     public Task<bool> ActiveTransporterExistsAsync(

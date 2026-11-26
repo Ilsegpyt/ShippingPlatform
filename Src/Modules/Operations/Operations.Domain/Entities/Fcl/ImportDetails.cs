@@ -15,6 +15,10 @@ public class ImportDetails : Entity<Guid>
 
     public Port POD { get; private set; } = null!;
 
+    public Guid? TerminalId { get; private set; }
+
+    public PortTerminal? Terminal { get; private set; }
+
     public DateOnly RequiredOffloadingDate { get; private set; }
 
     public TimeOnly RequiredOffloadingTime { get; private set; }
@@ -25,6 +29,11 @@ public class ImportDetails : Entity<Guid>
         RequiredOffloadingTime = requiredOffloadingTime;
     }
 
+    public void UpdateTerminal(Guid? terminalId)
+    {
+        TerminalId = terminalId;
+    }
+
     private ImportDetails()
     {
     }
@@ -33,10 +42,12 @@ public class ImportDetails : Entity<Guid>
         string mblNumber,
         Guid podId,
         DateOnly requiredOffloadingDate,
-        TimeOnly requiredOffloadingTime)
+        TimeOnly requiredOffloadingTime,
+        Guid? terminalId = null)
     {
         MBLNumber = IdentifierNormalizer.Normalize(mblNumber) ?? string.Empty;
         PODId = podId;
+        TerminalId = terminalId;
         RequiredOffloadingDate = requiredOffloadingDate;
         RequiredOffloadingTime = requiredOffloadingTime;
     }
