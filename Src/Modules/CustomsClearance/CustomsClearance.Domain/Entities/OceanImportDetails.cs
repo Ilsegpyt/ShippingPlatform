@@ -32,6 +32,8 @@ public class OceanImportDetails
 
     public string? MissingDocs { get; set; }
 
+    public string? Track { get; set; } // OceanImportTrack value; set from the table only
+
     public DateOnly? InspectionDate { get; set; }
 
     public string? CurrentStage { get; set; }

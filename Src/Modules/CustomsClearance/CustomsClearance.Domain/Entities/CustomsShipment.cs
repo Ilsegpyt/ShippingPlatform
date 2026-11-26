@@ -22,6 +22,23 @@ public class CustomsShipment
 
     public DateTime CreatedAtUtc { get; set; }
 
+    // Soft delete (Inactive archive). Status keeps its value (Open / Closed) from before deactivation.
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAtUtc { get; set; }
+    public string? DeletedByUserId { get; set; }
+    public string? DeletedByName { get; set; }
+
+    public void MarkAsInactive(string? userId, string? userName, DateTime atUtc)
+    {
+        if (IsDeleted)
+            throw new InvalidOperationException("Customs shipment is already inactive.");
+
+        IsDeleted = true;
+        DeletedAtUtc = atUtc;
+        DeletedByUserId = userId;
+        DeletedByName = string.IsNullOrWhiteSpace(userName) ? "User" : userName.Trim();
+    }
+
     public OceanImportDetails? OceanImportDetails { get; set; }
     public OceanExportDetails? OceanExportDetails { get; set; }
     public DomesticImportDetails? DomesticImportDetails { get; set; }

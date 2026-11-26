@@ -17,6 +17,7 @@ public class CustomsClearanceDbContext : DbContext, ICustomsClearanceUnitOfWork
     public DbSet<DomesticImportDetails> DomesticImportDetails => Set<DomesticImportDetails>();
     public DbSet<CustomsContainer> CustomsContainers => Set<CustomsContainer>();
     public DbSet<CustomsUpdateLog> CustomsUpdateLogs => Set<CustomsUpdateLog>();
+    public DbSet<CustomsFinanceRequest> CustomsFinanceRequests => Set<CustomsFinanceRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

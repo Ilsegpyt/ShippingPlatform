@@ -15,7 +15,8 @@ public sealed class GetCustomsUpdateLogsQueryHandler(
         GetCustomsUpdateLogsQuery query,
         CancellationToken ct)
     {
-        if (!await customsShipmentRepository.ExistsAsync(query.ShipmentId, ct))
+        // Inactive shipments keep their read-only update history.
+        if (!await customsShipmentRepository.ExistsIncludingInactiveAsync(query.ShipmentId, ct))
             return Result.Failure<IReadOnlyList<CustomsUpdateLog>>("Customs shipment was not found.");
 
         var logs = await customsShipmentRepository.GetUpdateLogsAsync(query.ShipmentId, ct);

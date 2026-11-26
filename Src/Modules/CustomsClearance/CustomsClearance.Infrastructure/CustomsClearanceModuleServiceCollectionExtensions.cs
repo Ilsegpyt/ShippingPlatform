@@ -25,6 +25,10 @@ public static class CustomsClearanceModuleServiceCollectionExtensions
             ICustomsShipmentRepository,
             CustomsShipmentRepository>();
 
+        services.AddScoped<
+            ICustomsFinanceRepository,
+            CustomsFinanceRepository>();
+
         return services;
     }
 }

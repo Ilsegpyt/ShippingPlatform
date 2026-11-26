@@ -99,6 +99,10 @@ public static class PermissionCatalog
     public static readonly PermissionKey CustomsShipmentsClose =
         PermissionKey.Of("customsclearance.shipments.close");
 
+    // Soft delete: moves a shipment to the read-only Inactive archive.
+    public static readonly PermissionKey CustomsShipmentsDelete =
+        PermissionKey.Of("customsclearance.shipments.delete");
+
 
     // Website - Contact Inquiries
     public static readonly PermissionKey ContactInquiriesCreate =
@@ -297,6 +301,20 @@ public static class PermissionCatalog
         FtlOperationsReopen
     ];
 
+    // Permissions available to Supervisor FTL Operation
+    public static readonly IReadOnlyCollection<PermissionKey> SupervisorFtlOperationPermissions =
+    [
+        FtlOperationsView,
+        FtlOperationsCreate,
+        FtlOperationsEdit,
+        FtlOperationsDelete,
+        FtlOperationsDeliver,
+        FtlOperationsReopen,
+        ReportsView,
+        ReportsUpload,
+        ReportsDownload
+    ];
+
     // Permissions available to SubAccounts
     public static readonly IReadOnlyCollection<PermissionKey> SubAccountPermissions =
     [
@@ -368,6 +386,7 @@ public static class PermissionCatalog
         CustomsShipmentsCreate,
         CustomsShipmentsEdit,
         CustomsShipmentsClose,
+        CustomsShipmentsDelete,
 
         // Website - Contact Inquiries
         ContactInquiriesCreate,

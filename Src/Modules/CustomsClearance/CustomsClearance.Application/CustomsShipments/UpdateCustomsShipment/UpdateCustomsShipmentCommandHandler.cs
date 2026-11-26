@@ -99,7 +99,9 @@ public sealed class UpdateCustomsShipmentCommandHandler(
         details.DateOfFreeTimeEnd = d.DateOfFreeTimeEnd;
         details.DoDate = d.DoDate;
         details.MissingDocs = Clean(d.MissingDocs);
-        details.InspectionDate = d.InspectionDate;
+        details.Track = Clean(d.Track);
+        // Inspection date exists only for Red / GreenImports; any other track (or none) clears it.
+        details.InspectionDate = OceanImportTrack.AllowsInspection(details.Track) ? d.InspectionDate : null;
         details.CurrentStage = Clean(d.CurrentStage);
 
         return Result.Success();

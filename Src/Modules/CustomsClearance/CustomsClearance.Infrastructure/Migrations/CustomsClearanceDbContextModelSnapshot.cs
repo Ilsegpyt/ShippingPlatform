@@ -53,6 +53,51 @@ namespace CustomsClearance.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("CustomsClearance.Domain.Entities.CustomsFinanceRequest", b =>
+                {
+                    b.Property<Guid>("ShipmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ApprovedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateOnly?>("DeferredUntilDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("ShipmentId");
+
+                    b.HasIndex("Status", "DeferredUntilDate")
+                        .HasDatabaseName("IX_CustomsFinanceRequests_Status_DeferredUntilDate");
+
+                    b.ToTable("CustomsFinanceRequests", "customs", t =>
+                        {
+                            t.HasCheckConstraint("CK_CustomsFinanceRequests_DeferredUntilDate", "[Status] <> 'Deferred' OR [DeferredUntilDate] IS NOT NULL");
+
+                            t.HasCheckConstraint("CK_CustomsFinanceRequests_Status", "[Status] IN ('Pending', 'Approved', 'Deferred', 'OnHold')");
+                        });
+                });
+
             modelBuilder.Entity("CustomsClearance.Domain.Entities.CustomsShipment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -71,6 +116,22 @@ namespace CustomsClearance.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeletedByName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("DeletedByUserId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("LatestUpdate")
                         .HasColumnType("nvarchar(max)");
@@ -96,14 +157,20 @@ namespace CustomsClearance.Infrastructure.Migrations
                     b.HasIndex("ReportType", "CertificateNumber")
                         .IsUnique()
                         .HasDatabaseName("UX_CustomsShipments_ReportType_CertificateNumber")
-                        .HasFilter("[CertificateNumber] IS NOT NULL AND [CertificateNumber] <> ''");
+                        .HasFilter("[IsDeleted] = 0 AND [CertificateNumber] IS NOT NULL AND [CertificateNumber] <> ''");
 
                     b.HasIndex("ReportType", "ShipmentNumber")
                         .IsUnique()
                         .HasDatabaseName("UX_CustomsShipments_ReportType_ShipmentNumber")
-                        .HasFilter("[ShipmentNumber] IS NOT NULL AND [ShipmentNumber] <> ''");
+                        .HasFilter("[IsDeleted] = 0 AND [ShipmentNumber] IS NOT NULL AND [ShipmentNumber] <> ''");
 
-                    b.HasIndex("ReportType", "Status");
+                    b.HasIndex("IsDeleted", "ReportType", "DeletedAtUtc")
+                        .IsDescending(false, false, true)
+                        .HasDatabaseName("IX_CustomsShipments_Inactive_ReportType_DeletedAtUtc")
+                        .HasFilter("[IsDeleted] = 1");
+
+                    b.HasIndex("IsDeleted", "ReportType", "Status")
+                        .HasDatabaseName("IX_CustomsShipments_IsDeleted_ReportType_Status");
 
                     b.ToTable("CustomsShipments", "customs", t =>
                         {
@@ -328,6 +395,10 @@ namespace CustomsClearance.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("Track")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
                     b.HasKey("ShipmentId");
 
                     b.HasIndex("AcidNumber")
@@ -356,6 +427,8 @@ namespace CustomsClearance.Infrastructure.Migrations
                             t.HasCheckConstraint("CK_OceanImportDetails_FreeTime", "[FreeTime] IS NULL OR [FreeTime] >= 0");
 
                             t.HasCheckConstraint("CK_OceanImportDetails_NumberOfContainers", "[NumberOfContainers] IS NULL OR [NumberOfContainers] BETWEEN 1 AND 10000");
+
+                            t.HasCheckConstraint("CK_OceanImportDetails_Track", "[Track] IS NULL OR [Track] IN ('Blue', 'Yellow', 'Green', 'Red', 'GreenImports')");
                         });
                 });
 
@@ -364,6 +437,15 @@ namespace CustomsClearance.Infrastructure.Migrations
                     b.HasOne("CustomsClearance.Domain.Entities.CustomsShipment", null)
                         .WithMany("Containers")
                         .HasForeignKey("ShipmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CustomsClearance.Domain.Entities.CustomsFinanceRequest", b =>
+                {
+                    b.HasOne("CustomsClearance.Domain.Entities.CustomsShipment", null)
+                        .WithOne()
+                        .HasForeignKey("CustomsClearance.Domain.Entities.CustomsFinanceRequest", "ShipmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

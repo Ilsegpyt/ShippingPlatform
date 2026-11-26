@@ -506,11 +506,21 @@ public sealed class OperationRepository(
             }
         }
 
-        // 9. Created By filter
+        // 9. Created By / Inactive By filter
         if (!string.IsNullOrWhiteSpace(queryParams.CreatedBy))
         {
             var cb = queryParams.CreatedBy.Trim();
-            query = query.Where(x => x.CreatedByName != null && EF.Functions.Like(x.CreatedByName, $"%{cb}%"));
+            if (queryParams.IsDeleted)
+            {
+                query = query.Where(x =>
+                    x.DeletedByName != null && x.DeletedByName != ""
+                        ? EF.Functions.Like(x.DeletedByName, $"%{cb}%")
+                        : (x.CreatedByName != null && EF.Functions.Like(x.CreatedByName, $"%{cb}%")));
+            }
+            else
+            {
+                query = query.Where(x => x.CreatedByName != null && EF.Functions.Like(x.CreatedByName, $"%{cb}%"));
+            }
         }
 
         // 10. Customs filter
@@ -562,6 +572,10 @@ public sealed class OperationRepository(
                     if (hasFrom) query = query.Where(x => x.InvoicesReceivedDate >= dtFromUtc);
                     if (hasTo) query = query.Where(x => x.InvoicesReceivedDate < dtToUtcExclusive);
                     break;
+                case "inactive":
+                    if (hasFrom) query = query.Where(x => (x.DeletedAtUtc ?? x.CreatedAtUtc) >= dtFromUtc);
+                    if (hasTo) query = query.Where(x => (x.DeletedAtUtc ?? x.CreatedAtUtc) < dtToUtcExclusive);
+                    break;
                 case "missrcv":
                     query = query.Where(x => x.Containers.Any(c => (!hasFrom || c.MissingDocsReceivedDate >= dFrom) && (!hasTo || c.MissingDocsReceivedDate <= dTo)));
                     break;
@@ -603,8 +617,11 @@ public sealed class OperationRepository(
         var pageSize = Math.Clamp(queryParams.PageSize, 1, 500);
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-        var items = await query
-            .OrderByDescending(x => x.CreatedAtUtc)
+        var orderedQuery = queryParams.IsDeleted
+            ? query.OrderByDescending(x => x.DeletedAtUtc ?? x.CreatedAtUtc)
+            : query.OrderByDescending(x => x.CreatedAtUtc);
+
+        var items = await orderedQuery
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Include(x => x.ShippingLine)

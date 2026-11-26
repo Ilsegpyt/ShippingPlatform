@@ -35,6 +35,7 @@ public sealed record UpdateOceanImportDetails(
     DateOnly? DateOfFreeTimeEnd,
     DateOnly? DoDate,
     string? MissingDocs,
+    string? Track,
     DateOnly? InspectionDate,
     string? CurrentStage);
 

@@ -19,6 +19,7 @@ public sealed class IdentitySeeder
         ("Executive Maritime Transportation", "Maritime transport data entry and shipment processing"),
         ("Supervisor Maritime Transportation", "Manage maritime transport operations, dashboards, reopen shipments and reports"),
         ("FTL Operation Executive", "FTL operations data entry and trip processing"),
+        ("Supervisor FTL Operation", "Manage FTL transport operations, dashboards, reopen shipments and reports"),
         ("Sales", "Manage leads, quotations, and customer inquiries"),
         ("Viewer", "Read-only access to view data"),
         ("Finance Manager", "Oversees Financial functions")
@@ -84,6 +85,11 @@ public sealed class IdentitySeeder
                 else if (name == "FTL Operation Executive")
                 {
                     foreach (var permission in PermissionCatalog.FtlOperationExecutivePermissions)
+                        role.GrantPermission(permission);
+                }
+                else if (name == "Supervisor FTL Operation")
+                {
+                    foreach (var permission in PermissionCatalog.SupervisorFtlOperationPermissions)
                         role.GrantPermission(permission);
                 }
                 else if (name == "Executive Maritime Transportation")
@@ -219,6 +225,37 @@ public sealed class IdentitySeeder
             }
 
             _roles.Update(ftlExecutiveRole);
+        }
+
+        // ---------------------------------------------------------
+        // Supervisor FTL Operation
+        // ---------------------------------------------------------
+        var supervisorFtlRole = existingRoles
+            .FirstOrDefault(x => x.Name == "Supervisor FTL Operation");
+
+        if (supervisorFtlRole is null)
+        {
+            _logger.LogInformation(
+                "Supervisor FTL Operation role was not found — creating it.");
+
+            supervisorFtlRole = Role.Create(
+                "Supervisor FTL Operation",
+                "Manage FTL transport operations, dashboards, reopen shipments and reports");
+
+            foreach (var permission in PermissionCatalog.SupervisorFtlOperationPermissions)
+                supervisorFtlRole.GrantPermission(permission);
+
+            _roles.Add(supervisorFtlRole);
+        }
+        else
+        {
+            foreach (var permission in PermissionCatalog.SupervisorFtlOperationPermissions)
+            {
+                if (!supervisorFtlRole.HasPermission(permission))
+                    supervisorFtlRole.GrantPermission(permission);
+            }
+
+            _roles.Update(supervisorFtlRole);
         }
 
         // ---------------------------------------------------------

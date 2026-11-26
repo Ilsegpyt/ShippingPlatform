@@ -48,18 +48,42 @@ public class CustomsShipmentConfiguration
         builder.Property(x => x.CreatedAtUtc)
             .IsRequired();
 
-        // Unique per report, across Open & Closed, blanks allowed
+        // Soft delete (Inactive archive)
+        builder.Property(x => x.IsDeleted)
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        builder.Property(x => x.DeletedAtUtc);
+
+        builder.Property(x => x.DeletedByUserId)
+            .HasMaxLength(128);
+
+        builder.Property(x => x.DeletedByName)
+            .HasMaxLength(200);
+
+        // Every query sees active shipments only; the Inactive archive and by-id reads opt out with IgnoreQueryFilters().
+        builder.HasQueryFilter(x => !x.IsDeleted);
+
+        // Unique per report among active shipments (Open & Closed), blanks allowed; inactive ones free the number.
         builder.HasIndex(x => new { x.ReportType, x.ShipmentNumber })
             .IsUnique()
             .HasDatabaseName("UX_CustomsShipments_ReportType_ShipmentNumber")
-            .HasFilter("[ShipmentNumber] IS NOT NULL AND [ShipmentNumber] <> ''");
+            .HasFilter("[IsDeleted] = 0 AND [ShipmentNumber] IS NOT NULL AND [ShipmentNumber] <> ''");
 
         builder.HasIndex(x => new { x.ReportType, x.CertificateNumber })
             .IsUnique()
             .HasDatabaseName("UX_CustomsShipments_ReportType_CertificateNumber")
-            .HasFilter("[CertificateNumber] IS NOT NULL AND [CertificateNumber] <> ''");
+            .HasFilter("[IsDeleted] = 0 AND [CertificateNumber] IS NOT NULL AND [CertificateNumber] <> ''");
 
-        builder.HasIndex(x => new { x.ReportType, x.Status });
+        // Active tables (Open / Closed per report).
+        builder.HasIndex(x => new { x.IsDeleted, x.ReportType, x.Status })
+            .HasDatabaseName("IX_CustomsShipments_IsDeleted_ReportType_Status");
+
+        // Inactive archive, newest deactivated first; filtered so it never grows with active rows.
+        builder.HasIndex(x => new { x.IsDeleted, x.ReportType, x.DeletedAtUtc })
+            .HasDatabaseName("IX_CustomsShipments_Inactive_ReportType_DeletedAtUtc")
+            .IsDescending(false, false, true)
+            .HasFilter("[IsDeleted] = 1");
 
         builder.HasIndex(x => x.ClientId);
 
